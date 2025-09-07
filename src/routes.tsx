@@ -11,7 +11,7 @@ import CustomLoaders from './components/Loader'
 const Navbar = lazy(() => import('./components/navbar'))
 
 const Acessar = lazy(() => import('./pages/login/index'))
-const Home = lazy(() => import('./pages/home'))
+const Home = lazy(() => import('./pages/home/home'))
 
 function App() {
   const location = useLocation()
