@@ -64,9 +64,6 @@ const NavbarComponent = ({ open, setOpen }: NavbarComponentProps) => {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              })} às {new Date().toLocaleTimeString('pt-BR', {
-                hour: '2-digit',
-                minute: '2-digit'
               })}
             </p>
           </div>
@@ -79,9 +76,9 @@ const NavbarComponent = ({ open, setOpen }: NavbarComponentProps) => {
             aria-label="account of current user"
             aria-haspopup="true"
             sx={{ 
-              color: '#475569', // medical-gray-600
+              color: '#475569',
               '&:hover': {
-                backgroundColor: 'rgba(71, 85, 105, 0.1)', // medical-gray-600 with opacity
+                backgroundColor: 'rgba(71, 85, 105, 0.1)',
               }
             }}
             onClick={handleClickConta}
@@ -95,9 +92,7 @@ const NavbarComponent = ({ open, setOpen }: NavbarComponentProps) => {
           />
         </Toolbar>
       </AppBar>
-      
-      {/* Spacer para compensar o AppBar fixo */}
-      <div className="!min-h-16 !h-16" />
+        <div className="!min-h-16 !h-16" />
     </Box>
   )
 }
