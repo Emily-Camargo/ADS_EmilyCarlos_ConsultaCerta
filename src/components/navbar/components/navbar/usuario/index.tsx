@@ -1,13 +1,12 @@
 import React, { memo } from 'react'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import { Logout } from '@mui/icons-material'
-
-interface ContaUsuarioComponentsProps {
-  anchorEl: HTMLElement | null
-  setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>
-}
+import { 
+  Logout,
+  Person,
+  LocalHospital
+} from '@mui/icons-material'
+import { ContaUsuarioComponentsProps } from '../../utils/interface'
 
 const ContaComponent = ({
   anchorEl,
@@ -19,56 +18,107 @@ const ContaComponent = ({
     setAnchorEl(null)
   }
 
+  const handleMenuClick = (action: string) => {
+    setAnchorEl(null)
+    
+    switch (action) {
+      case 'profile':
+        console.log('Navegando para perfil')
+        break
+      case 'logout':
+        handleLogout()
+        break
+      default:
+        break
+    }
+  }
+
   async function handleLogout() {
     setAnchorEl(null)
+    localStorage.removeItem('access_token')
     window.location.href = '/acessar'
   }
+
+  const userData = {
+    name: 'Dr. João Silva',
+    email: 'joao.silva@consultacerta.com',
+    role: 'Médico',
+    avatar: null
+  }
+
   return (
-      <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
-        open={open}
-        onClose={handleClose}
-        onClick={handleClose}
-        slotProps={{
-          paper: {
-            elevation: 0,
-            sx: {
-              overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-              mt: 1.5,
-              '& .MuiAvatar-root': {
-                width: 32,
-                height: 32,
-                ml: -0.5,
-                mr: 1,
-              },
-              '&::before': {
-                content: '""',
-                display: 'block',
-                position: 'absolute',
-                top: 0,
-                right: 14,
-                width: 10,
-                height: 10,
-                bgcolor: 'background.paper',
-                transform: 'translateY(-50%) rotate(45deg)',
-                zIndex: 0,
-              },
-            },
-          },
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    <Menu
+      anchorEl={anchorEl}
+      id="account-menu"
+      open={open}
+      onClose={handleClose}
+      slotProps={{
+        paper: {
+          className: "min-w-[280px] mt-2 rounded-lg border border-gray-200 shadow-lg"
+        },
+      }}
+      transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+    >
+      <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+            {userData.avatar ? (
+              <img src={userData.avatar} alt="Avatar" className="w-full h-full rounded-full object-cover" />
+            ) : (
+              userData.name.split(' ').map(n => n[0]).join('')
+            )}
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-gray-900 text-xs">
+              {userData.name}
+            </h3>
+            <p className="text-gray-600 text-xs">
+              {userData.role}
+            </p>
+            <p className="text-gray-400 text-xs">
+              {userData.email}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200"></div>
+
+      <MenuItem 
+        onClick={() => handleMenuClick('profile')}
+        className="py-3 hover:bg-gray-50"
       >
-        <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          <p className="text-sm">Sair </p>
-        </MenuItem>
-      </Menu>
-     
+        <Person className="text-blue-600 mr-3" fontSize="small" />
+        <span className="text-gray-700 text-sm pt-1">Meu Perfil</span>
+      </MenuItem>
+
+      <div className="border-t border-gray-200 my-1"></div>
+
+      <div className="px-4 py-2 bg-gray-50">
+        <div className="flex items-center justify-between text-xs text-gray-500">
+          <div className="flex items-center space-x-1">
+            <LocalHospital fontSize="small" />
+            <span>ConsultaCerta</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span>Online</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-200"></div>
+
+      <MenuItem 
+        onClick={() => handleMenuClick('logout')}
+        className="py-3 hover:bg-red-50"
+      >
+        <Logout className="text-red-500 mr-3" fontSize="small" />
+        <span className="text-red-500 text-sm">Sair do Sistema</span>
+      </MenuItem>
+    </Menu>
   )
 }
+
 export default memo(ContaComponent)
