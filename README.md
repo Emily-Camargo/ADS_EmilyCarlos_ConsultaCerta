@@ -1,81 +1,125 @@
-# 🏥 Sistema de Agendamento de Consultas Médicas
-
-## 📌 Descrição do Projeto
-
-O **Sistema de Agendamento de Consultas Médicas** tem como objetivo digitalizar e facilitar o processo de marcação, gestão e acompanhamento de consultas médicas em clínicas ou consultórios. Ele oferece controle completo sobre médicos, pacientes, especialidades e consultas, atendendo às necessidades de diferentes perfis de usuários: Administrador, Atendente e Médico.
+# ***ConsultaCerta*** 🩺
+### ***Precisão e agilidade para cuidar de você***
 
 ---
 
-## 🎯 Funcionalidades Principais
+## ***🎯 Sobre o Projeto***
 
-### 👨‍⚕️ Administrador
-- Cadastro, edição, exclusão e listagem de médicos.
-- Cadastro, edição, exclusão e listagem de atendentes.
-- Gerenciamento de especialidades médicas.
+O **ConsultaCerta** é uma solução completa para gerenciamento de consultas médicas que revoluciona a comunicação entre pacientes, secretárias e médicos. Desenvolvido com tecnologias modernas, oferece uma experiência fluida e segura para todos os usuários.
 
-### 🧑‍💼 Atendente
-- Cadastro, edição, exclusão e listagem de pacientes.
-- Agendamento, edição, cancelamento e visualização de consultas médicas.
+### ***✨ Características Principais***
 
-### 🩺 Médico
-- Visualização da própria agenda de consultas.
-- Acesso aos dados básicos dos pacientes agendados.
+- 📱 **Interface Responsiva** - Funciona perfeitamente em dispositivos móveis e desktop
+- 🔐 **Segurança Avançada** - Autenticação JWT com controle de perfis
+- 💬 **Notificações WhatsApp** - Lembretes automáticos para reduzir faltas
+- 📊 **Dashboards Inteligentes** - Relatórios visuais para tomada de decisões
+- 🤖 **IA Médica** - Sugestões inteligentes para auxiliar diagnósticos
+- 📋 **Prontuário Eletrônico** - Histórico médico digital completo
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## ***🚀 Tecnologias Utilizadas***
 
-### Backend:
-- **Java 17+**
-- **Jakarta EE / Java EE**
-- **JPA (Hibernate ou EclipseLink)**
-- **Maven** (para gerenciamento de dependências)
+### ***Frontend***
+- **React 18.2.0** + **TypeScript 5.0+**
+- Interface moderna e responsiva
 
-### Frontend:
-- **JavaServer Faces (JSF)**
-- **PrimeFaces** (componentes ricos para interface)
+### ***Backend***
+- **NestJS 10.x** - Framework robusto com arquitetura modular
+- **Node.js 20.x LTS** - Runtime escalável e performático
+- **TypeORM 0.3.x** - ORM avançado para PostgreSQL
 
-### Banco de Dados:
-- **PostgreSQL** (ou alternativa: MySQL, H2 para testes locais)
+### ***Banco de Dados***
+- **PostgreSQL 15.x** - Banco de dados robusto e confiável
 
-### Outras Ferramentas:
-- **Git** (controle de versão)
-- **Apache Tomcat / Payara / WildFly** (servidores de aplicação compatíveis com Jakarta EE)
-- **Lombok** (para reduzir boilerplate no código Java)
-- **JUnit / Mockito** (para testes unitários e de integração)
+### ***Segurança & Autenticação***
+- **JWT + Passport.js** - Autenticação segura
+- **bcrypt 5.x** - Criptografia de senhas
 
----
+### ***Integrações***
+- **Twilio SDK 4.x** - Notificações WhatsApp
+- **Swagger 6.x** - Documentação automática da API
 
-## 💡 Possíveis Tecnologias Futuras
-
-- **Spring Boot**: como alternativa para acelerar o desenvolvimento em versões futuras.
-- **RESTful APIs**: para expor funcionalidades e integrar com outros sistemas ou mobile apps.
-- **JWT / OAuth2**: para segurança e autenticação moderna.
-- **Docker**: para empacotamento e deploy em ambientes conteinerizados.
-- **Swagger/OpenAPI**: para documentação de API (caso REST seja implementado).
-- **React ou Angular**: possível front-end moderno se houver interesse em desacoplar a UI.
+### ***DevOps***
+- **Docker 24.0+** + **Docker Compose 2.20+**
+- **ESLint** - Qualidade de código
 
 ---
 
-## 📁 Estrutura Inicial do Projeto
+## ***👥 Perfis de Usuário***
 
-```plaintext
-src/
-├── main/
-│   ├── java/
-│   │   └── br/com/seuprojeto/
-│   │       ├── controller/
-│   │       ├── model/
-│   │       ├── repository/
-│   │       ├── service/
-│   │       └── util/
-│   └── webapp/
-│       ├── pages/
-│       │   ├── medico/
-│       │   ├── atendente/
-│       │   ├── admin/
-│       │   └── shared/
-│       └── WEB-INF/
-│           └── web.xml
-└── test/
-    └── java/
+### ***📋 Paciente***
+- ✅ Agendar consultas
+- 📅 Visualizar histórico médico
+- 🔔 Receber notificações via WhatsApp
+- 📱 Acompanhar exames e resultados
+- 👨‍⚕️ Buscar médicos por especialidade
+
+### ***💼 Secretária***
+- 📊 Controlar agenda médica
+- ⏰ Gerenciar horários e confirmações
+- 📞 Enviar lembretes aos pacientes
+- 📈 Acessar relatórios gerenciais
+- 🗓️ Reagendar consultas em massa
+
+### ***👨‍⚕️ Médico***
+- 📋 Gerenciar prontuários eletrônicos
+- 💊 Prescrever medicamentos digitalmente
+- 🧪 Solicitar e acompanhar exames
+- 📊 Visualizar dashboards de produtividade
+- 🤖 Receber sugestões de IA médica
+
+---
+
+## ***🛠️ Instalação e Configuração***
+
+### ***Pré-requisitos***
+- Node.js 20.x LTS
+- Docker & Docker Compose
+- PostgreSQL 15.x
+
+### ***Clone o Repositório***
+```bash
+git clone https://github.com/seu-usuario/consultacerta.git
+cd consultacerta
+```
+
+### ***Configuração com Docker***
+```bash
+
+# Instalar dependências
+yarn
+
+# Executar migrações
+yarn start
+```
+
+### ***Variáveis de Ambiente***
+Crie um arquivo `.env` baseado no `.env.example`:
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/consultacerta
+JWT_SECRET=seu-jwt-secret-super-seguro
+TWILIO_ACCOUNT_SID=seu-twilio-sid
+TWILIO_AUTH_TOKEN=seu-twilio-token
+```
+
+---
+
+## ***🏗️ Arquitetura do Sistema***
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│                 │    │                 │    │                 │
+│   React Web     │◄──►│   NestJS API    │◄──►│  PostgreSQL     │
+│   Frontend      │    │   Backend       │    │   Database      │
+│                 │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │                 │
+                    │ Twilio WhatsApp │
+                    │   Integration   │
+                    │                 │
+                    └─────────────────┘
+```
