@@ -73,11 +73,4 @@ export const quickActions = [
     path: '/relatorios',
     colorClass: 'bg-gradient-to-br from-medical-gray-500 to-medical-gray-600 text-white hover:from-medical-gray-600 hover:to-medical-gray-700',
   },
-  {
-    title: 'Assistente IA',
-    description: 'Suporte inteligente para decisões clínicas.',
-    icon: MdSmartToy,
-    path: '/assistente-ia',
-    colorClass: 'bg-gradient-to-br from-medical-accent to-blue-500 text-white hover:from-blue-500 hover:to-blue-600',
-  }
 ];

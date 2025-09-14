@@ -6,6 +6,7 @@ import {
 import React from 'react'
 import MenuSidebar from './menu-sidebar'
 import logoConsulta from '/assets/logoConsulta.png'
+import { useDimension } from '../../../../hooks'
 import { 
   EventNote,
   Schedule,
@@ -27,7 +28,7 @@ export interface NavbarComponentProps {
 }
 
 const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
-
+  const isMobile = useDimension(800)
   const [openIndex, setOpenIndex] = React.useState<number | null>(null)
 
   const handleClick = (aplicacao: number) => {
@@ -84,18 +85,6 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
       route: '/notificacoes'
     },
     { 
-      seqAplicacao: 10, 
-      label: 'Assistente IA', 
-      icon: <Psychology className="!text-white" />,
-      route: '/assistente-ia'
-    },
-    { 
-      seqAplicacao: 11, 
-      label: 'Configurações', 
-      icon: <Settings className="!text-white" />,
-      route: '/configuracoes'
-    },
-    { 
       seqAplicacao: 12, 
       label: 'Administração', 
       icon: <AdminPanelSettings className="!text-white" />,
@@ -110,10 +99,10 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
       onClose={() => setOpen(false)}
       variant="temporary"
       sx={{
-        width: 200,
+        width: isMobile ? 150 : 200,
         flexShrink: 0,
         [`& .MuiDrawer-paper`]: {
-          width: 320,
+          width: isMobile ? 280 : 320,
           borderRadius: '0px 20px 20px 0px',
           boxSizing: 'border-box',
           background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #1D4ED8 100%)',
@@ -123,29 +112,29 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
       }}
     >
       {/* Header do Sidebar com Logo */}
-      <div className="flex flex-col items-center justify-center pt-6 pb-4 border-b border-white/20">
-        <div className="mb-3">
+      <div className={`flex flex-col items-center justify-center ${isMobile ? 'pt-4 pb-3' : 'pt-6 pb-4'} border-b border-white/20`}>
+        <div className={isMobile ? 'mb-2' : 'mb-3'}>
           <img 
             src={logoConsulta} 
-            width={220} 
-            height={60}
+            width={isMobile ? 180 : 220} 
+            height={isMobile ? 50 : 60}
             alt="ConsultaCerta"
             className="object-contain"
           />
         </div>
-        <div className="flex items-center space-x-2 text-white/80 text-xs">
-          <LocalHospital fontSize="small" />
-          <span>Sistema Médico Integrado</span>
+        <div className={`flex items-center space-x-2 text-white/80 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+          <LocalHospital fontSize={isMobile ? "small" : "small"} />
+          <span>{isMobile ? 'Sistema Médico' : 'Sistema Médico Integrado'}</span>
         </div>
       </div>
 
       <Box
         sx={{
-          width: 320,
+          width: isMobile ? 280 : 320,
           overflow: 'auto',
           position: 'relative',
-          paddingTop: 2,
-          paddingBottom: 2,
+          paddingTop: isMobile ? 1.5 : 2,
+          paddingBottom: isMobile ? 1.5 : 2,
         }}
       >
         <List component="nav" aria-labelledby="nested-list-subheader">
@@ -164,15 +153,15 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
       </Box>
 
       {/* Footer do Sidebar */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20 bg-black/10">
-        <div className="text-center text-white/70 text-xs">
-          <div className="flex items-center justify-center space-x-1 mb-1">
-            <LocalHospital fontSize="small" />
-            <span>ConsultaCerta v2.0</span>
+      <div className={`absolute bottom-0 left-0 right-0 ${isMobile ? 'p-3' : 'p-4'} border-t border-white/20 bg-black/10`}>
+        <div className={`text-center text-white/70 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
+          <div className={`flex items-center justify-center space-x-1 ${isMobile ? 'mb-0.5' : 'mb-1'}`}>
+            <LocalHospital fontSize={isMobile ? "small" : "small"} />
+            <span>{isMobile ? 'v2.0' : 'ConsultaCerta v2.0'}</span>
           </div>
           <div className="flex items-center justify-center space-x-1">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span>Sistema Operacional</span>
+            <div className={`${isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'} bg-green-400 rounded-full animate-pulse`}></div>
+            <span>{isMobile ? 'Online' : 'Sistema Operacional'}</span>
           </div>
         </div>
       </div>

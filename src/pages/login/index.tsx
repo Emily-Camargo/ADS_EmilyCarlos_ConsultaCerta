@@ -3,10 +3,12 @@ import Input from '../../components/Inputs/Input'
 import { MdVisibilityOff, MdVisibility, MdLocalHospital } from 'react-icons/md'
 import { InputAdornment } from '@mui/material'
 import React, { memo, useCallback, useState } from 'react'
+import { useDimension } from '../../hooks'
 
 const Acessar: React.FC = () => {
   const navigate = useNavigate()
   const [showPswd, setShowPswd] = useState(false)
+  const isMobile = useDimension(800)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -51,24 +53,24 @@ const Acessar: React.FC = () => {
         <div className="absolute inset-0 bg-grid-white/5 bg-grid-16 opacity-20"></div>
       </div>
 
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl border border-gray-100 space-y-8 z-10 relative p-10">
+      <div className={`${isMobile ? 'max-w-sm mx-4' : 'max-w-md'} w-full bg-white rounded-2xl shadow-2xl border border-gray-100 space-y-8 z-10 relative ${isMobile ? 'p-6' : 'p-10'}`}>
         
         <div className="text-center space-y-4">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-r from-medical-primary to-medical-primary-600 rounded-full flex items-center justify-center shadow-lg">
-            <MdLocalHospital size={36} className="text-white" />
+          <div className={`mx-auto ${isMobile ? 'w-16 h-16' : 'w-20 h-20'} bg-gradient-to-r from-medical-primary to-medical-primary-600 rounded-full flex items-center justify-center shadow-lg`}>
+            <MdLocalHospital size={isMobile ? 28 : 36} className="text-white" />
           </div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-medical-primary to-medical-primary-700 bg-clip-text text-transparent">
+          <h2 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold bg-gradient-to-r from-medical-primary to-medical-primary-700 bg-clip-text text-transparent`}>
             ConsultaCerta
           </h2>
-          <p className="text-gray-600 text-sm leading-relaxed">
+          <p className={`text-gray-600 ${isMobile ? 'text-xs' : 'text-sm'} leading-relaxed`}>
             Sistema de agendamento médico seguro<br />
             e confiável para pacientes e profissionais.
           </p>
         </div>
 
         {/* Formulário */}
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-5">
+        <form className={`${isMobile ? 'space-y-4' : 'space-y-6'}`} onSubmit={handleSubmit}>
+          <div className={`${isMobile ? 'space-y-4' : 'space-y-5'}`}>
             <div className="relative">
               <Input
                 required
@@ -133,21 +135,21 @@ const Acessar: React.FC = () => {
             </button>
           </div>
 
-          <div className="pt-2">
+          <div className={`${isMobile ? 'pt-1' : 'pt-2'}`}>
             <button
               type="submit"
               disabled={isLoading || !username || !password}
-              className="w-full bg-gradient-to-r from-medical-primary to-medical-primary-600 hover:from-medical-primary-700 hover:to-medical-primary-800 text-white font-semibold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
+              className={`w-full bg-gradient-to-r from-medical-primary to-medical-primary-600 hover:from-medical-primary-700 hover:to-medical-primary-800 text-white font-semibold ${isMobile ? 'py-2.5 px-3' : 'py-3 px-4'} rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2`}
             >
               {isLoading && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               )}
-              <span>{isLoading ? 'Entrando...' : 'Acessar Sistema'}</span>
+              <span className={isMobile ? 'text-sm' : ''}>{isLoading ? 'Entrando...' : 'Acessar Sistema'}</span>
             </button>
           </div>
         </form>
-        <div className="text-center pt-4 border-t border-gray-100">
-          <p className="text-xs text-gray-500">
+        <div className={`text-center ${isMobile ? 'pt-3' : 'pt-4'} border-t border-gray-100`}>
+          <p className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-500`}>
             © 2024 ConsultaCerta - Todos os direitos reservados
           </p>
         </div>

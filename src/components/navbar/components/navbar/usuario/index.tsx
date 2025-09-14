@@ -95,27 +95,12 @@ const ContaComponent = ({
 
       <div className="border-t border-gray-200 my-1"></div>
 
-      <div className="px-4 py-2 bg-gray-50">
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center space-x-1">
-            <LocalHospital fontSize="small" />
-            <span>ConsultaCerta</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span>Online</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-gray-200"></div>
-
       <MenuItem 
         onClick={() => handleMenuClick('logout')}
         className="py-3 hover:bg-red-50"
       >
         <Logout className="text-red-500 mr-3" fontSize="small" />
-        <span className="text-red-500 text-sm">Sair do Sistema</span>
+        <span className="text-red-500 text-sm">Sair</span>
       </MenuItem>
     </Menu>
   )
