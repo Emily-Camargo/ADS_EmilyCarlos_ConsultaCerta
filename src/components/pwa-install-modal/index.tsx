@@ -189,11 +189,11 @@ const PWAInstallModal: React.FC = () => {
 
         <Box sx={{ mb: 3 }}>
           <img 
-            src="/assets/logo.webp" 
+            src="/assets/logoConsulta.png" 
             alt="ConsultaCerta" 
             style={{ 
-              width: 80, 
-              height: 80, 
+              width: 180, 
+              height: 50, 
               borderRadius: '50%',
               marginBottom: 16
             }}
