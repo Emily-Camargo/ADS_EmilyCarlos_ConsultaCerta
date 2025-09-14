@@ -27,7 +27,7 @@ const PWAInstallModal: React.FC = () => {
         return;
       }
       
-      // Verificar se está rodando como PWA
+      // Verificar se está rodando como PWA no iOS
       if ((window.navigator as any).standalone === true) {
         setIsInstalled(true);
         return;
@@ -37,13 +37,9 @@ const PWAInstallModal: React.FC = () => {
     checkIfInstalled();
 
     // Verificar se já mostrou o modal antes
-    // Se o app não está instalado, resetar o flag do modal
-    const modalShown = localStorage.getItem('pwa-modal-shown');
-    if (modalShown === 'true' && !isInstalled) {
-      // Se o app foi desinstalado, permitir mostrar o modal novamente
-      localStorage.removeItem('pwa-modal-shown');
-      setHasShownModal(false);
-    } else if (modalShown === 'true') {
+    // Usar sessionStorage em vez de localStorage para resetar a cada sessão
+    const modalShown = sessionStorage.getItem('pwa-modal-shown');
+    if (modalShown === 'true') {
       setHasShownModal(true);
     }
 
@@ -52,7 +48,10 @@ const PWAInstallModal: React.FC = () => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
-      // Mostrar modal imediatamente se não foi mostrado antes e não está instalado
+      // Só mostrar modal se:
+      // 1. Não foi mostrado antes
+      // 2. App não está instalado
+      // 3. O evento beforeinstallprompt está disponível (app pode ser instalado)
       if (!hasShownModal && !isInstalled) {
         setShowInstallModal(true);
       }
@@ -72,35 +71,9 @@ const PWAInstallModal: React.FC = () => {
         // App foi desinstalado, resetar flags
         setIsInstalled(false);
         setHasShownModal(false);
-        localStorage.removeItem('pwa-modal-shown');
+        sessionStorage.removeItem('pwa-modal-shown');
       }
     };
-
-    // Mostrar modal após um pequeno delay se não foi mostrado antes
-    const showModalTimer = setTimeout(() => {
-      if (!hasShownModal && !isInstalled) {
-        setShowInstallModal(true);
-      }
-    }, 1000); // 2 segundos após carregar
-
-    // Verificar se voltou do modo standalone (desinstalação)
-    const checkIfReturnedFromStandalone = () => {
-      const wasStandalone = sessionStorage.getItem('was-standalone');
-      if (wasStandalone === 'true' && !isInstalled) {
-        // Usuário voltou do modo standalone, resetar flags
-        setHasShownModal(false);
-        localStorage.removeItem('pwa-modal-shown');
-        sessionStorage.removeItem('was-standalone');
-        setShowInstallModal(true);
-      }
-    };
-
-    // Marcar se estava em modo standalone
-    if (isInstalled) {
-      sessionStorage.setItem('was-standalone', 'true');
-    } else {
-      checkIfReturnedFromStandalone();
-    }
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
@@ -110,7 +83,6 @@ const PWAInstallModal: React.FC = () => {
     mediaQuery.addEventListener('change', handleDisplayModeChange);
 
     return () => {
-      clearTimeout(showModalTimer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
       mediaQuery.removeEventListener('change', handleDisplayModeChange);
@@ -135,25 +107,29 @@ const PWAInstallModal: React.FC = () => {
     setDeferredPrompt(null);
     setShowInstallModal(false);
     setHasShownModal(true);
-    localStorage.setItem('pwa-modal-shown', 'true');
+    sessionStorage.setItem('pwa-modal-shown', 'true');
   };
 
   const handleClose = () => {
     setShowInstallModal(false);
     setHasShownModal(true);
-    localStorage.setItem('pwa-modal-shown', 'true');
+    sessionStorage.setItem('pwa-modal-shown', 'true');
   };
 
   const resetModal = () => {
     setHasShownModal(false);
     setShowInstallModal(false);
-    localStorage.removeItem('pwa-modal-shown');
+    sessionStorage.removeItem('pwa-modal-shown');
     sessionStorage.removeItem('was-standalone');
   };
 
   (window as any).resetPWAModal = resetModal;
 
-  if (isInstalled || hasShownModal) {
+  // Só renderizar o modal se:
+  // 1. App não está instalado
+  // 2. Modal não foi mostrado antes
+  // 3. Evento beforeinstallprompt está disponível (app pode ser instalado)
+  if (isInstalled || hasShownModal || !deferredPrompt) {
     return null;
   }
 
@@ -228,7 +204,7 @@ const PWAInstallModal: React.FC = () => {
               }
             }}
           >
-            {deferredPrompt ? 'Instalar App' : 'Entendi'}
+            Instalar App
           </Button>
         </Box>
       </Box>
