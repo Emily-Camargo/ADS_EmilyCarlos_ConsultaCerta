@@ -43,15 +43,11 @@ const PWAInstallModal: React.FC = () => {
       setHasShownModal(true);
     }
 
-    // Listener para o evento beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
-      // Só mostrar modal se:
-      // 1. Não foi mostrado antes
-      // 2. App não está instalado
-      // 3. O evento beforeinstallprompt está disponível (app pode ser instalado)
+
       if (!hasShownModal && !isInstalled) {
         setShowInstallModal(true);
       }
@@ -78,7 +74,6 @@ const PWAInstallModal: React.FC = () => {
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
     
-    // Listener para mudanças no display mode
     const mediaQuery = window.matchMedia('(display-mode: standalone)');
     mediaQuery.addEventListener('change', handleDisplayModeChange);
 
@@ -125,10 +120,7 @@ const PWAInstallModal: React.FC = () => {
 
   (window as any).resetPWAModal = resetModal;
 
-  // Só renderizar o modal se:
-  // 1. App não está instalado
-  // 2. Modal não foi mostrado antes
-  // 3. Evento beforeinstallprompt está disponível (app pode ser instalado)
+
   if (isInstalled || hasShownModal || !deferredPrompt) {
     return null;
   }
