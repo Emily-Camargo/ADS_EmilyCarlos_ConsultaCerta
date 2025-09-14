@@ -34,3 +34,5 @@ export function useDimension(width: number): boolean {
   return state
 }
 
+export { usePWAInstall } from './usePWAInstall'
+

@@ -8,6 +8,7 @@ import '@mantine/spotlight/styles.css'
 import '@mantine/core/styles.css'
 
 import AppRouter from './routes'
+import PWAInstallModal from './components/pwa-install-modal'
 import ReactDOM from 'react-dom/client'
 import { TourProvider } from '@reactour/tour'
 import { ToastContainer } from 'react-toastify'
@@ -54,6 +55,7 @@ root.render(
               closeButton
             />
             <AppRouter />
+            <PWAInstallModal />
           </ThemeProvider>
         </MantineProvider>
       </QueryClientProvider>
