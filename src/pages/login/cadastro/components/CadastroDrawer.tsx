@@ -30,18 +30,30 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
     }))
   }
 
+  const handleClose = () => {
+    setFormData({
+      id_perfil: 1,
+      nome: '',
+      cpf: '',
+      email: '',
+      telefone: '',
+      numero_whatsapp: '',
+      whatsapp_autorizado: false,
+      senha_hash: '',
+      ativo: true
+    })
+    onClose()
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     
     try {
-      // Aqui você implementaria a lógica de cadastro
       console.log('Dados do cadastro:', formData)
       
-      // Simula um delay de carregamento
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Reset do formulário e fechamento do drawer
       setFormData({
         id_perfil: 1,
         nome: '',
@@ -219,7 +231,7 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             <Button
               variant="outline"
               color="gray"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1"
               size="md"
               radius="md"
