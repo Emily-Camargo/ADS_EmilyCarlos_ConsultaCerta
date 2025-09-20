@@ -4,6 +4,7 @@ import { MdVisibilityOff, MdVisibility, MdLocalHospital } from 'react-icons/md'
 import { InputAdornment } from '@mui/material'
 import React, { memo, useCallback, useState } from 'react'
 import { useDimension } from '../../hooks'
+import CadastroDrawer from './cadastro/components/CadastroDrawer'
 
 const Acessar: React.FC = () => {
   const navigate = useNavigate()
@@ -13,6 +14,7 @@ const Acessar: React.FC = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isCadastroOpen, setIsCadastroOpen] = useState(false)
 
   const handleSubmit = useCallback(
     (e) => {
@@ -68,7 +70,6 @@ const Acessar: React.FC = () => {
           </p>
         </div>
 
-        {/* Formulário */}
         <form className={`${isMobile ? 'space-y-4' : 'space-y-6'}`} onSubmit={handleSubmit}>
           <div className={`${isMobile ? 'space-y-4' : 'space-y-5'}`}>
             <div className="relative">
@@ -129,7 +130,7 @@ const Acessar: React.FC = () => {
             <button
               type="button"
               className="text-sm text-medical-primary hover:text-medical-primary-700 font-medium transition-colors duration-200 hover:underline"
-              onClick={() => {}}
+              onClick={() => setIsCadastroOpen(true)}
             >
               Não possui uma conta? Clique aqui e cadastre-se!
             </button>
@@ -154,6 +155,11 @@ const Acessar: React.FC = () => {
           </p>
         </div>
       </div>
+      
+      <CadastroDrawer 
+        isOpen={isCadastroOpen} 
+        onClose={() => setIsCadastroOpen(false)} 
+      />
     </div>
   )
 }
