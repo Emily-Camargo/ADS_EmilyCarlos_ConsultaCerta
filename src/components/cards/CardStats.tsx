@@ -3,7 +3,7 @@ import { CardContent, Box, Typography } from '@mui/material';
 import { CardStatsProps } from './utils/interfaces';
 import { getColorValue, IconContainer, StyledCard } from './utils/contants';
 
-const CardStats: React.FC<CardStatsProps> = ({ title, value, icon: Icon, color }) => {
+const CardStats = ({ title, value, icon: Icon, color }: CardStatsProps) => {
   const colorValue = getColorValue(color);
 
   return (

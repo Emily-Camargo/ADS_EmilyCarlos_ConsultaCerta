@@ -12,14 +12,14 @@ interface PWAInstallButtonProps {
   children?: React.ReactNode;
 }
 
-const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
+const PWAInstallButton = ({
   variant = 'contained',
   size = 'medium',
   color = 'primary',
   fullWidth = false,
   sx,
   children = 'Instalar App'
-}) => {
+}: PWAInstallButtonProps) => {
   const { isInstallable, installApp } = usePWAInstall();
 
   if (!isInstallable) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog } from '@mui/material';
 import { Button } from '@mui/material';
 import { Box, Typography, IconButton } from '@mui/material';
@@ -13,7 +13,7 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
-const PWAInstallModal: React.FC = () => {
+const PWAInstallModal = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);

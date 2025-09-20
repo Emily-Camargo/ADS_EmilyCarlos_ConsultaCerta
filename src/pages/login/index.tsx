@@ -2,11 +2,12 @@ import { useNavigate } from 'react-router-dom'
 import Input from '../../components/Inputs/Input'
 import { MdVisibilityOff, MdVisibility, MdLocalHospital } from 'react-icons/md'
 import { InputAdornment } from '@mui/material'
-import React, { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { useDimension } from '../../hooks'
-import CadastroDrawer from './cadastro/components/CadastroDrawer'
+import CadastroDrawer from './cadastro/cadastro-usuario'
+import EsqueceuSenhaModal from './esqueceu-senha/esqueceu-senha'
 
-const Acessar: React.FC = () => {
+const Acessar = () => {
   const navigate = useNavigate()
   const [showPswd, setShowPswd] = useState(false)
   const isMobile = useDimension(800)
@@ -15,6 +16,7 @@ const Acessar: React.FC = () => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isCadastroOpen, setIsCadastroOpen] = useState(false)
+  const [isEsqueceuSenhaOpen, setIsEsqueceuSenhaOpen] = useState(false)
 
   const handleSubmit = useCallback(
     (e) => {
@@ -120,7 +122,7 @@ const Acessar: React.FC = () => {
             <button
               type="button"
               className="text-sm text-medical-primary hover:text-medical-primary-700 font-medium transition-colors duration-200 hover:underline"
-              onClick={() => {}}
+              onClick={() => setIsEsqueceuSenhaOpen(true)}
             >
               Esqueceu sua senha?
             </button>
@@ -159,6 +161,11 @@ const Acessar: React.FC = () => {
       <CadastroDrawer 
         isOpen={isCadastroOpen} 
         onClose={() => setIsCadastroOpen(false)} 
+      />
+      
+      <EsqueceuSenhaModal 
+        isOpen={isEsqueceuSenhaOpen} 
+        onClose={() => setIsEsqueceuSenhaOpen(false)} 
       />
     </div>
   )

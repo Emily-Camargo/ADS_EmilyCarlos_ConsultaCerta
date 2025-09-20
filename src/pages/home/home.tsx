@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MdPeople,
@@ -10,7 +9,7 @@ import { Box, Typography, Grid } from '@mui/material';
 import { dashboardStats, quickActions } from './components/constants';
 import { useDimension } from '../../hooks';
 
-const Home: React.FC = () => {
+const Home = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
 

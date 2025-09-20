@@ -14,3 +14,8 @@ export interface FormData {
   senha_hash: string
   ativo: boolean
 }
+
+export interface EsqueceuSenhaModalProps {
+  isOpen: boolean
+  onClose: () => void
+}

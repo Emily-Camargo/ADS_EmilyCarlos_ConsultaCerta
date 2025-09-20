@@ -3,13 +3,13 @@ import { CardContent, Box, Typography } from '@mui/material';
 import { QuickActionCardProps } from './utils/interfaces';
 import { IconContainerCard, StyledCard } from './utils/contants';
 
-const QuickActionCard: React.FC<QuickActionCardProps> = ({ 
+const QuickActionCard = ({ 
   title, 
   description, 
   icon: Icon, 
   onClick, 
   colorClass 
-}) => {
+}: QuickActionCardProps) => {
   return (
     <StyledCard 
       onClick={onClick}

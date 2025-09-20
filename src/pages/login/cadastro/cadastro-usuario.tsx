@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from '../../../../components/ui/drawer'
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from '../../../components/ui/drawer'
 import { Button } from '@mantine/core'
-import Input from '../../../../components/Inputs/Input'
+import Input from '../../../components/Inputs/Input'
 import { MdClose, MdPerson, MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import { InputAdornment, Switch, FormControlLabel } from '@mui/material'
-import { CadastroDrawerProps, FormData } from '../../interfaces'
+import { CadastroDrawerProps, FormData } from '../interfaces'
 
-const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
+const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState<FormData>({

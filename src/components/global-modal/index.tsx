@@ -19,7 +19,7 @@ interface ModalProps {
   loading?: boolean;
 }
 
-const ModalC: React.FC<ModalProps> = ({
+const ModalC = ({
   bg = 'white',
   open,
   altura,
@@ -30,7 +30,7 @@ const ModalC: React.FC<ModalProps> = ({
   closeModal,
   footerButtons,
   loading,
-}) => {
+}: ModalProps) => {
   const rndRef = useRef<Rnd>(null);
   const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [widthM, setWidthM] = useState(largura);
@@ -131,7 +131,7 @@ const ModalC: React.FC<ModalProps> = ({
   );
 };
 
-const Modal: React.FC<ModalProps> = (data) => {
+const Modal = (data: ModalProps) => {
   return data.open && <ModalC {...data}>{data.children}</ModalC>;
 };
 
