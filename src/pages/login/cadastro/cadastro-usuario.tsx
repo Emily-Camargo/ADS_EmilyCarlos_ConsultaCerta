@@ -83,7 +83,7 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
                 <MdPerson size={20} className="text-white" />
               </div>
               <div>
-                <DrawerTitle className="text-xl font-bold text-gray-900">
+                <DrawerTitle className="text-base font-bold text-gray-800">
                   Cadastro de Usuário
                 </DrawerTitle>
                 <DrawerDescription className="text-sm text-gray-600">
@@ -195,7 +195,7 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
                 />
               }
               label="Autorizar contato via WhatsApp"
-              className="text-sm"
+              className="text-sm text-gray-700"
             />
           </div>
 
@@ -233,7 +233,7 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
               color="gray"
               onClick={handleClose}
               className="flex-1"
-              size="md"
+              size="sm"
               radius="md"
             >
               Cancelar
@@ -242,7 +242,7 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
               type="submit"
               disabled={isLoading || !formData.nome || !formData.cpf || !formData.email || !formData.telefone || !formData.senha_hash}
               className="flex-1"
-              size="md"
+              size="sm"
               radius="md"
               loading={isLoading}
               color="teal"

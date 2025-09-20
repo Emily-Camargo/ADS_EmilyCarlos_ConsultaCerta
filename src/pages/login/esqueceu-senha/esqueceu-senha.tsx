@@ -108,7 +108,7 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
       <div className="text-sm">
         <p>Digite seu CPF e defina uma nova senha</p>
         <Grid container spacing={2} className="pt-4">
-          <Grid item xs={12}>
+          <Grid item xs={12} mb={1}>
             <Input
               label="CPF"
               value={cpf}
@@ -125,7 +125,7 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} mb={1}>
             <Input
               label="Nova Senha"
               type="password"
@@ -163,11 +163,11 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
           </Grid>
         </Grid>
         
-        <div className="bg-blue-50 p-3 rounded-lg mt-4">
-          <p className="text-sm text-blue-800 font-medium mb-1">
+        <div className="bg-medical-primary-50 p-3 rounded-lg mt-4">
+          <p className="text-sm text-medical-primary font-medium mb-1">
             Requisitos da senha:
           </p>
-          <ul className="text-xs text-blue-700 space-y-1">
+          <ul className="text-xs text-medical-primary space-y-1">
             <li>• Pelo menos 6 caracteres</li>
             <li>• Uma letra minúscula</li>
             <li>• Uma letra maiúscula</li>
