@@ -1,26 +1,10 @@
 import React, { useState } from 'react'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from '../../../../components/ui/drawer'
+import { Button } from '@mantine/core'
 import Input from '../../../../components/Inputs/Input'
 import { MdClose, MdPerson, MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import { InputAdornment, Switch, FormControlLabel } from '@mui/material'
-import { cn } from '../../../../lib/utils'
-
-interface CadastroDrawerProps {
-  isOpen: boolean
-  onClose: () => void
-}
-
-interface FormData {
-  id_perfil: number
-  nome: string
-  cpf: string
-  email: string
-  telefone: string
-  numero_whatsapp: string
-  whatsapp_autorizado: boolean
-  senha_hash: string
-  ativo: boolean
-}
+import { CadastroDrawerProps, FormData } from '../../interfaces'
 
 const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false)
@@ -102,7 +86,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
         </DrawerHeader>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Perfil */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Perfil
@@ -123,7 +106,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Nome */}
           <div>
             <Input
               required
@@ -137,7 +119,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* CPF */}
           <div>
             <Input
               required
@@ -152,7 +133,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Email */}
           <div>
             <Input
               required
@@ -166,7 +146,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Telefone */}
           <div>
             <Input
               required
@@ -177,11 +156,10 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
               onChange={(e) => handleInputChange('telefone', e.target.value)}
               className="w-full"
               placeholder="(00) 0000-0000"
-              mask="(00) 0000-0000"
+              mask="(00) 00000-0000"
             />
           </div>
 
-          {/* WhatsApp */}
           <div>
             <Input
               size="small"
@@ -195,7 +173,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Autorização WhatsApp */}
           <div>
             <FormControlLabel
               control={
@@ -210,7 +187,6 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Senha */}
           <div>
             <Input
               required
@@ -239,27 +215,28 @@ const CadastroDrawer: React.FC<CadastroDrawerProps> = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Botões */}
           <div className="flex space-x-3 pt-4">
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              color="gray"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors duration-200"
+              className="flex-1"
+              size="md"
+              radius="md"
             >
               Cancelar
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               disabled={isLoading || !formData.nome || !formData.cpf || !formData.email || !formData.telefone || !formData.senha_hash}
-              className={cn(
-                "flex-1 px-4 py-2 bg-gradient-to-r from-medical-primary to-medical-primary-600 hover:from-medical-primary-700 hover:to-medical-primary-800 text-white font-semibold rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center space-x-2"
-              )}
+              className="flex-1"
+              size="md"
+              radius="md"
+              loading={isLoading}
+              color="teal"
             >
-              {isLoading && (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              )}
-              <span>{isLoading ? 'Cadastrando...' : 'Cadastrar'}</span>
-            </button>
+              {isLoading ? 'Cadastrando...' : 'Cadastrar'}
+            </Button>
           </div>
         </form>
       </DrawerContent>
