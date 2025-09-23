@@ -2,6 +2,7 @@ import { memo } from "react"
 import { inputsPacientes, pacientesFil } from "./utils/filtro"
 import Filtro from "../../components/filtro"
 import { useImmer } from "use-immer"
+import { Button } from "@mantine/core"
 
 function Pacientes() {
   const [data, setData] = useImmer(pacientesFil)
@@ -23,6 +24,9 @@ function Pacientes() {
         onClear={redefinir}
         inputs={inputsPacientes({ data, setData })}
       />
+      <Button variant="gradient" gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} size="xs">
+        Cadastrar Paciente
+      </Button>
     </div>
   )
 }
