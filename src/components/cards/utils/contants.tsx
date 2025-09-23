@@ -32,8 +32,8 @@ export const StyledCardGradient = styled(Card)(() => ({
     zIndex: 1,
   },
   '&:hover': {
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-    transform: 'translateY(-2px)',
+    boxShadow: '0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.06)',
+    transform: 'translateY(-4px)',
     '&::before': {
       transform: 'translateX(100%) translateY(100%) rotate(30deg)',
     },
@@ -73,17 +73,18 @@ export const getColorValue = (color: string) => {
 export const IconContainerCard = styled(Box)(() => ({
     width: '48px',
     height: '48px',
-    borderRadius: '8px',
+    borderRadius: '12px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255, 255, 255, 0.4)',
     transition: 'all 0.3s ease',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
     '&:hover': {
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
       transform: 'scale(1.05)',
-      boxShadow: '0 8px 25px rgba(255, 255, 255, 0.2)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     },
   }));
