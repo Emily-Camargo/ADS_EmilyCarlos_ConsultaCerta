@@ -1,6 +1,7 @@
 import { DataReq, InputsProps } from './interfaces'
 import { handleChange } from './functions'
 import { InputsTypeFiltro } from '../../../components/filtro/utils/interface'
+import { mascaradorCPFCNPJ } from '../../../functions/mascaras'
 
 export const pacientesFil: DataReq = { nomePaciente: '', cpf: '', dataNascimento: '', sexo: '', cidade: '', estado: '' }
 
@@ -11,30 +12,29 @@ export const inputsPacientes = ({
   return [
     {
       order: 1,
-      type: 'date',
-      required: true,
       value: data.nomePaciente,
       label: 'Nome do paciente',
-      InputLabelProps: { shrink: true },
-      inputProps: { min: '2023-01-01' },
       onChange: (e) => handleChange('nomePaciente', e.target.value, setData),
     },
     {
       order: 2,
       value: data.cpf,
       label: 'CPF',
-      onChange: (e) => handleChange('cpf', e.target.value, setData),
+      onChange: (e) => handleChange('cpf', mascaradorCPFCNPJ({ v: e.target.value }), setData),
+      inputProps: { maxLength: 14 },
     },
     {
       order: 3,
+      type: 'date',
       value: data.dataNascimento,
       label: 'Data de nascimento',
+      shrink: true,
       onChange: (e) => handleChange('dataNascimento', e.target.value, setData),
     },
     {
       order: 4,
       value: data.sexo,
-      label: 'Sexo',
+      label: 'Gênero',
       onChange: (e) => handleChange('sexo', e.target.value, setData),
     },
     {

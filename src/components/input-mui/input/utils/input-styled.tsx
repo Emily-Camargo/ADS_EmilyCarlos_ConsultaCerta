@@ -13,21 +13,21 @@ const InputTextField = styled(TextField)({
     color: '#333',
   },
   '& label.Mui-focused': {
-    color: '#4e2096 ',
+    color: '#2563EB',
   },
   '& .MuiInput-underline:after': {
-    borderBottomColor: '##4e2096',
+    borderBottomColor: '#2563EB',
   },
   '& .MuiOutlinedInput-root': {
     fontFamily: 'Montserrat !important',
     '& fieldset': {
-      borderColor: '##4e2096',
+      borderColor: '#2563EB',
     },
     '&:hover fieldset': {
-      borderColor: '##4e2096',
+      borderColor: '#2563EB',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '##4e2096',
+      borderColor: '#2563EB',
     },
   },
   '& .MuiFilledInput-root': {
@@ -37,13 +37,13 @@ const InputTextField = styled(TextField)({
       backgroundColor: '#e0e0e0',
     },
     '&:before': {
-      borderBottomColor: '#4e2096',
+      borderBottomColor: '#2563EB',
     },
     '&:hover:before': {
-      borderBottomColor: '#4e2096',
+      borderBottomColor: '#2563EB',
     },
     '&:after': {
-      borderBottomColor: '#4e2096',
+      borderBottomColor: '#2563EB',
     },
   },
   '& .MuiInputBase-input': {
