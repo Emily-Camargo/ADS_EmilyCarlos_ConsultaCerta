@@ -20,7 +20,6 @@ const FiltroCard = <T,>({
 }: FiltroCardProps<T>): JSX.Element => {
   const location = useLocation()
 
-  // Mapeamento de rotas para nomes de tela
   const screenName = useMemo(() => {
     const routeNames: Record<string, string> = {
       '/home': 'Dashboard',
@@ -33,16 +32,11 @@ const FiltroCard = <T,>({
 
   return (
     <div className="bg-white rounded-xl shadow-lg shadow-medical-primary-500/10 hover:shadow-xl hover:shadow-medical-primary-500/15 transition-all duration-300 mb-6 border border-medical-gray-100 backdrop-blur-sm">
-      {/* Header com design mais sofisticado */}
       <div className="flex items-center h-16 relative overflow-hidden rounded-xl">
-        {/* Barra lateral com gradiente */}
         <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-medical-primary-400 via-medical-primary-500 to-medical-primary-600 rounded-tl-xl rounded-bl-xl" />
-        
-        {/* Background sutil com gradiente */}
-        <div className="absolute inset-0 bg-gradient-to-r from-medical-primary-50/20 via-transparent to-medical-secondary-50/10 rounded-xl" />
+                <div className="absolute inset-0 bg-gradient-to-r from-medical-primary-50/20 via-transparent to-medical-secondary-50/10 rounded-xl" />
         
         <div className="relative flex-1 flex items-center justify-between px-6 py-3">
-          {/* Título com ícone decorativo */}
           <div className="flex items-center space-x-3">
             <div className="w-1.5 h-1.5 bg-medical-primary-500 rounded-full shadow-sm animate-pulse" />
             <h1 className="text-lg font-semibold text-medical-gray-800 tracking-tight">
@@ -50,9 +44,7 @@ const FiltroCard = <T,>({
             </h1>
           </div>
 
-          {/* Ações com design aprimorado */}
           <div className="flex items-center space-x-3">
-            {/* Botão de Filtros */}
             {renderFiltro && (
               <Tooltip
                 withArrow
@@ -73,7 +65,6 @@ const FiltroCard = <T,>({
               </Tooltip>
             )}          
 
-            {/* Botão Excel alternativo */}
             {excelProps && !csv && (
               <Suspense fallback={
                 <div className="h-10 w-10 rounded-xl bg-medical-gray-100 animate-pulse shadow-md" />
@@ -82,7 +73,6 @@ const FiltroCard = <T,>({
               </Suspense>
             )}
 
-            {/* Campo de Pesquisa aprimorado */}
             {setPesquisa && (
               <div className="relative group">
                 <div className="relative flex items-center">

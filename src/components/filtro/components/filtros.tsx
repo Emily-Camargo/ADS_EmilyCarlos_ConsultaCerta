@@ -8,22 +8,6 @@ import { InputProps } from '../../../components/input-mui/input/utils/interface'
 import { InputSelectProps } from '../../../components/input-mui/input-select/utils/interface'
 import { useDimension } from '../../../hooks'
 
-/**
- * Componente que renderiza um drawer com campos de filtros personalizáveis.
- *
- * @template T - Tipo dos dados utilizados nos filtros.
- * @template M - Tipo opcional que define um parâmetro booleano.
- *
- * @param {Object} props - Propriedades do componente.
- * @param {boolean} props.open - Estado que determina se o drawer está aberto.
- * @param {Function} props.setOpen - Função para alterar o estado do drawer.
- * @param {Function} [props.onClear] - Função chamada ao limpar os filtros.
- * @param {Function} [props.onSubmit] - Função chamada ao submeter os filtros.
- * @param {(InputProps & AdicionalPropsInput)[]} [props.inputs] - Lista de entradas do tipo Input.
- * @param {(InputSelectProps<T, M> & AdicionalPropsInput)[]} [props.inputSelect] - Lista de entradas do tipo InputSelect.
- *
- * @returns {JSX.Element} O drawer com campos de filtro.
- */
 const Filtros = <T, M extends boolean = false>({
   open,
   setOpen,
@@ -95,8 +79,7 @@ const Filtros = <T, M extends boolean = false>({
       >
         <p className="text-system-900 font-semibold text-lg">Filtros</p>
         <p className="text-system-700 text-sm pt-1 pb-5">
-          Para que possamos apresentar dados específicos, por favor, preencha os
-          campos abaixo.
+          Informe os campos abaixos para filtrar os dados.
         </p>
 
         <Grid
@@ -115,7 +98,7 @@ const Filtros = <T, M extends boolean = false>({
             </Button>
           )}
           {onSubmit && (
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" color="info">
               Pesquisar
             </Button>
           )}
