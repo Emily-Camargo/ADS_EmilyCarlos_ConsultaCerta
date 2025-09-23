@@ -62,6 +62,17 @@ export const StyledCard = styled(Card)(() => ({
       boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
     },
   },
+  '@keyframes gradientShift': {
+    '0%': {
+      backgroundPosition: '0% 50%',
+    },
+    '50%': {
+      backgroundPosition: '100% 50%',
+    },
+    '100%': {
+      backgroundPosition: '0% 50%',
+    },
+  },
 }));
 
 export const IconContainer = styled(Box)<{ color: 'primary' | 'secondary' | 'accent' }>(({ color }) => ({
