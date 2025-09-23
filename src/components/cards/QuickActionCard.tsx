@@ -1,7 +1,6 @@
-import React from 'react';
 import { CardContent, Box, Typography } from '@mui/material';
 import { QuickActionCardProps } from './utils/interfaces';
-import { IconContainerCard, StyledCard } from './utils/contants';
+import { IconContainerCard, StyledCardGradient } from './utils/contants';
 
 const QuickActionCard = ({ 
   title, 
@@ -11,16 +10,21 @@ const QuickActionCard = ({
   colorClass 
 }: QuickActionCardProps) => {
   return (
-    <StyledCard 
+    <StyledCardGradient 
       onClick={onClick}
       className={colorClass}
       sx={{
-        background: colorClass.includes('gradient') 
-          ? colorClass.replace('bg-gradient-to-br ', '') 
+        cursor: 'pointer',
+        background: colorClass.includes('medical-primary') 
+          ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%)'
+          : colorClass.includes('medical-secondary')
+          ? 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)'
+          : colorClass.includes('medical-gray')
+          ? 'linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%)'
           : undefined,
       }}
     >
-      <CardContent sx={{ p: 3, textAlign: 'left' }}>
+      <CardContent sx={{ p: 3, textAlign: 'left', position: 'relative', zIndex: 3 }}>
         <Box display="flex" alignItems="flex-start" justifyContent="space-between" mb={2}>
           <IconContainerCard>
             <Icon size={24} className="text-white" />
@@ -51,7 +55,7 @@ const QuickActionCard = ({
           </Typography>
         </Box>
       </CardContent>
-    </StyledCard>
+    </StyledCardGradient>
   );
 };
 
