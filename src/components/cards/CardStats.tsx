@@ -1,3 +1,4 @@
+import React from 'react';
 import { CardContent, Box, Typography } from '@mui/material';
 import { CardStatsProps } from './utils/interfaces';
 import { getColorValue, IconContainer, StyledCard } from './utils/contants';

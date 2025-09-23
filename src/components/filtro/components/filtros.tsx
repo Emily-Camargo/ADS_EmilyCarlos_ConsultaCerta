@@ -1,13 +1,29 @@
 import React from 'react'
+import Button from '../../../components/button'
 import { Drawer, Grid } from '@mui/material'
+import Input from '../../../components/input-mui/input/index'
+import InputSelect from '../../../components/input-mui/input-select'
 import { AdicionalPropsInput, FiltrosProps } from '../utils/interface'
+import { InputProps } from '../../../components/input-mui/input/utils/interface'
+import { InputSelectProps } from '../../../components/input-mui/input-select/utils/interface'
+import { useDimension } from '../../../hooks'
 
-import Input from '../../input-mui/input'
-import InputSelect from '../../input-mui/input-select'
-import Button from '../../button'
-import { InputSelectProps } from '../../input-mui/input-select/utils/interface'
-import { InputProps } from '../../input-mui/input/utils/interface'
-
+/**
+ * Componente que renderiza um drawer com campos de filtros personalizáveis.
+ *
+ * @template T - Tipo dos dados utilizados nos filtros.
+ * @template M - Tipo opcional que define um parâmetro booleano.
+ *
+ * @param {Object} props - Propriedades do componente.
+ * @param {boolean} props.open - Estado que determina se o drawer está aberto.
+ * @param {Function} props.setOpen - Função para alterar o estado do drawer.
+ * @param {Function} [props.onClear] - Função chamada ao limpar os filtros.
+ * @param {Function} [props.onSubmit] - Função chamada ao submeter os filtros.
+ * @param {(InputProps & AdicionalPropsInput)[]} [props.inputs] - Lista de entradas do tipo Input.
+ * @param {(InputSelectProps<T, M> & AdicionalPropsInput)[]} [props.inputSelect] - Lista de entradas do tipo InputSelect.
+ *
+ * @returns {JSX.Element} O drawer com campos de filtro.
+ */
 const Filtros = <T, M extends boolean = false>({
   open,
   setOpen,
@@ -16,9 +32,18 @@ const Filtros = <T, M extends boolean = false>({
   inputs = [],
   inputSelect = [],
 }: FiltrosProps<T, M>): JSX.Element => {
-  const allInputs = [...inputs, ...inputSelect].sort(
-    (a, b) => (a.order ?? 99) - (b.order ?? 99),
-  )
+  const m640 = useDimension(640)
+  const m1120 = useDimension(1120)
+
+  const allInputs = [...inputs, ...inputSelect].sort((a, b) => {
+    const orderA =
+      'textFieldProps' in a && a.textFieldProps
+        ? a.textFieldProps.order ?? 99
+        : 99
+    const orderB = 'order' in b ? b.order ?? 99 : 99
+
+    return orderA - orderB
+  })
 
   const isInputSelect = (
     obj: Omit<InputProps, 'sx'> | Omit<InputSelectProps<T, M>, 'sx'>,
@@ -33,14 +58,16 @@ const Filtros = <T, M extends boolean = false>({
     i: number,
   ) => {
     if (isInputSelect(input)) {
+      const inputSelectWithXs = input as Omit<InputSelectProps<T, M>, 'sx'> & AdicionalPropsInput
       return (
-        <Grid item xs={input.xs ?? 1} key={`inputSelect-${i}`}>
+        <Grid item xs={inputSelectWithXs.xs ?? 1} key={`inputSelect-${i}`}>
           <InputSelect {...input} id={`inputSM${i}`} fullWidth />
         </Grid>
       )
     } else {
+      const inputWithXs = input as Omit<InputProps, 'sx'> & AdicionalPropsInput
       return (
-        <Grid item xs={input.xs ?? 1} key={`input-${i}`}>
+        <Grid item xs={inputWithXs.xs ?? 1} key={`input-${i}`}>
           <Input {...input} fullWidth />
         </Grid>
       )
@@ -72,7 +99,13 @@ const Filtros = <T, M extends boolean = false>({
           campos abaixo.
         </p>
 
-        <Grid container columns={5} pr={2} rowSpacing={2} columnSpacing={1}>
+        <Grid
+          container
+          pr={2}
+          rowSpacing={2}
+          columnSpacing={1}
+          columns={(m640 && 1) || (m1120 && 3) || 7}
+        >
           {allInputs.map((input, index) => render(input, index))}
         </Grid>
         <div className="flex justify-end pt-4 space-x-4 pr-4">
