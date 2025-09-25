@@ -1,5 +1,7 @@
-import { InputSelectProps } from "../../input-mui/input-select/utils/interface"
-import { InputProps } from "../../input-mui/input/utils/interface"
+// interface.ts
+import { ButtonExcelProps } from 'src/components/button/button-excel'
+import { InputProps } from 'src/components/input-mui/input/utils/interface'
+import { InputSelectProps } from 'src/components/input-mui/input-select/utils/interface'
 
 /**
  * Propriedades para o componente CSV.
@@ -42,7 +44,14 @@ export interface FiltroCardProps<T> {
    */
   renderFiltro: boolean
 
-  
+  /**
+   * Propriedades para o botão Excel.
+   */
+  excelProps?: ButtonExcelProps<T>
+
+  /**
+   * Função para atualizar o valor da pesquisa.
+   */
   setPesquisa?: (value: string) => void
 
   /**
@@ -66,6 +75,8 @@ export interface AdicionalPropsInput {
   xs?: number
 }
 
+export type InputsTypeFiltro = Omit<InputProps, 'sx'> & AdicionalPropsInput
+
 /**
  * Propriedades para o componente Filtros.
  *
@@ -86,7 +97,7 @@ export interface FiltrosProps<T, M extends boolean = false> {
   /**
    * Lista de entradas do tipo Input.
    */
-  inputs?: (Omit<InputProps, 'sx'> & AdicionalPropsInput)[]
+  inputs?: InputsTypeFiltro[]
 
   /**
    * Lista de entradas do tipo InputSelect.

@@ -27,13 +27,23 @@ const MenuSidebar = ({
 
   const handleNavigation = () => {
     if (seqAplicacao === 1) {
-      navigate('/clientes');
+      navigate('/home');
     } else if (seqAplicacao === 2) {
-      navigate('/fotos');
+      navigate('/consultas');
     } else if (seqAplicacao === 3) {
-      navigate('/usuarios');
+      navigate('/agenda');
     } else if (seqAplicacao === 4) {
-      navigate('/sobre');
+      navigate('/pacientes');
+    } else if (seqAplicacao === 5) {
+      navigate('/prontuarios');
+    } else if (seqAplicacao === 6) {
+      navigate('/prescricoes');
+    } else if (seqAplicacao === 7) {
+      navigate('/exames');
+    } else if (seqAplicacao === 8) {
+      navigate('/notificacoes');
+    } else if (seqAplicacao === 12) {
+      navigate('/admin');
     }
     
     onClick();

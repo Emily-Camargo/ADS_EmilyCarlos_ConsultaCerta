@@ -1,12 +1,12 @@
 import React from 'react'
+import Button from '../../../components/button'
 import { Drawer, Grid } from '@mui/material'
+import Input from '../../../components/input-mui/input/index'
+import InputSelect from '../../../components/input-mui/input-select'
 import { AdicionalPropsInput, FiltrosProps } from '../utils/interface'
-
-import Input from '../../input-mui/input'
-import InputSelect from '../../input-mui/input-select'
-import Button from '../../button'
-import { InputSelectProps } from '../../input-mui/input-select/utils/interface'
-import { InputProps } from '../../input-mui/input/utils/interface'
+import { InputProps } from '../../../components/input-mui/input/utils/interface'
+import { InputSelectProps } from '../../../components/input-mui/input-select/utils/interface'
+import { useDimension } from '../../../hooks'
 
 const Filtros = <T, M extends boolean = false>({
   open,
@@ -16,9 +16,18 @@ const Filtros = <T, M extends boolean = false>({
   inputs = [],
   inputSelect = [],
 }: FiltrosProps<T, M>): JSX.Element => {
-  const allInputs = [...inputs, ...inputSelect].sort(
-    (a, b) => (a.order ?? 99) - (b.order ?? 99),
-  )
+  const m640 = useDimension(640)
+  const m1120 = useDimension(1120)
+
+  const allInputs = [...inputs, ...inputSelect].sort((a, b) => {
+    const orderA =
+      'textFieldProps' in a && a.textFieldProps
+        ? a.textFieldProps.order ?? 99
+        : 99
+    const orderB = 'order' in b ? b.order ?? 99 : 99
+
+    return orderA - orderB
+  })
 
   const isInputSelect = (
     obj: Omit<InputProps, 'sx'> | Omit<InputSelectProps<T, M>, 'sx'>,
@@ -33,14 +42,16 @@ const Filtros = <T, M extends boolean = false>({
     i: number,
   ) => {
     if (isInputSelect(input)) {
+      const inputSelectWithXs = input as Omit<InputSelectProps<T, M>, 'sx'> & AdicionalPropsInput
       return (
-        <Grid item xs={input.xs ?? 1} key={`inputSelect-${i}`}>
+        <Grid item xs={inputSelectWithXs.xs ?? 1} key={`inputSelect-${i}`}>
           <InputSelect {...input} id={`inputSM${i}`} fullWidth />
         </Grid>
       )
     } else {
+      const inputWithXs = input as Omit<InputProps, 'sx'> & AdicionalPropsInput
       return (
-        <Grid item xs={input.xs ?? 1} key={`input-${i}`}>
+        <Grid item xs={inputWithXs.xs ?? 1} key={`input-${i}`}>
           <Input {...input} fullWidth />
         </Grid>
       )
@@ -68,11 +79,16 @@ const Filtros = <T, M extends boolean = false>({
       >
         <p className="text-system-900 font-semibold text-lg">Filtros</p>
         <p className="text-system-700 text-sm pt-1 pb-5">
-          Para que possamos apresentar dados específicos, por favor, preencha os
-          campos abaixo.
+          Informe os campos abaixos para filtrar os dados.
         </p>
 
-        <Grid container columns={5} pr={2} rowSpacing={2} columnSpacing={1}>
+        <Grid
+          container
+          pr={2}
+          rowSpacing={2}
+          columnSpacing={1}
+          columns={(m640 && 1) || (m1120 && 3) || 7}
+        >
           {allInputs.map((input, index) => render(input, index))}
         </Grid>
         <div className="flex justify-end pt-4 space-x-4 pr-4">
@@ -82,7 +98,7 @@ const Filtros = <T, M extends boolean = false>({
             </Button>
           )}
           {onSubmit && (
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" color="info">
               Pesquisar
             </Button>
           )}

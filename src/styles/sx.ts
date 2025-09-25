@@ -2,34 +2,34 @@ import { createTheme } from '@mui/material'
 
 export const sxTextField = {
   '& label.Mui-focused': {
-    color: '#4e2096',
+    color: '#2563EB',
   },
   '& .MuiFormHelperText-root': {
     margin: '1px 0px 0 1px',
   },
   '& .MuiInput-underline:after': {
-    borderBottomColor: '#4e2096',
+    borderBottomColor: '#2563EB',
   },
   '& .MuiOutlinedInput-root': {
     '& fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
     '&:hover fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
   },
   '& .MuiOutlinedInput-root.Mui-disabled': {
     '& fieldset': {
-      borderColor: '#4e2096 !important',
+      borderColor: '#2563EB !important',
     },
     '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#4e2096 !important',
+      borderColor: '#2563EB !important',
     },
     '& .MuiAutocomplete-input': {
-      color: '#4e2096 !important',
+      color: '#2563EB !important',
     },
   },
 }
@@ -37,9 +37,9 @@ export const sxTextField = {
 export const theme = createTheme({
   palette: {
     primary: {
-      main: '#4e2096',
-      light: '#019F95',
-      dark: '#019F95',
+      main: '#2563EB',
+      light: '#60A5FA',
+      dark: '#1D4ED8',
       contrastText: '#FFFFFF',
     },
     secondary: {
@@ -71,23 +71,23 @@ export const theme = createTheme({
 
 export const sx = {
   '& label.Mui-focused': {
-    color: '#4e2096',
+    color: '#2563EB',
   },
   '& .MuiFormHelperText-root': {
     margin: '1px 0px 0 1px',
   },
   '& .MuiInput-underline:after': {
-    borderBottomColor: '#4e2096',
+    borderBottomColor: '#2563EB',
   },
   '& .MuiOutlinedInput-root': {
     '& fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
     '&:hover fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
   },
 }
@@ -112,34 +112,34 @@ export const standard = {
 
 export const sxAutoComplete = {
   '& label.Mui-focused': {
-    color: '#4e2096',
+    color: '#2563EB',
   },
   '& .MuiFormHelperText-root': {
     margin: '1px 0px 0 1px',
   },
   '& .MuiInput-underline:after': {
-    borderBottomColor: '#4e2096',
+    borderBottomColor: '#2563EB',
   },
   '& .MuiOutlinedInput-root': {
     '& fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
     '&:hover fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#4e2096',
+      borderColor: '#2563EB',
     },
   },
   '& .MuiOutlinedInput-root.Mui-disabled': {
     '& fieldset': {
-      borderColor: '#4e2096 !important',
+      borderColor: '#2563EB !important',
     },
     '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: '#4e2096 !important',
+      borderColor: '#2563EB !important',
     },
     '& .MuiAutocomplete-input': {
-      color: '#4e2096 !important',
+      color: '#2563EB !important',
     },
   },
 }

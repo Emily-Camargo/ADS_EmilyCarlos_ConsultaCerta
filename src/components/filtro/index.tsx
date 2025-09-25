@@ -10,6 +10,7 @@ const Filtro = <T, M extends boolean = false>({
   onClear,
   onSubmit,
   pesquisa,
+  excelProps,
   setPesquisa,
   inputSelect,
 }: FiltroProps<T, M>): JSX.Element => {
@@ -26,6 +27,7 @@ const Filtro = <T, M extends boolean = false>({
         title={title}
         setOpen={setOpen}
         pesquisa={pesquisa}
+        excelProps={excelProps}
         setPesquisa={setPesquisa}
         renderFiltro={renderFiltro()}
       />

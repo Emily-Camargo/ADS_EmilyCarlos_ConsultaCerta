@@ -10,14 +10,35 @@ const QuickActionCard = ({
   onClick, 
   colorClass 
 }: QuickActionCardProps) => {
+  const getGradientStyle = (colorClass: string) => {
+    if (colorClass.includes('blue')) {
+      return {
+        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.95) 50%, rgba(30, 64, 175, 1) 100%)',
+        backgroundSize: '200% 200%',
+      };
+    } else if (colorClass.includes('emerald')) {
+      return {
+        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.95) 50%, rgba(4, 120, 87, 1) 100%)',
+        backgroundSize: '200% 200%',
+      };
+    } else if (colorClass.includes('slate')) {
+      return {
+        background: 'linear-gradient(135deg, rgba(100, 116, 139, 0.9) 0%, rgba(71, 85, 105, 0.95) 50%, rgba(51, 65, 85, 1) 100%)',
+        backgroundSize: '200% 200%',
+      };
+    }
+    return {};
+  };
+
   return (
     <StyledCard 
       onClick={onClick}
-      className={colorClass}
       sx={{
-        background: colorClass.includes('gradient') 
-          ? colorClass.replace('bg-gradient-to-br ', '') 
-          : undefined,
+        ...getGradientStyle(colorClass),
+        '& .MuiCardContent-root': {
+          position: 'relative',
+          zIndex: 2,
+        }
       }}
     >
       <CardContent sx={{ p: 3, textAlign: 'left' }}>
