@@ -21,8 +21,6 @@ export interface DataReq {
   cpf: string
   dataNascimento: string
   sexo: string
-  cidade: string
-  estado: string
 }
 
 export interface InputsProps {

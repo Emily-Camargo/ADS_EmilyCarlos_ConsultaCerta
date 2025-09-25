@@ -3,7 +3,7 @@ import { handleChange } from './functions'
 import { InputsTypeFiltro } from '../../../components/filtro/utils/interface'
 import { mascaradorCPFCNPJ } from '../../../functions/mascaras'
 
-export const pacientesFil: DataReq = { nomePaciente: '', cpf: '', dataNascimento: '', sexo: '', cidade: '', estado: '' }
+export const pacientesFil: DataReq = { nomePaciente: '', cpf: '', dataNascimento: '', sexo: '' }
 
 export const inputsPacientes = ({
   data,
@@ -36,18 +36,6 @@ export const inputsPacientes = ({
       value: data.sexo,
       label: 'Gênero',
       onChange: (e) => handleChange('sexo', e.target.value, setData),
-    },
-    {
-      order: 5,
-      value: data.cidade,
-      label: 'Cidade',
-      onChange: (e) => handleChange('cidade', e.target.value, setData),
-    },
-    {
-      order: 6,
-      value: data.estado,
-      label: 'Estado',
-      onChange: (e) => handleChange('estado', e.target.value, setData),
     },
   ]
 }
