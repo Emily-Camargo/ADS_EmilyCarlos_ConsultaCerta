@@ -1,10 +1,6 @@
 import { Tooltip } from '@mantine/core'
-import { IconButton } from '@mui/material'
-import Input from '../../../components/input-mui/input'
 import { FiltroCardProps } from '../utils/interface'
 import { FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
-import { DocumentArrowDownIcon } from '@heroicons/react/24/solid'
-import { ExcelIcon, Loading } from '../../../components/icons'
 import ButtonExcel from '../../../components/button/button-excel'
 import { Suspense, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -25,6 +21,7 @@ const FiltroCard = <T,>({
       '/home': 'Dashboard',
       '/pacientes': 'Pacientes',
       '/acessar': 'Acesso',
+      '/agenda': 'Agenda Médica',
     }
     
     return routeNames[location.pathname] || 'Página'

@@ -60,13 +60,6 @@ export const quickActions = [
     colorClass: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
   },
   {
-    title: 'Notificações',
-    description: 'Configure lembretes e comunicações automáticas.',
-    icon: MdNotifications,
-    path: '/notificacoes',
-    colorClass: 'bg-gradient-to-br from-slate-400 to-slate-600',
-  },
-  {
     title: 'Relatórios',
     description: 'Visualize dashboards e análises de desempenho.',
     icon: MdDashboard,
