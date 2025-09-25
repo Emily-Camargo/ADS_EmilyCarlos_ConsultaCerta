@@ -14,11 +14,8 @@ import {
   Description,
   Medication,
   Assignment,
-  Notifications,
   Dashboard,
-  Psychology,
   LocalHospital,
-  Settings,
   AdminPanelSettings
 } from '@mui/icons-material'
 
@@ -77,12 +74,6 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
       label: 'Exames', 
       icon: <Assignment className="!text-white" />,
       route: '/exames'
-    },
-    { 
-      seqAplicacao: 8, 
-      label: 'Notificações', 
-      icon: <Notifications className="!text-white" />,
-      route: '/notificacoes'
     },
     { 
       seqAplicacao: 12, 

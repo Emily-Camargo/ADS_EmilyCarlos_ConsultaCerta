@@ -13,6 +13,7 @@ const Navbar = lazy(() => import('./components/navbar'))
 const Acessar = lazy(() => import('./pages/login/index'))
 const Home = lazy(() => import('./pages/home/home'))
 const Pacientes = lazy(() => import('./pages/pacientes/index'))
+const Agenda = lazy(() => import('./pages/agenda/index'))
 
 function App() {
   const location = useLocation()
@@ -33,6 +34,10 @@ function App() {
     {
       path: '/pacientes',
       element: <Pacientes />,
+    },
+    {
+      path: '/agenda',
+      element: <Agenda />,
     },
   ]
 

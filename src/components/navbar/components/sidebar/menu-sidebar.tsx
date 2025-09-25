@@ -40,8 +40,6 @@ const MenuSidebar = ({
       navigate('/prescricoes');
     } else if (seqAplicacao === 7) {
       navigate('/exames');
-    } else if (seqAplicacao === 8) {
-      navigate('/notificacoes');
     } else if (seqAplicacao === 12) {
       navigate('/admin');
     }
