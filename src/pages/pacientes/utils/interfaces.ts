@@ -1,5 +1,20 @@
 import { Updater } from 'use-immer'
 
+export interface PacienteData {
+  id_paciente: number
+  nome_paciente: string
+  cpf: string
+  celular: string
+  id_usuario: number
+  data_nascimento: string
+  genero: string
+  tipo_sanguineo: string
+  convenio: string
+  numero_carteirinha: string
+  contato_emergencia_nome: string
+  contato_emergencia_telefone: string
+  observacoes: string
+}
 
 export interface DataReq {
   nomePaciente: string
@@ -13,4 +28,26 @@ export interface DataReq {
 export interface InputsProps {
   data: DataReq
   setData: Updater<DataReq>
+}
+
+export interface TabelaPacientesProps {
+  pacientes: PacienteData[]
+  isLoading?: boolean
+}
+
+export interface CadastrarPacienteProps {
+  modal: boolean
+  setModal: (open: boolean) => void
+  onConfirmar: (paciente: Omit<PacienteData, 'id_paciente' | 'id_usuario'>) => void
+}
+
+export interface PacienteForm {
+  data_nascimento: string
+  genero: string
+  tipo_sanguineo: string
+  convenio: string
+  numero_carteirinha: string
+  contato_emergencia_nome: string
+  contato_emergencia_telefone: string
+  observacoes: string
 }
