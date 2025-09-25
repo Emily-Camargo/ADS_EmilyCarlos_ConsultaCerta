@@ -37,10 +37,9 @@ export interface BloqueioAgenda {
 // Interface para dados de filtro da agenda
 export interface DataReqAgenda {
   nomeMedico: string
-  diaSemana: string
+  crm: string
   dataInicio: string
   dataFim: string
-  ativo: string
 }
 
 // Interface para props de inputs de filtro

@@ -1,14 +1,12 @@
 import { DataReqAgenda, InputsPropsAgenda } from './interfaces'
 import { handleChange } from './functions'
 import { InputsTypeFiltro } from '../../../components/filtro/utils/interface'
-import { statusOptions, diasSemanaOptions } from './constants'
 
 export const agendaFil: DataReqAgenda = { 
   nomeMedico: '', 
-  diaSemana: '', 
+  crm: '',
   dataInicio: '', 
   dataFim: '', 
-  ativo: '' 
 }
 
 export const inputsAgenda = ({
@@ -24,11 +22,9 @@ export const inputsAgenda = ({
     },
     {
       order: 2,
-      value: data.diaSemana,
-      label: 'Dia da semana',
-      type: 'select',
-      options: [{ value: '', label: 'Todos' }, ...diasSemanaOptions],
-      onChange: (e) => handleChange('diaSemana', e.target.value, setData),
+      value: data.crm,
+      label: 'CRM',
+      onChange: (e) => handleChange('crm', e.target.value, setData),
     },
     {
       order: 3,
@@ -45,14 +41,6 @@ export const inputsAgenda = ({
       label: 'Data fim vigência',
       shrink: true,
       onChange: (e) => handleChange('dataFim', e.target.value, setData),
-    },
-    {
-      order: 5,
-      value: data.ativo,
-      label: 'Status',
-      type: 'select',
-      options: statusOptions,
-      onChange: (e) => handleChange('ativo', e.target.value, setData),
     },
   ]
 }
