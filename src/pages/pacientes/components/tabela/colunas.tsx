@@ -1,7 +1,9 @@
 import { TableColumn } from 'react-data-table-component'
-import { PacienteData } from '../../utils/interfaces'
+import { ColunasPacientesProps, PacienteData } from '../../utils/interfaces'
+import { Tooltip, Zoom } from '@mui/material'
+import { Edit, Visibility } from '@mui/icons-material'
 
-export function colunasPacientes() {
+export function colunasPacientes({ editarPaciente, detalhesPaciente }: ColunasPacientesProps) {
   const rows: TableColumn<PacienteData>[] = [
     {
       name: 'Nome do Paciente',
@@ -52,31 +54,49 @@ export function colunasPacientes() {
       center: true,
     },
     {
-      name: 'Contato de Emergência',
-      selector: (row) => row.contato_emergencia_nome,
-      sortable: true,
+        name: 'Detalhes',
+        center: true,
+        cell: (row) => {
+          return (
+            <div>
+              <Tooltip
+                TransitionComponent={Zoom}
+                placement="right"
+                title="Detalhes"
+              >
+                <button
+                  onClick={() => detalhesPaciente(row)}
+                >
+                  <Visibility className="text-medical-primary"/>
+                </button>
+              </Tooltip>
+            </div>
+          )
+        },
+        sortable: true,
     },
     {
-      name: 'Telefone de Emergência',
-      selector: (row) => row.contato_emergencia_telefone,
-      sortable: true,
-      center: true,
-    },
-    {
-      name: 'Observações',
-      selector: (row) => row.observacoes,
-      sortable: false,
-      grow: 2,
-      cell: (row) => (
-        <div title={row.observacoes} style={{ 
-          overflow: 'hidden', 
-          textOverflow: 'ellipsis', 
-          whiteSpace: 'nowrap' 
-        }}>
-          {row.observacoes}
-        </div>
-      ),
-    },
+        name: 'Editar',
+        center: true,
+        cell: (row) => {
+          return (
+            <div>
+              <Tooltip
+                TransitionComponent={Zoom}
+                placement="right"
+                title="Editar"
+              >
+                <button
+                  onClick={() => editarPaciente(row)}
+                >
+                  <Edit className="text-medical-primary"/>
+                </button>
+              </Tooltip>
+            </div>
+          )
+        },
+        sortable: true,
+      },
   ]
   return rows
 }

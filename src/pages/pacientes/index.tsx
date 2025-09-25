@@ -12,6 +12,8 @@ function Pacientes() {
   const [data, setData] = useImmer(pacientesFil)
   const [modalCadastro, setModalCadastro] = useState(false)
   const [pacientes, setPacientes] = useState<PacienteData[]>(mockPacientes)
+  const [pacienteParaEditar, setPacienteParaEditar] = useState<PacienteData | null>(null)
+  const [modoVisualizacao, setModoVisualizacao] = useState(false)
 
   const searchClick = () => {
     console.log('searchClick')
@@ -21,15 +23,45 @@ function Pacientes() {
     setData(pacientesFil)
   }
 
-  const handleCadastrarPaciente = (novoPaciente: Omit<PacienteData, 'id_paciente' | 'id_usuario'>) => {
-    const pacienteCompleto: PacienteData = {
-      ...novoPaciente,
-      id_paciente: Math.max(...pacientes.map(p => p.id_paciente)) + 1,
-      id_usuario: 1000 + Math.floor(Math.random() * 1000), // Simula um ID de usuário
+  const handleCadastrarPaciente = (novoPaciente: any) => {
+    if (pacienteParaEditar) {
+      setPacientes(prev => 
+        prev.map(p => 
+          p.id_paciente === pacienteParaEditar.id_paciente 
+            ? { ...novoPaciente }
+            : p
+        )
+      )
+      console.log('Paciente editado:', novoPaciente)
+      setPacienteParaEditar(null)
+    } else {
+      const pacienteCompleto: PacienteData = {
+        ...novoPaciente,
+        id_paciente: Math.max(...pacientes.map(p => p.id_paciente)) + 1,
+        id_usuario: 1000 + Math.floor(Math.random() * 1000), // Simula um ID de usuário
+      }
+      
+      setPacientes(prev => [...prev, pacienteCompleto])
+      console.log('Paciente cadastrado:', pacienteCompleto)
     }
-    
-    setPacientes(prev => [...prev, pacienteCompleto])
-    console.log('Paciente cadastrado:', pacienteCompleto)
+  }
+
+  const editarPaciente = (paciente: PacienteData) => {
+    setPacienteParaEditar(paciente)
+    setModoVisualizacao(false)
+    setModalCadastro(true)
+  }
+
+  const detalhesPaciente = (paciente: PacienteData) => {
+    setPacienteParaEditar(paciente)
+    setModoVisualizacao(true)
+    setModalCadastro(true)
+  }
+
+  const abrirModalCadastro = () => {
+    setPacienteParaEditar(null)
+    setModoVisualizacao(false)
+    setModalCadastro(true)
   }
 
   return (
@@ -43,16 +75,23 @@ function Pacientes() {
         variant="gradient" 
         gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} 
         size="xs"
-        onClick={() => setModalCadastro(true)}
+        onClick={abrirModalCadastro}
       >
         Cadastrar Paciente
       </Button>
-      <TabelaPacientes pacientes={pacientes} isLoading={false} />
+      <TabelaPacientes 
+        pacientes={pacientes} 
+        isLoading={false}
+        editarPaciente={editarPaciente}
+        detalhesPaciente={detalhesPaciente}
+      />
       
       <CadastrarPaciente
         modal={modalCadastro}
         setModal={setModalCadastro}
         onConfirmar={handleCadastrarPaciente}
+        pacienteParaEditar={pacienteParaEditar}
+        modoVisualizacao={modoVisualizacao}
       />
     </div>
   )

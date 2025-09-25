@@ -11,6 +11,8 @@ import { colunasPacientes } from './colunas'
 export function TabelaPacientes({
   pacientes,
   isLoading = false,
+  editarPaciente,
+  detalhesPaciente,
 }: Readonly<TabelaPacientesProps>) {
 
   return (
@@ -24,7 +26,7 @@ export function TabelaPacientes({
         </div>
       )}
       <DataTable
-        columns={colunasPacientes()}
+        columns={colunasPacientes({ editarPaciente, detalhesPaciente })}
         data={pacientes}
         customStyles={customStyles}
         progressComponent={<CustomLoaders open />}

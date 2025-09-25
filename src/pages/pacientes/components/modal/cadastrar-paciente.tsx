@@ -1,6 +1,6 @@
 import Dialog from '../../../../components/dialog'
 import Button from '../../../../components/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Grid } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
@@ -13,9 +13,33 @@ export function CadastrarPaciente({
   modal,
   setModal,
   onConfirmar,
+  pacienteParaEditar = null,
+  modoVisualizacao = false,
 }: Readonly<CadastrarPacienteProps>) {
   const [formData, setFormData] = useState<PacienteForm>(initialForm)
   const [pacienteSelecionado, setPacienteSelecionado] = useState<PacienteData | null>(null)
+
+  const isEdicao = !!pacienteParaEditar
+  const isVisualizacao = modoVisualizacao
+
+  useEffect(() => {
+    if (pacienteParaEditar && modal) {
+      setPacienteSelecionado(pacienteParaEditar)
+      setFormData({
+        data_nascimento: pacienteParaEditar.data_nascimento,
+        genero: pacienteParaEditar.genero,
+        tipo_sanguineo: pacienteParaEditar.tipo_sanguineo,
+        convenio: pacienteParaEditar.convenio,
+        numero_carteirinha: pacienteParaEditar.numero_carteirinha,
+        contato_emergencia_nome: pacienteParaEditar.contato_emergencia_nome,
+        contato_emergencia_telefone: pacienteParaEditar.contato_emergencia_telefone,
+        observacoes: pacienteParaEditar.observacoes,
+      })
+    } else if (!modal) {
+      setFormData(initialForm)
+      setPacienteSelecionado(null)
+    }
+  }, [pacienteParaEditar, modal])
 
   const cancelar = () => {
     setModal(false)
@@ -33,7 +57,11 @@ export function CadastrarPaciente({
       nome_paciente: pacienteSelecionado.nome_paciente,
       cpf: pacienteSelecionado.cpf,
       celular: pacienteSelecionado.celular,
-      ...formData
+      ...formData,
+      ...(isEdicao && { 
+        id_paciente: pacienteParaEditar!.id_paciente,
+        id_usuario: pacienteParaEditar!.id_usuario 
+      })
     }
 
     onConfirmar(pacienteCompleto)
@@ -78,37 +106,70 @@ export function CadastrarPaciente({
     }))
   }
 
+  const getTitulo = () => {
+    if (isVisualizacao) return 'Detalhes do Paciente'
+    if (isEdicao) return 'Editar Paciente'
+    return 'Cadastrar Paciente'
+  }
+
+  const getTextoBotao = () => {
+    if (isEdicao) return 'Salvar'
+    return 'Cadastrar'
+  }
+
   return (
     <Dialog
       maxWidth="md"
-      title="Cadastrar Paciente"
+      title={getTitulo()}
       open={modal}
       onClose={cancelar}
       actions={
         <>
           <Button color="error" onClick={cancelar}>
-            Cancelar
+            {isVisualizacao ? 'Fechar' : 'Cancelar'}
           </Button>
-          <Button color="primary" onClick={confirmar}>
-            Cadastrar
-          </Button>
+          {!isVisualizacao && (
+            <Button color="primary" onClick={confirmar}>
+              {getTextoBotao()}
+            </Button>
+          )}
         </>
       }
     >
       <div className="text-sm">
-        <p>Selecione um paciente e preencha os campos adicionais abaixo.</p>
+        <p>
+          {isVisualizacao 
+            ? 'Visualize as informações do paciente abaixo.' 
+            : isEdicao 
+              ? 'Edite as informações do paciente abaixo.'
+              : 'Selecione um paciente e preencha os campos adicionais abaixo.'
+          }
+        </p>
         
         <Grid container spacing={2} className="pt-4">
-          <Grid item xs={12}>
-            <InputSelect
-              value={pacienteSelecionado}
-              options={mockPacientes}
-              textFieldProps={{ label: 'Selecionar Paciente *' }}
-              multiple={false}
-              onChange={handlePacienteSelect}
-              optionLabel={(v) => `${v.nome_paciente} - ${v.cpf}`}
-            />
-          </Grid>
+          {!isEdicao && !isVisualizacao && (
+            <Grid item xs={12}>
+              <InputSelect
+                value={pacienteSelecionado}
+                options={mockPacientes}
+                textFieldProps={{ label: 'Selecionar Paciente *' }}
+                multiple={false}
+                onChange={handlePacienteSelect}
+                optionLabel={(v) => `${v.nome_paciente} - ${v.cpf}`}
+              />
+            </Grid>
+          )}
+
+          {(isEdicao || isVisualizacao) && (
+            <Grid item xs={12}>
+              <Input
+                label="Paciente"
+                value={pacienteSelecionado ? `${pacienteSelecionado.nome_paciente} - ${pacienteSelecionado.cpf}` : ''}
+                disabled
+                fullWidth
+              />
+            </Grid>
+          )}
 
           <Grid item xs={12} md={6}>
             <Input
@@ -118,6 +179,7 @@ export function CadastrarPaciente({
               onChange={handleInputChange('data_nascimento')}
               type="date"
               fullWidth
+              disabled={isVisualizacao}
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
@@ -126,10 +188,11 @@ export function CadastrarPaciente({
             <InputSelect
               value={generoOptions.find(g => g.value === formData.genero) || null}
               options={generoOptions}
-              textFieldProps={{ label: 'Gênero' }}
+              textFieldProps={{ label: 'Gênero', disabled: isVisualizacao }}
               multiple={false}
               onChange={handleGeneroSelect}
               optionLabel={(v) => v.label}
+              disabled={isVisualizacao}
             />
           </Grid>
 
@@ -137,10 +200,11 @@ export function CadastrarPaciente({
             <InputSelect
               value={tipoSanguineoOptions.find(t => t.value === formData.tipo_sanguineo) || null}
               options={tipoSanguineoOptions}
-              textFieldProps={{ label: 'Tipo Sanguíneo' }}
+              textFieldProps={{ label: 'Tipo Sanguíneo', disabled: isVisualizacao }}
               multiple={false}
               onChange={handleTipoSanguineoSelect}
               optionLabel={(v) => v.label}
+              disabled={isVisualizacao}
             />
           </Grid>
 
@@ -149,6 +213,7 @@ export function CadastrarPaciente({
               label="Convênio"
               value={formData.convenio}
               onChange={handleInputChange('convenio')}
+              disabled={isVisualizacao}
               fullWidth
             />
           </Grid>
@@ -158,6 +223,7 @@ export function CadastrarPaciente({
               label="Número da Carteirinha"
               value={formData.numero_carteirinha}
               onChange={handleInputChange('numero_carteirinha')}
+              disabled={isVisualizacao}
               fullWidth
             />
           </Grid>
@@ -167,6 +233,7 @@ export function CadastrarPaciente({
               label="Nome do Contato de Emergência"
               value={formData.contato_emergencia_nome}
               onChange={handleInputChange('contato_emergencia_nome')}
+              disabled={isVisualizacao}
               fullWidth
             />
           </Grid>
@@ -177,6 +244,7 @@ export function CadastrarPaciente({
               value={formData.contato_emergencia_telefone}
               onChange={handleInputChange('contato_emergencia_telefone')}
               mask="(00) 00000-0000"
+              disabled={isVisualizacao}
               fullWidth
             />
           </Grid>
@@ -188,6 +256,7 @@ export function CadastrarPaciente({
               onChange={handleInputChange('observacoes')}
               multiline
               rows={3}
+              disabled={isVisualizacao}
               fullWidth
             />
           </Grid>

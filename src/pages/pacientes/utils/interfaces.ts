@@ -33,12 +33,16 @@ export interface InputsProps {
 export interface TabelaPacientesProps {
   pacientes: PacienteData[]
   isLoading?: boolean
+  editarPaciente: (paciente: PacienteData) => void
+  detalhesPaciente: (paciente: PacienteData) => void
 }
 
 export interface CadastrarPacienteProps {
   modal: boolean
   setModal: (open: boolean) => void
   onConfirmar: (paciente: Omit<PacienteData, 'id_paciente' | 'id_usuario'>) => void
+  pacienteParaEditar?: PacienteData | null
+  modoVisualizacao?: boolean
 }
 
 export interface PacienteForm {
@@ -50,4 +54,9 @@ export interface PacienteForm {
   contato_emergencia_nome: string
   contato_emergencia_telefone: string
   observacoes: string
+}
+
+export interface ColunasPacientesProps {
+  editarPaciente: (row: PacienteData) => void
+  detalhesPaciente: (row: PacienteData) => void
 }
