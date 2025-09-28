@@ -11,10 +11,13 @@ import { getStatusColor, getStatusIcon, getTimeSlots, getWeekDays } from './util
 import { getConsultasForDay } from './mocks/mocks';
 import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
 import { toast } from 'react-toastify';
+import { ConsultaData } from './utils/interfaces';
 
 const ConsultasPage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [modalCadastrar, setModalCadastrar] = useState(false);
+  const [modalVisualizar, setModalVisualizar] = useState(false);
+  const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
   const weekDays = getWeekDays(currentWeek);
   const timeSlots = getTimeSlots();
 
@@ -22,6 +25,68 @@ const ConsultasPage = () => {
     console.log('Nova consulta:', consulta);
     toast.success('Consulta cadastrada com sucesso!');
     setModalCadastrar(false);
+  };
+
+  const handleVisualizarConsulta = (consulta: ConsultaData) => {
+    setConsultaSelecionada(consulta);
+    setModalVisualizar(true);
+  };
+
+  const handleConfirmarConsulta = () => {
+    console.log('Consulta confirmada:', consultaSelecionada);
+    toast.success('Consulta confirmada com sucesso!');
+    setModalVisualizar(false);
+    setConsultaSelecionada(null);
+  };
+
+  const handleCancelarConsulta = () => {
+    console.log('Consulta cancelada:', consultaSelecionada);
+    toast.success('Consulta cancelada com sucesso!');
+    setModalVisualizar(false);
+    setConsultaSelecionada(null);
+  };
+
+  const handleReagendarConsulta = () => {
+    console.log('Reagendar consulta:', consultaSelecionada);
+    setModalVisualizar(false);
+    // Aqui você pode implementar a lógica de reagendamento
+    toast.info('Funcionalidade de reagendamento será implementada em breve');
+  };
+
+  // Função para converter dados do mock para ConsultaData
+  const converterParaConsultaData = (consulta: any): ConsultaData => {
+    return {
+      id_consulta: consulta.id,
+      id_paciente: consulta.id,
+      id_medico: consulta.id,
+      data_hora: new Date().toISOString(),
+      observacoes: '',
+      valor_consulta: 150.00,
+      status: consulta.status === 'aguardando confirmacao' ? 'agendada' : consulta.status,
+      criado_em: new Date().toISOString(),
+      paciente: {
+        id_paciente: consulta.id,
+        nome_paciente: consulta.paciente,
+        cpf: '000.000.000-00',
+        celular: '(00) 00000-0000',
+        id_usuario: consulta.id,
+        data_nascimento: '1990-01-01',
+        genero: 'F',
+        tipo_sanguineo: 'O+',
+        convenio: 'Particular',
+        numero_carteirinha: '',
+        contato_emergencia_nome: '',
+        contato_emergencia_telefone: '',
+        observacoes: ''
+      },
+      medico: {
+        id_medico: consulta.id,
+        nome_medico: consulta.medico,
+        especialidade: 'Clínica Geral',
+        crm: '00000',
+        ativo: true
+      }
+    };
   };
 
   return (
@@ -222,7 +287,9 @@ const ConsultasPage = () => {
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 p: 1
-                              }}>
+                              }}
+                              onClick={() => handleVisualizarConsulta(converterParaConsultaData(consulta))}
+                              >
                                 <Typography variant="caption" sx={{ 
                                   fontWeight: '600',
                                   color: '#1e293b',
@@ -270,6 +337,17 @@ const ConsultasPage = () => {
         modal={modalCadastrar}
         setModal={setModalCadastrar}
         onConfirmar={handleCadastrarConsulta}
+      />
+
+      <CadastrarConsulta
+        modal={modalVisualizar}
+        setModal={setModalVisualizar}
+        onConfirmar={() => {}}
+        consultaParaEditar={consultaSelecionada}
+        modoVisualizacao={true}
+        onConfirmarConsulta={handleConfirmarConsulta}
+        onCancelarConsulta={handleCancelarConsulta}
+        onReagendarConsulta={handleReagendarConsulta}
       />
     </Box>
   );

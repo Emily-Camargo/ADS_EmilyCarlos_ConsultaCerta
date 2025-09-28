@@ -55,6 +55,9 @@ export interface CadastrarConsultaProps {
   onConfirmar: (consulta: any) => void
   consultaParaEditar?: ConsultaData | null
   modoVisualizacao?: boolean
+  onConfirmarConsulta?: () => void
+  onCancelarConsulta?: () => void
+  onReagendarConsulta?: () => void
 }
 
 // Interface para colunas da tabela de consultas

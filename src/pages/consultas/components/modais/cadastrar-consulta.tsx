@@ -15,6 +15,9 @@ export function CadastrarConsulta({
   onConfirmar,
   consultaParaEditar = null,
   modoVisualizacao = false,
+  onConfirmarConsulta,
+  onCancelarConsulta,
+  onReagendarConsulta,
 }: Readonly<CadastrarConsultaProps>) {
   const [formData, setFormData] = useState<ConsultaForm>({
     id_paciente: 0,
@@ -142,7 +145,6 @@ export function CadastrarConsulta({
 
   const getTitulo = () => {
     if (isVisualizacao) return 'Detalhes da Consulta'
-    if (isEdicao) return 'Editar Consulta'
     return 'Cadastrar Consulta'
   }
 
@@ -167,13 +169,30 @@ export function CadastrarConsulta({
       onClose={cancelar}
       actions={
         <>
-          <Button color="error" onClick={cancelar}>
-            {isVisualizacao ? 'Fechar' : 'Cancelar'}
-          </Button>
-          {!isVisualizacao && (
-            <Button color="primary" onClick={confirmar}>
-              {getTextoBotao()}
-            </Button>
+          {isVisualizacao ? (
+            <>
+              <Button color="error" onClick={onCancelarConsulta}>
+                Cancelar Consulta
+              </Button>
+              <Button color="warning" onClick={onReagendarConsulta}>
+                Reagendar
+              </Button>
+              <Button color="success" onClick={onConfirmarConsulta}>
+                Confirmar
+              </Button>
+              <Button color="secondary" onClick={cancelar}>
+                Fechar
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button color="error" onClick={cancelar}>
+                Cancelar
+              </Button>
+              <Button color="primary" onClick={confirmar}>
+                {getTextoBotao()}
+              </Button>
+            </>
           )}
         </>
       }
