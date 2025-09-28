@@ -4,11 +4,13 @@ import { MdVisibilityOff, MdVisibility, MdLocalHospital } from 'react-icons/md'
 import { InputAdornment } from '@mui/material'
 import { memo, useCallback, useState } from 'react'
 import { useDimension } from '../../hooks'
+import { useAuth } from '../../contexts/AuthContext'
 import CadastroDrawer from './cadastro/cadastro-usuario'
 import EsqueceuSenhaModal from './esqueceu-senha/esqueceu-senha'
 
 const Acessar = () => {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [showPswd, setShowPswd] = useState(false)
   const isMobile = useDimension(800)
 
@@ -30,13 +32,57 @@ const Acessar = () => {
       
       // Simula um delay de carregamento
       setTimeout(() => {
+        // Simula diferentes tipos de usuários baseado no email/username
+        let userData;
+        
+        // Credenciais de teste:
+        // Secretária: secretaria@teste.com / senha123
+        // Paciente: paciente@teste.com / senha123  
+        // Médico: medico@teste.com / senha123
+        
+        if (username.toLowerCase() === 'secretaria@teste.com' || username.toLowerCase().includes('secretaria')) {
+          userData = {
+            id: 1,
+            nome: 'Maria Silva Santos',
+            email: 'secretaria@teste.com',
+            indPapel: 1, // Secretária
+            avatar: null
+          };
+        } else if (username.toLowerCase() === 'paciente@teste.com' || username.toLowerCase().includes('paciente')) {
+          userData = {
+            id: 2,
+            nome: 'João Santos Costa',
+            email: 'paciente@teste.com',
+            indPapel: 2, // Paciente
+            avatar: null
+          };
+        } else if (username.toLowerCase() === 'medico@teste.com' || username.toLowerCase().includes('medico')) {
+          userData = {
+            id: 3,
+            nome: 'Dr. Carlos Oliveira',
+            email: 'medico@teste.com',
+            indPapel: 3, // Médico
+            avatar: null
+          };
+        } else {
+          // Default para secretária
+          userData = {
+            id: 1,
+            nome: 'Maria Silva Santos',
+            email: 'secretaria@teste.com',
+            indPapel: 1,
+            avatar: null
+          };
+        }
+
         // Simula um token de acesso
         localStorage.setItem('access_token', 'mock_access_token')
+        login(userData)
         navigate('/home')
         setIsLoading(false)
       }, 1000)
     },
-    [username, password, navigate],
+    [username, password, navigate, login],
   )
 
   return (
