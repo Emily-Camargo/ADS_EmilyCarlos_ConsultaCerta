@@ -1,0 +1,263 @@
+import Dialog from '../../../../components/dialog'
+import Button from '../../../../components/button'
+import { useState, useEffect } from 'react'
+import { Grid } from '@mui/material'
+import InputSelect from '../../../../components/input-mui/input-select'
+import Input from '../../../../components/input-mui/input'
+import { CadastrarConsultaProps, ConsultaData, ConsultaForm } from '../../../consultas/utils/interfaces'
+import { mockPacientes } from '../../../pacientes/mock'
+import { mockMedicos } from '../../../agenda/mock'
+import { toast } from 'react-toastify'
+
+export function CadastrarConsulta({
+  modal,
+  setModal,
+  onConfirmar,
+  consultaParaEditar = null,
+  modoVisualizacao = false,
+}: Readonly<CadastrarConsultaProps>) {
+  const [formData, setFormData] = useState<ConsultaForm>({
+    id_paciente: 0,
+    id_medico: 0,
+    data_hora: '',
+    observacoes: '',
+    valor_consulta: '',
+  })
+  const [pacienteSelecionado, setPacienteSelecionado] = useState<ConsultaData['paciente'] | null>(null)
+  const [medicoSelecionado, setMedicoSelecionado] = useState<ConsultaData['medico'] | null>(null)
+
+  const isEdicao = !!consultaParaEditar
+  const isVisualizacao = modoVisualizacao
+
+  useEffect(() => {
+    if (consultaParaEditar && modal) {
+      setPacienteSelecionado(consultaParaEditar.paciente)
+      setMedicoSelecionado(consultaParaEditar.medico)
+      setFormData({
+        id_paciente: consultaParaEditar.id_paciente,
+        id_medico: consultaParaEditar.id_medico,
+        data_hora: consultaParaEditar.data_hora,
+        observacoes: consultaParaEditar.observacoes || '',
+        valor_consulta: consultaParaEditar.valor_consulta?.toString() || '',
+      })
+    } else if (!modal) {
+      setFormData({
+        id_paciente: 0,
+        id_medico: 0,
+        data_hora: '',
+        observacoes: '',
+        valor_consulta: '',
+      })
+      setPacienteSelecionado(null)
+      setMedicoSelecionado(null)
+    }
+  }, [consultaParaEditar, modal])
+
+  const cancelar = () => {
+    setModal(false)
+    setFormData({
+      id_paciente: 0,
+      id_medico: 0,
+      data_hora: '',
+      observacoes: '',
+      valor_consulta: '',
+    })
+    setPacienteSelecionado(null)
+    setMedicoSelecionado(null)
+  }
+
+  const confirmar = () => {
+    if (formData.id_paciente === 0) {
+      toast.warn('Selecione um paciente!')
+      return
+    }
+
+    if (formData.id_medico === 0) {
+      toast.warn('Selecione um médico!')
+      return
+    }
+
+    if (!formData.data_hora) {
+      toast.warn('Selecione a data e hora da consulta!')
+      return
+    }
+
+    if (!formData.valor_consulta || parseFloat(formData.valor_consulta) <= 0) {
+      toast.warn('Informe um valor válido para a consulta!')
+      return
+    }
+
+    const consultaCompleta = {
+      ...formData,
+      ...(isEdicao && { 
+        id_consulta: consultaParaEditar!.id_consulta,
+        criado_em: consultaParaEditar!.criado_em,
+        atualizado_em: new Date().toISOString()
+      })
+    }
+
+    onConfirmar(consultaCompleta)
+    setFormData({
+      id_paciente: 0,
+      id_medico: 0,
+      data_hora: '',
+      observacoes: '',
+      valor_consulta: '',
+    })
+    setPacienteSelecionado(null)
+    setMedicoSelecionado(null)
+    setModal(false)
+  }
+
+  const handleInputChange = (field: keyof ConsultaForm) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: event.target.value
+    }))
+  }
+
+  const handlePacienteSelect = (
+    _event: React.SyntheticEvent,
+    value: typeof mockPacientes[0] | null
+  ) => {
+    setPacienteSelecionado(value)
+    setFormData(prev => ({
+      ...prev,
+      id_paciente: value?.id_paciente || 0
+    }))
+  }
+
+  const handleMedicoSelect = (
+    _event: React.SyntheticEvent,
+    value: typeof mockMedicos[0] | null
+  ) => {
+    setMedicoSelecionado(value)
+    setFormData(prev => ({
+      ...prev,
+      id_medico: value?.id_medico || 0
+    }))
+  }
+
+  const getTitulo = () => {
+    if (isVisualizacao) return 'Detalhes da Consulta'
+    if (isEdicao) return 'Editar Consulta'
+    return 'Cadastrar Consulta'
+  }
+
+  const getTextoBotao = () => {
+    if (isEdicao) return 'Salvar'
+    return 'Cadastrar'
+  }
+
+  const formatarDataHora = (dataHora: string) => {
+    if (!dataHora) return ''
+    const data = new Date(dataHora)
+    const dataFormatada = data.toISOString().split('T')[0]
+    const horaFormatada = data.toTimeString().split(' ')[0].substring(0, 5)
+    return `${dataFormatada}T${horaFormatada}`
+  }
+
+  return (
+    <Dialog
+      maxWidth="md"
+      title={getTitulo()}
+      open={modal}
+      onClose={cancelar}
+      actions={
+        <>
+          <Button color="error" onClick={cancelar}>
+            {isVisualizacao ? 'Fechar' : 'Cancelar'}
+          </Button>
+          {!isVisualizacao && (
+            <Button color="primary" onClick={confirmar}>
+              {getTextoBotao()}
+            </Button>
+          )}
+        </>
+      }
+    >
+      <div className="text-sm">
+        <p>
+          {isVisualizacao 
+            ? 'Visualize as informações da consulta abaixo.' 
+            : isEdicao 
+              ? 'Edite as informações da consulta abaixo.'
+              : 'Preencha os campos abaixo para cadastrar uma nova consulta.'
+          }
+        </p>
+        
+        <Grid container spacing={2} className="pt-4">
+          <Grid item xs={12} md={6}>
+            <InputSelect
+              value={pacienteSelecionado || null}
+              options={mockPacientes}
+              textFieldProps={{ 
+                label: 'Paciente *', 
+                disabled: isVisualizacao 
+              }}
+              multiple={false}
+              onChange={handlePacienteSelect}
+              optionLabel={(v) => `${v.nome_paciente} - ${v.cpf}`}
+              disabled={isVisualizacao}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <InputSelect
+              value={medicoSelecionado || null}
+              options={mockMedicos.filter(m => m.ativo)}
+              textFieldProps={{ 
+                label: 'Médico *', 
+                disabled: isVisualizacao 
+              }}
+              multiple={false}
+              onChange={handleMedicoSelect}
+              optionLabel={(v) => `${v.nome_medico} - ${v.especialidade}`}
+              disabled={isVisualizacao}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Input
+              label="Data e Hora *"
+              value={formatarDataHora(formData.data_hora)}
+              onChange={handleInputChange('data_hora')}
+              type="datetime-local"
+              fullWidth
+              disabled={isVisualizacao}
+              shrink
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Input
+              label="Valor da Consulta *"
+              value={formData.valor_consulta}
+              onChange={handleInputChange('valor_consulta')}
+              type="number"
+              fullWidth
+              disabled={isVisualizacao}
+              InputProps={{
+                startAdornment: <span className="mr-2">R$</span>
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Input
+              label="Observações"
+              value={formData.observacoes}
+              onChange={handleInputChange('observacoes')}
+              multiline
+              rows={3}
+              disabled={isVisualizacao}
+              fullWidth
+            />
+          </Grid>
+        </Grid>
+      </div>
+    </Dialog>
+  )
+}

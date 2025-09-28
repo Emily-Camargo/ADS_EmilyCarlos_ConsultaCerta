@@ -118,13 +118,6 @@ const ConsultaCardMedico = ({
               }}>
                 {paciente}
               </Typography>
-              <Typography variant="body2" sx={{ 
-                color: '#64748b',
-                fontSize: '0.7rem',
-                fontWeight: '500'
-              }}>
-                ID: #{id.toString().padStart(3, '0')}
-              </Typography>
             </Box>
           </Box>
           

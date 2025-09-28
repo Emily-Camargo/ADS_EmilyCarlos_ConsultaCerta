@@ -1,0 +1,278 @@
+import { useState } from 'react';
+import { Box, Typography, Paper } from '@mui/material';
+import { 
+  MdCalendarToday,
+  MdChevronLeft,
+  MdChevronRight
+} from 'react-icons/md';
+import Filtro from '../../components/filtro';
+import { Button } from '@mantine/core';
+import { getStatusColor, getStatusIcon, getTimeSlots, getWeekDays } from './utils/constants';
+import { getConsultasForDay } from './mocks/mocks';
+import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
+import { toast } from 'react-toastify';
+
+const ConsultasPage = () => {
+  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [modalCadastrar, setModalCadastrar] = useState(false);
+  const weekDays = getWeekDays(currentWeek);
+  const timeSlots = getTimeSlots();
+
+  const handleCadastrarConsulta = (consulta: any) => {
+    console.log('Nova consulta:', consulta);
+    toast.success('Consulta cadastrada com sucesso!');
+    setModalCadastrar(false);
+  };
+
+  return (
+    <Box sx={{ 
+      display: 'flex', 
+      height: '100vh', 
+      backgroundColor: '#f8fafc',
+      overflow: 'hidden'
+    }}>
+      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ p: 3, pb: 0 }}>
+          <Filtro />
+        </Box>
+
+        <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
+          <Button 
+            variant="gradient" 
+            gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} 
+            size="xs"
+            onClick={() => setModalCadastrar(true)}
+          >
+            Cadastrar Consulta
+          </Button>
+        </Box>
+
+        <Box sx={{ flex: 1, px: 3, overflow: 'auto' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            mb: 3
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <MdCalendarToday color="#64748b" />
+                <Typography variant="h6" sx={{ 
+                  fontWeight: '600', 
+                  color: '#1e293b' 
+                }}>
+                  {weekDays[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} a {weekDays[6].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                </Typography>
+              </Box>
+              
+            </Box>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentWeek(new Date(currentWeek.getTime() - 7 * 24 * 60 * 60 * 1000))}
+                className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+              >
+                <MdChevronLeft size={20} />
+              </button>
+              
+              <button
+                onClick={() => setCurrentWeek(new Date())}
+                className="px-2 py-1 text-xs font-medium text-gray-500 border border-gray-300 rounded hover:border-gray-400 hover:text-gray-600 transition-colors"
+              >
+                HOJE
+              </button>
+              
+              <button
+                onClick={() => setCurrentWeek(new Date(currentWeek.getTime() + 7 * 24 * 60 * 60 * 1000))}
+                className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+              >
+                <MdChevronRight size={20} />
+              </button>
+            </div>
+          </Box>
+
+          <Paper sx={{ 
+            borderRadius: '12px',
+            overflow: 'hidden',
+            border: '1px solid #e2e8f0'
+          }}>
+            <Box sx={{ display: 'flex' }}>
+              {/* Coluna de Horários */}
+              <Box sx={{ 
+                width: 80, 
+                borderRight: '1px solid #e2e8f0',
+                backgroundColor: '#f8fafc'
+              }}>
+                <Box sx={{ 
+                  height: 60, 
+                  borderBottom: '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f1f5f9'
+                }}>
+                  <Typography variant="caption" sx={{ 
+                    fontWeight: '600', 
+                    color: '#64748b',
+                    textTransform: 'uppercase'
+                  }}>
+                    Horário
+                  </Typography>
+                </Box>
+                {timeSlots
+                  .filter(time => {
+                    // Verifica se existe pelo menos uma consulta neste horário em qualquer dia
+                    return weekDays.some((_, dayIndex) => {
+                      const consultasDoDia = getConsultasForDay(dayIndex);
+                      return consultasDoDia.some(c => c.horario === time);
+                    });
+                  })
+                  .map((time) => (
+                    <Box key={time} sx={{ 
+                      height: 60, 
+                      borderBottom: '1px solid #e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: 'white'
+                    }}>
+                      <Typography variant="body2" sx={{ 
+                        fontWeight: '500', 
+                        color: '#374151'
+                      }}>
+                        {time}
+                      </Typography>
+                    </Box>
+                  ))}
+              </Box>
+
+              {/* Colunas dos Dias */}
+              {weekDays.map((day, dayIndex) => {
+                const consultasDoDia = getConsultasForDay(dayIndex);
+                
+                // Se não há consultas neste dia, não renderiza a coluna
+                if (consultasDoDia.length === 0) {
+                  return null;
+                }
+                
+                return (
+                  <Box key={dayIndex} sx={{ 
+                    flex: 1, 
+                    borderRight: dayIndex < 6 ? '1px solid #e2e8f0' : 'none',
+                    backgroundColor: 'white'
+                  }}>
+                    {/* Cabeçalho do Dia */}
+                    <Box sx={{ 
+                      height: 60, 
+                      borderBottom: '1px solid #e2e8f0',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: '#f8fafc'
+                    }}>
+                      <Typography variant="body2" sx={{ 
+                        fontWeight: '600', 
+                        color: '#1e293b',
+                        textTransform: 'capitalize'
+                      }}>
+                        {day.toLocaleDateString('pt-BR', { weekday: 'long' })}
+                      </Typography>
+                      <Typography variant="caption" sx={{ 
+                        color: '#64748b'
+                      }}>
+                        {day.getDate()}/{day.getMonth() + 1}
+                      </Typography>
+                    </Box>
+
+                    {/* Slots de Horário - Apenas horários com agendamentos */}
+                    {timeSlots
+                      .filter(time => {
+                        const consulta = consultasDoDia.find(c => c?.horario === time);
+                        return consulta !== undefined;
+                      })
+                      .map((time, timeIndex) => {
+                        const consulta = consultasDoDia.find(c => c?.horario === time);
+                        
+                        return (
+                          <Box key={timeIndex} sx={{ 
+                            height: 60, 
+                            borderBottom: '1px solid #e2e8f0',
+                            position: 'relative',
+                            backgroundColor: 'white',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              backgroundColor: '#f8fafc'
+                            }
+                          }}>
+                            {consulta && (
+                              <Box sx={{
+                                position: 'absolute',
+                                top: 4,
+                                left: 4,
+                                right: 4,
+                                bottom: 4,
+                                backgroundColor: consulta.status === 'concluida' ? '#dcfce7' : 
+                                             consulta.status === 'cancelada' ? '#fee2e2' : 
+                                             consulta.status === 'confirmada' ? '#dbeafe' : '#fef3c7',
+                                borderRadius: '6px',
+                                border: `1px solid ${getStatusColor(consulta.status)}`,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                p: 1
+                              }}>
+                                <Typography variant="caption" sx={{ 
+                                  fontWeight: '600',
+                                  color: '#1e293b',
+                                  textAlign: 'center',
+                                  lineHeight: 1.2,
+                                  fontSize: '10px'
+                                }}>
+                                  {consulta.horario} {consulta.paciente}
+                                </Typography>
+                                <Typography variant="caption" sx={{ 
+                                  color: '#64748b',
+                                  textAlign: 'center',
+                                  lineHeight: 1.2,
+                                  fontSize: '9px',
+                                  fontWeight: '500'
+                                }}>
+                                  {consulta.medico}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                                  {getStatusIcon(consulta.status)}
+                                  <Typography variant="caption" sx={{ 
+                                    color: getStatusColor(consulta.status),
+                                    fontWeight: '500',
+                                    fontSize: '9px'
+                                  }}>
+                                    {consulta.status === 'concluida' ? 'Concluída' : 
+                                     consulta.status === 'cancelada' ? 'Cancelada' : 
+                                     consulta.status === 'confirmada' ? 'Confirmada' : 'Aguardando confirmação'}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            )}
+                          </Box>
+                        );
+                      })}
+                  </Box>
+                );
+              })}
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
+
+      <CadastrarConsulta
+        modal={modalCadastrar}
+        setModal={setModalCadastrar}
+        onConfirmar={handleCadastrarConsulta}
+      />
+    </Box>
+  );
+};
+
+export default ConsultasPage;
