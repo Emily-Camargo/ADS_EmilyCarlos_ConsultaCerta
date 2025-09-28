@@ -12,12 +12,14 @@ import { getConsultasForDay } from './mocks/mocks';
 import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
 import { toast } from 'react-toastify';
 import { ConsultaData } from './utils/interfaces';
+import { filtroMedico } from './utils/filtro';
 
 const ConsultasPage = () => {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [modalCadastrar, setModalCadastrar] = useState(false);
   const [modalVisualizar, setModalVisualizar] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
+  const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<string>('');
   const weekDays = getWeekDays(currentWeek);
   const timeSlots = getTimeSlots();
 
@@ -51,6 +53,25 @@ const ConsultasPage = () => {
     setModalVisualizar(false);
     // Aqui você pode implementar a lógica de reagendamento
     toast.info('Funcionalidade de reagendamento será implementada em breve');
+  };
+
+  const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const medico = formData.get('medico') as string;
+    setFiltroMedicoSelecionado(medico);
+  };
+
+  const handleMedicoChange = (_event: React.SyntheticEvent, value: any) => {
+    if (value && typeof value === 'object' && 'value' in value) {
+      setFiltroMedicoSelecionado(value.value);
+    } else {
+      setFiltroMedicoSelecionado('');
+    }
+  };
+
+  const handleLimparFiltros = () => {
+    setFiltroMedicoSelecionado('');
   };
 
   // Função para converter dados do mock para ConsultaData
@@ -98,7 +119,14 @@ const ConsultasPage = () => {
     }}>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ p: 3, pb: 0 }}>
-          <Filtro />
+          <Filtro 
+            inputSelect={[{
+              ...filtroMedico,
+              onChange: handleMedicoChange
+            }]}
+            onSubmit={handleFiltroSubmit}
+            onClear={handleLimparFiltros}
+          />
         </Box>
 
         <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
@@ -189,7 +217,10 @@ const ConsultasPage = () => {
                     // Verifica se existe pelo menos uma consulta neste horário em qualquer dia
                     return weekDays.some((_, dayIndex) => {
                       const consultasDoDia = getConsultasForDay(dayIndex);
-                      return consultasDoDia.some(c => c.horario === time);
+                      const consultasFiltradas = filtroMedicoSelecionado 
+                        ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
+                        : consultasDoDia;
+                      return consultasFiltradas.some(c => c.horario === time);
                     });
                   })
                   .map((time) => (
@@ -215,8 +246,13 @@ const ConsultasPage = () => {
               {weekDays.map((day, dayIndex) => {
                 const consultasDoDia = getConsultasForDay(dayIndex);
                 
-                // Se não há consultas neste dia, não renderiza a coluna
-                if (consultasDoDia.length === 0) {
+                // Aplicar filtro de médico se selecionado
+                const consultasFiltradas = filtroMedicoSelecionado 
+                  ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
+                  : consultasDoDia;
+                
+                // Se não há consultas neste dia após filtro, não renderiza a coluna
+                if (consultasFiltradas.length === 0) {
                   return null;
                 }
                 
@@ -253,11 +289,11 @@ const ConsultasPage = () => {
                     {/* Slots de Horário - Apenas horários com agendamentos */}
                     {timeSlots
                       .filter(time => {
-                        const consulta = consultasDoDia.find(c => c?.horario === time);
+                        const consulta = consultasFiltradas.find(c => c?.horario === time);
                         return consulta !== undefined;
                       })
                       .map((time, timeIndex) => {
-                        const consulta = consultasDoDia.find(c => c?.horario === time);
+                        const consulta = consultasFiltradas.find(c => c?.horario === time);
                         
                         return (
                           <Box key={timeIndex} sx={{ 
