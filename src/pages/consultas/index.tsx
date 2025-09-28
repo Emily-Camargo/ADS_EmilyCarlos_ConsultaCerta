@@ -13,8 +13,10 @@ import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
 import { toast } from 'react-toastify';
 import { ConsultaData } from './utils/interfaces';
 import { filtroMedico } from './utils/filtro';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ConsultasPage = () => {
+  const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [modalCadastrar, setModalCadastrar] = useState(false);
   const [modalVisualizar, setModalVisualizar] = useState(false);
@@ -129,16 +131,18 @@ const ConsultasPage = () => {
           />
         </Box>
 
-        <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
-          <Button 
-            variant="gradient" 
-            gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} 
-            size="xs"
-            onClick={() => setModalCadastrar(true)}
-          >
-            Cadastrar Consulta
-          </Button>
-        </Box>
+        {user?.indPapel === 1 && (
+          <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
+            <Button 
+              variant="gradient" 
+              gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} 
+              size="xs"
+              onClick={() => setModalCadastrar(true)}
+            >
+              Cadastrar Consulta
+            </Button>
+          </Box>
+        )}
 
         <Box sx={{ flex: 1, px: 3, overflow: 'auto' }}>
           <Box sx={{ 
