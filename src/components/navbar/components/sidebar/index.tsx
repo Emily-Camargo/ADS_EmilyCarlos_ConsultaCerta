@@ -8,7 +8,7 @@ import MenuSidebar from './menu-sidebar'
 import logoConsulta from '/public/assets/logoConsulta.png'
 import { useDimension } from '../../../../hooks'
 import { useAuth } from '../../../../contexts/AuthContext'
-import { getMenuItems } from '../../../../pages/home/components/userConstants'
+import { getMenuItems } from '../../../../pages/home/utils/routes'
 import { 
   LocalHospital
 } from '@mui/icons-material'
@@ -27,7 +27,6 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
     setOpenIndex(openIndex === aplicacao ? null : aplicacao)
   }
 
-  // Obtém os itens do menu baseado no papel do usuário
   const menuItems = user ? getMenuItems(user.indPapel) : []
 
   return (
@@ -49,7 +48,6 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
         },
       }}
     >
-      {/* Header do Sidebar com Logo */}
       <div className={`flex flex-col items-center justify-center ${isMobile ? 'pt-4 pb-3' : 'pt-6 pb-4'} border-b border-white/20`}>
         <div className={isMobile ? 'mb-2' : 'mb-3'}>
           <img 
@@ -93,7 +91,6 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
         </List>
       </Box>
 
-      {/* Footer do Sidebar */}
       <div className={`absolute bottom-0 left-0 right-0 ${isMobile ? 'p-3' : 'p-4'} border-t border-white/20 bg-black/10`}>
         <div className={`text-center text-white/70 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           <div className={`flex items-center justify-center space-x-1 ${isMobile ? 'mb-0.5' : 'mb-1'}`}>

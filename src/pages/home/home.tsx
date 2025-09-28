@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import SecretariaDashboard from './components/SecretariaDashboard';
 import PacienteDashboard from './components/PacienteDashboard';
@@ -16,7 +15,6 @@ const Home = () => {
     return <div>Usuário não autenticado</div>;
   }
 
-  // Renderiza o dashboard baseado no papel do usuário
   switch (user.indPapel) {
     case 1: // Secretária
       return <SecretariaDashboard />;

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   MdEventNote,
@@ -6,9 +5,10 @@ import {
   MdAssignment,
 } from 'react-icons/md';
 import { CardStats, QuickActionCard } from '../../../components/cards';
-import { Box, Typography, Grid, Card, CardContent, Chip } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import { useDimension } from '../../../hooks';
-import { getDashboardStats, getQuickActions, consultasPaciente } from './userConstants';
+import { getQuickActions } from '../utils/constants';
+import { getDashboardStats } from '../mocks/mocks';
 
 const PacienteDashboard = () => {
   const navigate = useNavigate();
@@ -16,30 +16,15 @@ const PacienteDashboard = () => {
   const dashboardStats = getDashboardStats(2);
   const quickActions = getQuickActions(2);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Agendada':
-        return 'default';
-      case 'Confirmada':
-        return 'primary';
-      case 'Em Andamento':
-        return 'warning';
-      case 'Concluída':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
-        {/* Cards de Estatísticas */}
         <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: isMobile ? 2 : 4 }}>
           <Grid item xs={12} md={4}>
             <CardStats
               title="Consultas Agendadas"
-              value={dashboardStats.consultasAgendadas}
+              value={dashboardStats.consultasAgendadas || 0}
               icon={MdEventNote}
               color="primary"
             />
@@ -47,7 +32,7 @@ const PacienteDashboard = () => {
           <Grid item xs={12} md={4}>
             <CardStats
               title="Próxima Consulta"
-              value={dashboardStats.proximaConsulta}
+              value={dashboardStats.proximaConsulta || 0}
               icon={MdAccessTime}
               color="secondary"
             />
@@ -55,7 +40,7 @@ const PacienteDashboard = () => {
           <Grid item xs={12} md={4}>
             <CardStats
               title="Exames Pendentes"
-              value={dashboardStats.examesPendentes}
+              value={dashboardStats.examesPendentes || 0}
               icon={MdAssignment}
               color="accent"
             />
@@ -63,7 +48,6 @@ const PacienteDashboard = () => {
         </Grid>
 
 
-        {/* Módulos Disponíveis */}
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: isMobile ? 2 : 3 }}>
             <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: 'bold', color: '#1f2937' }}>

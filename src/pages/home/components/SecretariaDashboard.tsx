@@ -7,32 +7,17 @@ import {
 import { CardStats } from '../../../components/cards';
 import { Box, Typography, Grid, Card, CardContent, Chip } from '@mui/material';
 import { useDimension } from '../../../hooks';
-import { getDashboardStats, consultasDoDia } from './userConstants';
+import { getDashboardStats, consultasDoDia } from '../mocks/mocks';
+import { getStatusColor } from '../utils/constants';
 
 const SecretariaDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
   const dashboardStats = getDashboardStats(1);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Agendada':
-        return 'default';
-      case 'Confirmada':
-        return 'primary';
-      case 'Em Andamento':
-        return 'warning';
-      case 'Concluída':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
-        {/* Cards de Estatísticas */}
         <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: isMobile ? 2 : 4 }}>
           <Grid item xs={12} md={4}>
             <CardStats
@@ -60,7 +45,6 @@ const SecretariaDashboard = () => {
           </Grid>
         </Grid>
 
-        {/* Consultas do Dia */}
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: 'bold', color: '#1f2937', mb: 2 }}>
             Consultas de Hoje
