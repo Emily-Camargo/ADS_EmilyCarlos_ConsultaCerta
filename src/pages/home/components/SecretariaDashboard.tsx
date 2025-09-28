@@ -5,10 +5,10 @@ import {
   MdAccessTime,
 } from 'react-icons/md';
 import { CardStats } from '../../../components/cards';
-import { Box, Typography, Grid, Card, CardContent, Chip } from '@mui/material';
+import { Box, Typography, Grid } from '@mui/material';
 import { useDimension } from '../../../hooks';
 import { getDashboardStats, consultasDoDia } from '../mocks/mocks';
-import { getStatusColor } from '../utils/constants';
+import ConsultaCardEnhanced from './ConsultaCardEnhanced';
 
 const SecretariaDashboard = () => {
   const navigate = useNavigate();
@@ -46,46 +46,44 @@ const SecretariaDashboard = () => {
         </Grid>
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
-          <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: 'bold', color: '#1f2937', mb: 2 }}>
-            Consultas de Hoje
-          </Typography>
-          <Grid container spacing={isMobile ? 1 : 2}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            mb: 3 
+          }}>
+            <Typography variant={isMobile ? "h5" : "h4"} sx={{ 
+              fontWeight: 'bold', 
+              color: '#1f2937',
+              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              📅 Consultas de Hoje
+            </Typography>
+            <Typography variant="body2" sx={{ 
+              color: '#6b7280',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}>
+              {consultasDoDia.length} consultas agendadas
+            </Typography>
+          </Box>
+          
+          <Grid container spacing={isMobile ? 2 : 3}>
             {consultasDoDia.map((consulta) => (
               <Grid item xs={12} sm={6} md={4} key={consulta.id}>
-                <Card 
-                  sx={{ 
-                    height: '100%',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: 3,
-                    }
-                  }}
+                <ConsultaCardEnhanced
+                  id={consulta.id}
+                  paciente={consulta.paciente}
+                  medico={consulta.medico}
+                  horario={consulta.horario}
+                  status={consulta.status}
+                  especialidade={consulta.especialidade}
                   onClick={() => navigate('/consultas')}
-                >
-                  <CardContent>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-                        {consulta.paciente}
-                      </Typography>
-                      <Chip 
-                        label={consulta.status} 
-                        color={getStatusColor(consulta.status)}
-                        size="small"
-                      />
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      <strong>Médico:</strong> {consulta.medico}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-                      <strong>Especialidade:</strong> {consulta.especialidade}
-                    </Typography>
-                    <Typography variant="body2" color="primary" sx={{ fontWeight: 'bold' }}>
-                      <strong>Horário:</strong> {consulta.horario}
-                    </Typography>
-                  </CardContent>
-                </Card>
+                  showActions={true}
+                />
               </Grid>
             ))}
           </Grid>
