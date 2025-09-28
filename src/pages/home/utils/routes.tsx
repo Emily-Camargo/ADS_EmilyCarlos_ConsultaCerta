@@ -51,22 +51,11 @@ export const getMenuItems = (indPapel: number) => {
             icon: MdAssignment,
             route: '/exames'
           },
-          { 
-            seqAplicacao: 8, 
-            label: 'Relatórios e Dashboards', 
-            icon: MdDashboard,
-            route: '/relatorios'
-          },
+          
         ];
       
       case USER_ROLES.PACIENTE:
         return [
-          { 
-            seqAplicacao: 1, 
-            label: 'Dashboard', 
-            icon: MdDashboard,
-            route: '/home'
-          },
           { 
             seqAplicacao: 2, 
             label: 'Minhas Consultas', 
@@ -84,12 +73,6 @@ export const getMenuItems = (indPapel: number) => {
       case USER_ROLES.MEDICO:
         return [
           { 
-            seqAplicacao: 1, 
-            label: 'Dashboard', 
-            icon: MdDashboard,
-            route: '/home'
-          },
-          { 
             seqAplicacao: 2, 
             label: 'Consultas', 
             icon: MdEventNote,
@@ -106,6 +89,12 @@ export const getMenuItems = (indPapel: number) => {
             label: 'Atendimentos', 
             icon: MdLocalHospital,
             route: '/atendimentos'
+          },
+          { 
+            seqAplicacao: 8, 
+            label: 'Relatórios e Dashboards', 
+            icon: MdDashboard,
+            route: '/relatorios'
           },
         ];
       

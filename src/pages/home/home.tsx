@@ -16,11 +16,11 @@ const Home = () => {
   }
 
   switch (user.indPapel) {
-    case 1: // Secretária
+    case 1:
       return <SecretariaDashboard />;
-    case 2: // Paciente
+    case 2:
       return <PacienteDashboard />;
-    case 3: // Médico
+    case 3:
       return <MedicoDashboard />;
     default:
       return <div>Papel de usuário não reconhecido</div>;
