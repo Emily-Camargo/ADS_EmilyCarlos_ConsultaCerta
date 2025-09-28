@@ -1,7 +1,7 @@
 import { useAuth } from '../../contexts/AuthContext';
-import SecretariaDashboard from './components/SecretariaDashboard';
-import PacienteDashboard from './components/PacienteDashboard';
-import MedicoDashboard from './components/MedicoDashboard';
+import SecretariaDashboard from './components/homes/SecretariaDashboard';
+import PacienteDashboard from './components/homes/PacienteDashboard';
+import MedicoDashboard from './components/homes/MedicoDashboard';
 import CustomLoaders from '../../components/Loader';
 
 const Home = () => {

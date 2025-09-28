@@ -29,16 +29,20 @@ export const getDashboardStats = (indPapel: number) => {
   }
 };
 
-// Dados mock para consultas do dia (secretária)
-export const consultasDoDia = [
+// Dados mock para consultas da secretaria - Em Andamento
+export const consultasEmAndamento = [
   {
     id: 1,
     paciente: 'Maria Silva Santos',
     medico: 'Dr. João Oliveira',
     horario: '09:00',
-    status: 'Agendada',
+    status: 'Em Andamento',
     especialidade: 'Cardiologia',
   },
+];
+
+// Dados mock para consultas da secretaria - Confirmada
+export const consultasConfirmada = [
   {
     id: 2,
     paciente: 'Pedro Costa Lima',
@@ -47,46 +51,67 @@ export const consultasDoDia = [
     status: 'Confirmada',
     especialidade: 'Dermatologia',
   },
+];
+
+// Dados mock para consultas da secretaria - Concluída
+export const consultasConcluida = [
   {
     id: 3,
     paciente: 'Carla Mendes',
     medico: 'Dr. Roberto Silva',
     horario: '14:00',
-    status: 'Em Andamento',
+    status: 'Concluída',
     especialidade: 'Ortopedia',
   },
+];
+
+// Dados mock para consultas da secretaria - Reagendada
+export const consultasReagendada = [
   {
-    id: 4,
-    paciente: 'Lucas Ferreira',
-    medico: 'Dra. Mariana Costa',
-    horario: '15:30',
-    status: 'Agendada',
-    especialidade: 'Pediatria',
+    id: 5,
+    paciente: 'Fernanda Oliveira',
+    medico: 'Dr. Carlos Eduardo',
+    horario: '16:00',
+    status: 'Reagendada',
+    especialidade: 'Neurologia',
   },
 ];
 
-// Dados mock para consultas do paciente
-export const consultasPaciente = [
+// Dados mock para consultas da secretaria - Aguardando confirmação
+export const consultasAguardandoConfirmacao = [
   {
-    id: 1,
-    medico: 'Dr. João Oliveira',
-    especialidade: 'Cardiologia',
-    data: '2024-01-15',
-    horario: '09:00',
-    status: 'Agendada',
-  },
-  {
-    id: 2,
-    medico: 'Dra. Ana Paula',
-    especialidade: 'Dermatologia',
-    data: '2024-01-20',
-    horario: '14:30',
-    status: 'Confirmada',
+    id: 6,
+    paciente: 'Roberto Alves',
+    medico: 'Dra. Patricia Lima',
+    horario: '17:00',
+    status: 'Aguardando confirmação',
+    especialidade: 'Ginecologia',
   },
 ];
 
-// Dados mock para atendimentos do médico
-export const atendimentosMedico = [
+// Dados mock para consultas da secretaria - Não Compareceu
+export const consultasNaoCompareceu = [
+  {
+    id: 7,
+    paciente: 'Sandra Mendes',
+    medico: 'Dr. Carlos Eduardo',
+    horario: '18:00',
+    status: 'Não Compareceu',
+    especialidade: 'Neurologia',
+  },
+];
+
+// Dados mock para consultas do dia (secretária) - todos os status
+export const consultasDoDia = [
+  ...consultasEmAndamento,
+  ...consultasConfirmada,
+  ...consultasConcluida,
+  ...consultasAguardandoConfirmacao,
+  ...consultasNaoCompareceu,
+];
+
+// Dados mock para atendimentos do médico - Em Andamento
+export const atendimentosEmAndamento = [
   {
     id: 1,
     paciente: 'Maria Silva Santos',
@@ -94,18 +119,45 @@ export const atendimentosMedico = [
     status: 'Em Andamento',
     especialidade: 'Cardiologia',
   },
+];
+
+// Dados mock para atendimentos do médico - Confirmada
+export const atendimentosConfirmada = [
   {
     id: 2,
     paciente: 'Pedro Costa Lima',
-    horario: '10:30',
-    status: 'Aguardando',
+    horario: '11:00',
+    status: 'Confirmada',
     especialidade: 'Cardiologia',
   },
+];
+
+// Dados mock para atendimentos do médico - Concluída
+export const atendimentosConcluida = [
   {
     id: 3,
-    paciente: 'Carla Mendes',
-    horario: '14:00',
+    paciente: 'João Santos',
+    horario: '08:00',
     status: 'Concluída',
     especialidade: 'Cardiologia',
   },
+];
+
+// Dados mock para atendimentos do médico - Não Compareceu
+export const atendimentosNaoCompareceu = [
+  {
+    id: 4,
+    paciente: 'Sandra Mendes',
+    horario: '12:00',
+    status: 'Não Compareceu',
+    especialidade: 'Ginecologia',
+  },
+];
+
+// Dados mock para atendimentos do médico (todos os status)
+export const atendimentosMedico = [
+  ...atendimentosEmAndamento,
+  ...atendimentosConfirmada,
+  ...atendimentosConcluida,
+  ...atendimentosNaoCompareceu,
 ];

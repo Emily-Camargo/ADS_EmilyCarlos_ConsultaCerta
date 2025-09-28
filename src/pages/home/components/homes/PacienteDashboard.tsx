@@ -4,11 +4,11 @@ import {
   MdAccessTime,
   MdAssignment,
 } from 'react-icons/md';
-import { CardStats, QuickActionCard } from '../../../components/cards';
+import { CardStats, QuickActionCard } from '../../../../components/cards';
 import { Box, Typography, Grid } from '@mui/material';
-import { useDimension } from '../../../hooks';
-import { getQuickActions } from '../utils/constants';
-import { getDashboardStats } from '../mocks/mocks';
+import { useDimension } from '../../../../hooks';
+import { getQuickActions } from '../../utils/constants';
+import { getDashboardStats } from '../../mocks/mocks';
 
 const PacienteDashboard = () => {
   const navigate = useNavigate();

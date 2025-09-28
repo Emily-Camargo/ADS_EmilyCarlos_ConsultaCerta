@@ -1,20 +1,10 @@
-import { Card, CardContent, Typography, Box, Chip, Avatar, IconButton } from '@mui/material';
-import { MdPerson, MdAccessTime, MdLocalHospital, MdCalendarToday, MdMoreVert, MdPhone, MdMessage } from 'react-icons/md';
+import { Card, CardContent, Typography, Box, Chip, Avatar, Button } from '@mui/material';
+import { MdPerson, MdAccessTime, MdLocalHospital, MdCalendarToday, MdPlayArrow, MdCancel } from 'react-icons/md';
 import { useState } from 'react';
+import { ConsultaCardMedicoProps } from '../../../utils/interfaces';
+import { getGradientColor, getStatusIcon, getStatusStyle } from './constants';
 
-interface ConsultaCardEnhancedProps {
-  id: number;
-  paciente: string;
-  medico: string;
-  horario: string;
-  status: string;
-  especialidade?: string;
-  data?: string;
-  onClick?: () => void;
-  showActions?: boolean;
-}
-
-const ConsultaCardEnhanced = ({ 
+const ConsultaCardMedico = ({ 
   id, 
   paciente, 
   medico, 
@@ -23,77 +13,22 @@ const ConsultaCardEnhanced = ({
   especialidade, 
   data, 
   onClick,
-  showActions = true
-}: ConsultaCardEnhancedProps) => {
+  onIniciarAtendimento,
+  onNaoCompareceu
+}: ConsultaCardMedicoProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'Agendada':
-        return <MdCalendarToday size={16} />;
-      case 'Confirmada':
-        return <MdAccessTime size={16} />;
-      case 'Em Andamento':
-        return <MdLocalHospital size={16} />;
-      case 'Concluída':
-        return <MdPerson size={16} />;
-      default:
-        return <MdCalendarToday size={16} />;
+  const handleIniciarAtendimento = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onIniciarAtendimento) {
+      onIniciarAtendimento(id);
     }
   };
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case 'Agendada':
-        return {
-          backgroundColor: '#f8fafc',
-          color: '#475569',
-          border: '1px solid #cbd5e1',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        };
-      case 'Confirmada':
-        return {
-          backgroundColor: '#eff6ff',
-          color: '#1e40af',
-          border: '1px solid #93c5fd',
-          boxShadow: '0 1px 3px rgba(59, 130, 246, 0.2)'
-        };
-      case 'Em Andamento':
-        return {
-          backgroundColor: '#fffbeb',
-          color: '#b45309',
-          border: '1px solid #fcd34d',
-          boxShadow: '0 1px 3px rgba(245, 158, 11, 0.2)'
-        };
-      case 'Concluída':
-        return {
-          backgroundColor: '#f0fdf4',
-          color: '#166534',
-          border: '1px solid #86efac',
-          boxShadow: '0 1px 3px rgba(34, 197, 94, 0.2)'
-        };
-      default:
-        return {
-          backgroundColor: '#f8fafc',
-          color: '#475569',
-          border: '1px solid #cbd5e1',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-        };
-    }
-  };
-
-  const getGradientColor = (status: string) => {
-    switch (status) {
-      case 'Agendada':
-        return 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
-      case 'Confirmada':
-        return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
-      case 'Em Andamento':
-        return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
-      case 'Concluída':
-        return 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
-      default:
-        return 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)';
+  const handleNaoCompareceu = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onNaoCompareceu) {
+      onNaoCompareceu(id);
     }
   };
 
@@ -119,12 +54,14 @@ const ConsultaCardEnhanced = ({
           left: 0,
           right: 0,
           height: '4px',
-          background: status === 'Em Andamento' 
+          background: status === 'Em Andamento'
             ? 'linear-gradient(90deg, #f59e0b, #f97316, #ef4444)'
-            : status === 'Confirmada'
+            : status === 'Aguardando' || status === 'Confirmada'
             ? 'linear-gradient(90deg, #3b82f6, #1d4ed8, #1e40af)'
             : status === 'Concluída'
             ? 'linear-gradient(90deg, #10b981, #059669, #047857)'
+            : status === 'Não Compareceu'
+            ? 'linear-gradient(90deg, #ef4444, #dc2626, #b91c1c)'
             : 'linear-gradient(90deg, #6b7280, #4b5563, #374151)',
           opacity: isHovered ? 1 : 0.8,
           transition: 'opacity 0.3s ease'
@@ -153,7 +90,6 @@ const ConsultaCardEnhanced = ({
       onMouseLeave={() => setIsHovered(false)}
     >
       <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
-        {/* Header com Status e Ações */}
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
@@ -164,7 +100,7 @@ const ConsultaCardEnhanced = ({
             <Avatar sx={{ 
               width: 32, 
               height: 32, 
-              bgcolor: status === 'Em Andamento' ? '#f59e0b' : status === 'Confirmada' ? '#3b82f6' : status === 'Concluída' ? '#10b981' : '#6b7280',
+              bgcolor: status === 'Em Andamento' ? '#f59e0b' : status === 'Aguardando' || status === 'Confirmada' ? '#3b82f6' : status === 'Concluída' ? '#10b981' : status === 'Não Compareceu' ? '#ef4444' : '#6b7280',
               fontSize: '0.875rem',
               fontWeight: 'bold',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -192,41 +128,23 @@ const ConsultaCardEnhanced = ({
             </Box>
           </Box>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-            <Chip
-              icon={getStatusIcon(status)}
-              label={status}
-              size="small"
-              sx={{
-                ...getStatusStyle(status),
-                fontWeight: '600',
-                fontSize: '0.7rem',
-                height: '24px',
-                px: 0.75,
-                '& .MuiChip-icon': {
-                  fontSize: '14px'
-                }
-              }}
-            />
-            {showActions && (
-              <IconButton 
-                size="small" 
-                sx={{ 
-                  color: '#64748b',
-                  padding: '4px',
-                  '&:hover': { 
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                    color: '#3b82f6'
-                  }
-                }}
-              >
-                <MdMoreVert size={16} />
-              </IconButton>
-            )}
-          </Box>
+          <Chip
+            icon={getStatusIcon(status)}
+            label={status}
+            size="small"
+            sx={{
+              ...getStatusStyle(status),
+              fontWeight: '600',
+              fontSize: '0.7rem',
+              height: '24px',
+              px: 0.75,
+              '& .MuiChip-icon': {
+                fontSize: '14px'
+              }
+            }}
+          />
         </Box>
 
-        {/* Informações da Consulta */}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
           <Box sx={{ 
             display: 'flex', 
@@ -288,23 +206,27 @@ const ConsultaCardEnhanced = ({
             gap: 1,
             p: 1,
             borderRadius: '8px',
-            backgroundColor: status === 'Em Andamento' 
+            backgroundColor: status === 'Em Andamento'
               ? 'rgba(245, 158, 11, 0.1)' 
-              : status === 'Confirmada'
+              : status === 'Aguardando' || status === 'Confirmada'
               ? 'rgba(59, 130, 246, 0.1)'
+              : status === 'Não Compareceu'
+              ? 'rgba(239, 68, 68, 0.1)'
               : 'rgba(107, 114, 128, 0.1)',
             backdropFilter: 'blur(10px)',
-            border: `1px solid ${status === 'Em Andamento' 
+            border: `1px solid ${status === 'Em Andamento'
               ? 'rgba(245, 158, 11, 0.2)' 
-              : status === 'Confirmada'
+              : status === 'Aguardando' || status === 'Confirmada'
               ? 'rgba(59, 130, 246, 0.2)'
+              : status === 'Não Compareceu'
+              ? 'rgba(239, 68, 68, 0.2)'
               : 'rgba(107, 114, 128, 0.2)'}`
           }}>
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: 0.75,
-              color: status === 'Em Andamento' ? '#d97706' : status === 'Confirmada' ? '#1d4ed8' : '#374151',
+              color: status === 'Em Andamento' ? '#d97706' : status === 'Aguardando' || status === 'Confirmada' ? '#1d4ed8' : status === 'Não Compareceu' ? '#dc2626' : '#374151',
               fontWeight: '600'
             }}>
               <MdAccessTime size={14} />
@@ -346,55 +268,142 @@ const ConsultaCardEnhanced = ({
           )}
         </Box>
 
-        {/* Footer com ações */}
-        {showActions && (
+        {status === 'Concluída' ? (
           <Box sx={{ 
-            mt: 2.5, 
-            pt: 2, 
+            mt: 1.5, 
+            pt: 1.5, 
             borderTop: '1px solid rgba(255, 255, 255, 0.3)',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            justifyContent: 'center'
+          }}>
+            <Typography variant="caption" sx={{ 
+              color: '#10b981',
+              fontWeight: '600',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5
+            }}>
+              ✓ Atendimento Concluído
+            </Typography>
+          </Box>
+        ) : status === 'Não Compareceu' ? (
+          <Box sx={{ 
+            mt: 1.5, 
+            pt: 1.5, 
+            borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+            display: 'flex',
+            justifyContent: 'center'
+          }}>
+            <Typography variant="caption" sx={{ 
+              color: '#ef4444',
+              fontWeight: '600',
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5
+            }}>
+              ✗ Paciente Não Compareceu
+            </Typography>
+          </Box>
+        ) : status === 'Confirmada' ? (
+          <Box sx={{ 
+            mt: 1.5, 
+            pt: 1.5, 
+            borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1
           }}>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <IconButton 
-                size="small" 
-                sx={{ 
-                  color: '#10b981',
-                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                  '&:hover': { 
-                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                    transform: 'scale(1.1)'
+              <Button
+                variant="contained"
+                startIcon={<MdPlayArrow size={14} />}
+                onClick={handleIniciarAtendimento}
+                sx={{
+                  flex: 1,
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  fontWeight: '600',
+                  fontSize: '0.7rem',
+                  py: 0.75,
+                  px: 1,
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+                  '&:hover': {
+                    backgroundColor: '#059669',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
                   },
                   transition: 'all 0.2s ease'
                 }}
               >
-                <MdPhone size={16} />
-              </IconButton>
-              <IconButton 
-                size="small" 
-                sx={{ 
-                  color: '#3b82f6',
-                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                  '&:hover': { 
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    transform: 'scale(1.1)'
+                Iniciar
+              </Button>
+              
+              <Button
+                variant="outlined"
+                startIcon={<MdCancel size={14} />}
+                onClick={handleNaoCompareceu}
+                sx={{
+                  flex: 1,
+                  color: '#ef4444',
+                  borderColor: '#ef4444',
+                  fontWeight: '600',
+                  fontSize: '0.7rem',
+                  py: 0.75,
+                  px: 1,
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderColor: '#dc2626',
+                    color: '#dc2626',
+                    transform: 'translateY(-1px)',
                   },
                   transition: 'all 0.2s ease'
                 }}
               >
-                <MdMessage size={16} />
-              </IconButton>
+                Não Compareceu
+              </Button>
             </Box>
             
             <Typography variant="caption" sx={{ 
               color: '#64748b',
               fontWeight: '500',
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
+              textAlign: 'center',
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              Ver detalhes →
+              Clique para detalhes
+            </Typography>
+          </Box>
+        ) : (
+          <Box sx={{ 
+            mt: 1.5, 
+            pt: 1.5, 
+            borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+            display: 'flex',
+            justifyContent: 'center'
+          }}>
+            <Typography variant="caption" sx={{ 
+              color: '#64748b',
+              fontWeight: '500',
+              fontSize: '0.7rem',
+              textAlign: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
+            }}>
+              Clique para detalhes
             </Typography>
           </Box>
         )}
@@ -403,4 +412,4 @@ const ConsultaCardEnhanced = ({
   );
 };
 
-export default ConsultaCardEnhanced;
+export default ConsultaCardMedico;
