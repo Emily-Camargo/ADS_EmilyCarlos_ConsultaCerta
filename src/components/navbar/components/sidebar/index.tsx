@@ -5,18 +5,12 @@ import {
 } from '@mui/material'
 import React from 'react'
 import MenuSidebar from './menu-sidebar'
-import logoConsulta from '/assets/logoConsulta.png'
+import logoConsulta from '/public/assets/logoConsulta.png'
 import { useDimension } from '../../../../hooks'
+import { useAuth } from '../../../../contexts/AuthContext'
+import { getMenuItems } from '../../../../pages/home/utils/routes'
 import { 
-  EventNote,
-  Schedule,
-  People,
-  Description,
-  Medication,
-  Assignment,
-  Dashboard,
-  LocalHospital,
-  AdminPanelSettings
+  LocalHospital
 } from '@mui/icons-material'
 
 export interface NavbarComponentProps {
@@ -26,62 +20,14 @@ export interface NavbarComponentProps {
 
 const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
   const isMobile = useDimension(800)
+  const { user } = useAuth()
   const [openIndex, setOpenIndex] = React.useState<number | null>(null)
 
   const handleClick = (aplicacao: number) => {
     setOpenIndex(openIndex === aplicacao ? null : aplicacao)
   }
 
-  const menuItems = [
-    { 
-      seqAplicacao: 1, 
-      label: 'Dashboards e Relatórios', 
-      icon: <Dashboard className="!text-white" />,
-      route: '/home'
-    },
-    { 
-      seqAplicacao: 2, 
-      label: 'Consultas', 
-      icon: <EventNote className="!text-white" />,
-      route: '/consultas'
-    }, 
-    { 
-      seqAplicacao: 3, 
-      label: 'Agenda Médica', 
-      icon: <Schedule className="!text-white" />,
-      route: '/agenda'
-    }, 
-    { 
-      seqAplicacao: 4, 
-      label: 'Pacientes', 
-      icon: <People className="!text-white" />,
-      route: '/pacientes'
-    },
-    { 
-      seqAplicacao: 5, 
-      label: 'Prontuários', 
-      icon: <Description className="!text-white" />,
-      route: '/prontuarios'
-    },
-    { 
-      seqAplicacao: 6, 
-      label: 'Prescrições', 
-      icon: <Medication className="!text-white" />,
-      route: '/prescricoes'
-    },
-    { 
-      seqAplicacao: 7, 
-      label: 'Exames', 
-      icon: <Assignment className="!text-white" />,
-      route: '/exames'
-    },
-    { 
-      seqAplicacao: 12, 
-      label: 'Administração', 
-      icon: <AdminPanelSettings className="!text-white" />,
-      route: '/admin'
-    },
-  ]
+  const menuItems = user ? getMenuItems(user.indPapel) : []
 
   return (
     <Drawer
@@ -102,7 +48,6 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
         },
       }}
     >
-      {/* Header do Sidebar com Logo */}
       <div className={`flex flex-col items-center justify-center ${isMobile ? 'pt-4 pb-3' : 'pt-6 pb-4'} border-b border-white/20`}>
         <div className={isMobile ? 'mb-2' : 'mb-3'}>
           <img 
@@ -129,21 +74,23 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
         }}
       >
         <List component="nav" aria-labelledby="nested-list-subheader">
-          {menuItems.map((v) => (
-            <MenuSidebar
-              key={v.seqAplicacao}              
-              setOpen={setOpen}                
-              open={openIndex === v.seqAplicacao}
-              onClick={() => handleClick(v.seqAplicacao)}
-              seqAplicacao={v.seqAplicacao}    
-              label={v.label}                   
-              icon={v.icon}
-            />
-          ))}
+          {menuItems.map((v) => {
+            const IconComponent = v.icon;
+            return (
+              <MenuSidebar
+                key={v.seqAplicacao}              
+                setOpen={setOpen}                
+                open={openIndex === v.seqAplicacao}
+                onClick={() => handleClick(v.seqAplicacao)}
+                seqAplicacao={v.seqAplicacao}    
+                label={v.label}                   
+                icon={<IconComponent className="!text-white" />}
+              />
+            );
+          })}
         </List>
       </Box>
 
-      {/* Footer do Sidebar */}
       <div className={`absolute bottom-0 left-0 right-0 ${isMobile ? 'p-3' : 'p-4'} border-t border-white/20 bg-black/10`}>
         <div className={`text-center text-white/70 ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           <div className={`flex items-center justify-center space-x-1 ${isMobile ? 'mb-0.5' : 'mb-1'}`}>

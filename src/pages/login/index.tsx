@@ -4,11 +4,13 @@ import { MdVisibilityOff, MdVisibility, MdLocalHospital } from 'react-icons/md'
 import { InputAdornment } from '@mui/material'
 import { memo, useCallback, useState } from 'react'
 import { useDimension } from '../../hooks'
+import { useAuth } from '../../contexts/AuthContext'
 import CadastroDrawer from './cadastro/cadastro-usuario'
 import EsqueceuSenhaModal from './esqueceu-senha/esqueceu-senha'
 
 const Acessar = () => {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [showPswd, setShowPswd] = useState(false)
   const isMobile = useDimension(800)
 
@@ -30,22 +32,66 @@ const Acessar = () => {
       
       // Simula um delay de carregamento
       setTimeout(() => {
+        // Simula diferentes tipos de usuários baseado no email/username
+        let userData;
+        
+        // Credenciais de teste:
+        // Secretária: secretaria@teste.com / senha123
+        // Paciente: paciente@teste.com / senha123  
+        // Médico: medico@teste.com / senha123
+        
+        if (username.toLowerCase() === 'secretaria@teste.com' || username.toLowerCase().includes('secretaria')) {
+          userData = {
+            id: 1,
+            nome: 'Maria Silva Santos',
+            email: 'secretaria@teste.com',
+            indPapel: 1, // Secretária
+            avatar: null
+          };
+        } else if (username.toLowerCase() === 'paciente@teste.com' || username.toLowerCase().includes('paciente')) {
+          userData = {
+            id: 2,
+            nome: 'João Santos Costa',
+            email: 'paciente@teste.com',
+            indPapel: 2, // Paciente
+            avatar: null
+          };
+        } else if (username.toLowerCase() === 'medico@teste.com' || username.toLowerCase().includes('medico')) {
+          userData = {
+            id: 3,
+            nome: 'Dr. Carlos Oliveira',
+            email: 'medico@teste.com',
+            indPapel: 3, // Médico
+            avatar: null
+          };
+        } else {
+          // Default para secretária
+          userData = {
+            id: 1,
+            nome: 'Maria Silva Santos',
+            email: 'secretaria@teste.com',
+            indPapel: 1,
+            avatar: null
+          };
+        }
+
         // Simula um token de acesso
         localStorage.setItem('access_token', 'mock_access_token')
+        login(userData)
         navigate('/home')
         setIsLoading(false)
       }, 1000)
     },
-    [username, password, navigate],
+    [username, password, navigate, login],
   )
 
   return (
     <div className="min-h-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-medical-gray-800 via-medical-gray-700 to-medical-primary-900 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden z-0">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-medical-primary/20 rounded-full opacity-40 animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-20 h-20 bg-medical-secondary/30 rounded-full opacity-50"></div>
-        <div className="absolute bottom-20 left-20 w-24 h-24 bg-medical-accent/25 rounded-full opacity-30"></div>
-        <div className="absolute bottom-40 right-10 w-16 h-16 bg-medical-primary-400/40 rounded-full opacity-60 animate-bounce"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-medical-primary/20 rounded-full opacity-40 animate-bounce" style={{animationDelay: '0s', animationDuration: '2s'}}></div>
+        <div className="absolute top-40 right-20 w-20 h-20 bg-medical-secondary/30 rounded-full opacity-50 animate-bounce" style={{animationDelay: '0.5s', animationDuration: '2s'}}></div>
+        <div className="absolute bottom-20 left-20 w-24 h-24 bg-medical-accent/25 rounded-full opacity-30 animate-bounce" style={{animationDelay: '1s', animationDuration: '2s'}}></div>
+        <div className="absolute bottom-40 right-10 w-16 h-16 bg-medical-primary-400/40 rounded-full opacity-60 animate-bounce" style={{animationDelay: '1.5s', animationDuration: '2s'}}></div>
         
         <div className="absolute top-1/4 left-1/3 text-medical-primary-400/20 transform rotate-12">
           <MdLocalHospital size={40} />

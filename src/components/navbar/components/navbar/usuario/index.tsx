@@ -1,17 +1,18 @@
-import React, { memo } from 'react'
+import { memo } from 'react'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import { 
   Logout,
-  Person,
-  LocalHospital
+  Person
 } from '@mui/icons-material'
 import { ContaUsuarioComponentsProps } from '../../utils/interface'
+import { useAuth } from '../../../../../contexts/AuthContext'
 
 const ContaComponent = ({
   anchorEl,
   setAnchorEl,
 }: ContaUsuarioComponentsProps) => {
+  const { user, logout } = useAuth()
   const open = Boolean(anchorEl)
 
   const handleClose = () => {
@@ -35,14 +36,32 @@ const ContaComponent = ({
 
   async function handleLogout() {
     setAnchorEl(null)
-    localStorage.removeItem('access_token')
+    logout()
     window.location.href = '/acessar'
   }
 
-  const userData = {
-    name: 'Dr. João Silva',
-    email: 'joao.silva@consultacerta.com',
-    role: 'Médico',
+  const getRoleName = (indPapel: number) => {
+    switch (indPapel) {
+      case 1:
+        return 'Secretária';
+      case 2:
+        return 'Paciente';
+      case 3:
+        return 'Médico';
+      default:
+        return 'Usuário';
+    }
+  }
+
+  const userData = user ? {
+    name: user.nome,
+    email: user.email,
+    role: getRoleName(user.indPapel),
+    avatar: user.avatar
+  } : {
+    name: 'Usuário',
+    email: 'usuario@consultacerta.com',
+    role: 'Usuário',
     avatar: null
   }
 
