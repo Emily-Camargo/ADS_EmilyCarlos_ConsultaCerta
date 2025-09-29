@@ -124,7 +124,6 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
       return
     }
 
-    // Combinar data e horário
     const dataHora = `${formData.data}T${formData.horario}:00`
     
     const agendamentoCompleto: AgendamentoCompleto = {
@@ -143,7 +142,7 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
 
   const getMaxDate = () => {
     const maxDate = new Date()
-    maxDate.setMonth(maxDate.getMonth() + 3) // 3 meses no futuro
+    maxDate.setMonth(maxDate.getMonth() + 3)
     return maxDate.toISOString().split('T')[0]
   }
 

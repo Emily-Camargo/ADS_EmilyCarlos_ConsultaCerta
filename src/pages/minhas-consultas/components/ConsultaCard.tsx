@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, CardContent, Typography, Box, Chip, IconButton } from '@mui/material'
+import { Card, CardContent, Typography, Box, Chip, IconButton, Tooltip } from '@mui/material'
 import { 
   MdCalendarToday, 
   MdAccessTime, 
@@ -7,10 +7,13 @@ import {
   MdLocalHospital,
   MdVisibility,
   MdCancel,
-  MdSchedule
+  MdSchedule,
+  MdVerified,
+  MdInfo
 } from 'react-icons/md'
 import { ConsultaCardProps } from '../utils/interfaces'
 import { getStatusColor } from '../../home/utils/constants'
+import { formatarDataHora, getStatusIcon, getStatusText } from '../utils/constants'
 
 const ConsultaCard: React.FC<ConsultaCardProps> = ({ 
   consulta, 
@@ -18,43 +21,6 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
   onCancelar, 
   onReagendar 
 }) => {
-  const formatarDataHora = (dataHora: string) => {
-    const data = new Date(dataHora)
-    return {
-      data: data.toLocaleDateString('pt-BR'),
-      hora: data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'agendada':
-        return 'Agendada'
-      case 'confirmada':
-        return 'Confirmada'
-      case 'concluida':
-        return 'Concluída'
-      case 'cancelada':
-        return 'Cancelada'
-      default:
-        return status
-    }
-  }
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'agendada':
-        return <MdSchedule size={16} />
-      case 'confirmada':
-        return <MdCalendarToday size={16} />
-      case 'concluida':
-        return <MdLocalHospital size={16} />
-      case 'cancelada':
-        return <MdCancel size={16} />
-      default:
-        return <MdCalendarToday size={16} />
-    }
-  }
 
   const { data, hora } = formatarDataHora(consulta.data_hora)
   const statusColor = getStatusColor(getStatusText(consulta.status))
@@ -63,111 +29,170 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
     <Card 
       sx={{ 
         height: '100%',
-        borderRadius: '8px',
+        borderRadius: '10px',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
         transition: 'all 0.2s ease-in-out',
+        backgroundColor: '#ffffff',
         '&:hover': {
-          boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.15)',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           transform: 'translateY(-2px)'
         }
       }}
     >
-      <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            {getStatusIcon(consulta.status)}
+      <CardContent sx={{ p: 2.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
+        {/* Cabeçalho do Card */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ 
+              backgroundColor: consulta.status === 'concluida' ? '#dcfce7' : 
+                            consulta.status === 'agendada' ? '#fef9c3' : 
+                            consulta.status === 'cancelada' ? '#fee2e2' : '#f0f9ff',
+              p: 0.75,
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              {getStatusIcon(consulta.status)}
+            </Box>
             <Chip 
               label={getStatusText(consulta.status)}
               color={statusColor}
               size="small"
-              sx={{ fontWeight: '600', fontSize: '0.75rem' }}
+              sx={{ 
+                fontWeight: '600', 
+                fontSize: '0.75rem',
+                height: '24px'
+              }}
             />
           </Box>
           
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             {onVisualizar && (
-              <IconButton 
-                size="small" 
-                onClick={() => onVisualizar(consulta)}
-                sx={{ 
-                  color: '#64748b',
-                  '&:hover': { color: '#1e40af' },
-                  p: 0.5
-                }}
-              >
-                <MdVisibility size={16} />
-              </IconButton>
+              <Tooltip title="Visualizar detalhes" arrow>
+                <IconButton 
+                  size="small" 
+                  onClick={() => onVisualizar(consulta)}
+                  sx={{ 
+                    color: '#1e40af',
+                    backgroundColor: '#eff6ff',
+                    p: 0.5,
+                    '&:hover': { backgroundColor: '#dbeafe' }
+                  }}
+                >
+                  <MdVisibility size={16} />
+                </IconButton>
+              </Tooltip>
             )}
             
             {consulta.status === 'agendada' && onCancelar && (
-              <IconButton 
-                size="small" 
-                onClick={() => onCancelar(consulta)}
-                sx={{ 
-                  color: '#64748b',
-                  '&:hover': { color: '#dc2626' },
-                  p: 0.5
-                }}
-              >
-                <MdCancel size={16} />
-              </IconButton>
+              <Tooltip title="Cancelar consulta" arrow>
+                <IconButton 
+                  size="small" 
+                  onClick={() => onCancelar(consulta)}
+                  sx={{ 
+                    color: '#dc2626',
+                    backgroundColor: '#fef2f2',
+                    p: 0.5,
+                    '&:hover': { backgroundColor: '#fee2e2' }
+                  }}
+                >
+                  <MdCancel size={16} />
+                </IconButton>
+              </Tooltip>
             )}
             
             {consulta.status === 'agendada' && onReagendar && (
-              <IconButton 
-                size="small" 
-                onClick={() => onReagendar(consulta)}
-                sx={{ 
-                  color: '#64748b',
-                  '&:hover': { color: '#d97706' },
-                  p: 0.5
-                }}
-              >
-                <MdSchedule size={16} />
-              </IconButton>
+              <Tooltip title="Reagendar consulta" arrow>
+                <IconButton 
+                  size="small" 
+                  onClick={() => onReagendar(consulta)}
+                  sx={{ 
+                    color: '#d97706',
+                    backgroundColor: '#fefce8',
+                    p: 0.5,
+                    '&:hover': { backgroundColor: '#fef9c3' }
+                  }}
+                >
+                  <MdSchedule size={16} />
+                </IconButton>
+              </Tooltip>
             )}
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-          <MdPerson size={16} color="#64748b" />
-          <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b', fontSize: '0.9rem' }}>
-            {consulta.medico.nome_medico}
+        {/* Informações do Médico */}
+        <Box sx={{ mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+            <MdPerson size={16} color="#1e40af" />
+            <Typography variant="subtitle1" sx={{ 
+              fontWeight: '600', 
+              color: '#1e293b', 
+              fontSize: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.5
+            }}>
+              {consulta.medico.nome_medico}
+              <Tooltip title="Médico verificado" arrow>
+                <Box component="span">
+                  <MdVerified size={14} color="#0284c7" />
+                </Box>
+              </Tooltip>
+            </Typography>
+          </Box>
+
+          <Typography variant="body2" sx={{ 
+            color: '#64748b', 
+            fontSize: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            ml: 0.25
+          }}>
+            <MdLocalHospital size={14} color="#64748b" />
+            {consulta.medico.especialidade} • CRM {consulta.medico.crm}
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-          <MdLocalHospital size={16} color="#64748b" />
-          <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
-            {consulta.medico.especialidade}
-          </Typography>
+        {/* Data e Hora */}
+        <Box sx={{ 
+          backgroundColor: '#f8fafc',
+          borderRadius: '6px',
+          p: 1.5,
+          mb: 2,
+          display: 'flex',
+          gap: 2
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <MdCalendarToday size={16} color="#0284c7" />
+            <Typography sx={{ color: '#334155', fontSize: '0.75rem', fontWeight: '500' }}>
+              {data}
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <MdAccessTime size={16} color="#0284c7" />
+            <Typography sx={{ color: '#334155', fontSize: '0.75rem', fontWeight: '500' }}>
+              {hora}
+            </Typography>
+          </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
-          <MdCalendarToday size={16} color="#64748b" />
-          <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
-            {data}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
-          <MdAccessTime size={16} color="#64748b" />
-          <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem' }}>
-            {hora}
-          </Typography>
-        </Box>
-
+        {/* Observações */}
         {consulta.observacoes && (
           <Box sx={{ 
-            backgroundColor: '#f8fafc', 
-            p: 1.5, 
-            borderRadius: '6px',
-            border: '1px solid #e2e8f0',
-            mb: 1.5
+            display: 'flex',
+            gap: 0.5,
+            mb: 2
           }}>
-            <Typography variant="body2" sx={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.75rem' }}>
-              "{consulta.observacoes}"
+            <MdInfo size={16} color="#64748b" style={{ marginTop: '2px' }} />
+            <Typography variant="body2" sx={{ 
+              color: '#64748b', 
+              fontSize: '0.75rem',
+              fontStyle: 'italic'
+            }}>
+              {consulta.observacoes}
             </Typography>
           </Box>
         )}
@@ -175,14 +200,19 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
-          alignItems: 'center', 
+          alignItems: 'flex-end',
           mt: 'auto',
           pt: 1.5,
           borderTop: '1px solid #e2e8f0'
         }}>
-          <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '600' }}>
-            R$ {consulta.valor_consulta.toFixed(2).replace('.', ',')}
-          </Typography>
+          <Box>
+            <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.7rem' }}>
+              Valor da Consulta
+            </Typography>
+            <Typography sx={{ color: '#0f172a', fontWeight: '600', fontSize: '0.875rem' }}>
+              R$ {consulta.valor_consulta.toFixed(2).replace('.', ',')}
+            </Typography>
+          </Box>
           
           <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
             {new Date(consulta.criado_em).toLocaleDateString('pt-BR')}
