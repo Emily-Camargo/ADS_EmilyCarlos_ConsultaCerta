@@ -15,6 +15,7 @@ const Home = lazy(() => import('./pages/home/home'))
 const Pacientes = lazy(() => import('./pages/pacientes/index'))
 const Agenda = lazy(() => import('./pages/agenda/index'))
 const Consultas = lazy(() => import('./pages/consultas/index'))
+const MinhasConsultas = lazy(() => import('./pages/minhas-consultas/index'))
 
 function App() {
   const location = useLocation()
@@ -43,6 +44,10 @@ function App() {
     {
       path: '/consultas',
       element: <Consultas />,
+    },
+    {
+      path: '/minhas-consultas',
+      element: <MinhasConsultas />,
     },
   ]
 

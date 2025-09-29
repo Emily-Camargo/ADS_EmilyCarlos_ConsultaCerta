@@ -85,7 +85,7 @@ export const USER_ROLES = {
             title: 'Minhas Consultas',
             description: 'Visualize e gerencie suas consultas agendadas.',
             icon: MdEventNote,
-            path: '/consultas',
+            path: '/minhas-consultas',
             colorClass: 'bg-gradient-to-br from-blue-400 to-blue-600',
           },
           {

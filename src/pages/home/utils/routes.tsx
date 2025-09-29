@@ -60,7 +60,7 @@ export const getMenuItems = (indPapel: number) => {
             seqAplicacao: 2, 
             label: 'Minhas Consultas', 
             icon: MdEventNote,
-            route: '/consultas'
+            route: '/minhas-consultas'
           },
           { 
             seqAplicacao: 6, 

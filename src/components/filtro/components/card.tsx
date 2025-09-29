@@ -23,6 +23,7 @@ const FiltroCard = <T,>({
       '/acessar': 'Acesso',
       '/agenda': 'Agenda Médica',
       '/consultas': 'Agendamentos de Consultas',
+      '/minhas-consultas': 'Minhas Consultas',
     }
     
     return routeNames[location.pathname] || 'Página'
