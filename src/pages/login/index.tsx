@@ -36,9 +36,6 @@ const Acessar = () => {
         let userData;
         
         // Credenciais de teste:
-        // Secretária: secretaria@teste.com / senha123
-        // Paciente: paciente@teste.com / senha123  
-        // Médico: medico@teste.com / senha123
         
         if (username.toLowerCase() === 'secretaria@teste.com' || username.toLowerCase().includes('secretaria')) {
           userData = {
