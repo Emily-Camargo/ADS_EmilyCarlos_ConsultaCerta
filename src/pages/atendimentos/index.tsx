@@ -26,14 +26,14 @@ const AtendimentosPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
-      <div className={`max-w-full mx-auto ${isMobile ? 'px-3 py-4' : 'px-6 py-8'}`}>
+      <div className={`max-w-full mx-auto ${isMobile ? 'px-3 py-4' : 'px-6 py-6'}`}>
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Filtro />
           
           <Box sx={{ 
             display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
+            alignItems: 'right', 
+            justifyContent: 'right', 
             mb: 3,
             mt: 3
           }}>
@@ -51,7 +51,6 @@ const AtendimentosPage = () => {
             borderBottom: 1, 
             borderColor: 'divider',
             mb: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             borderRadius: '12px',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.3)'

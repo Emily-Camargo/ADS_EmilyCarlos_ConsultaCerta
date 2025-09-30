@@ -12,7 +12,6 @@ const PacienteDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
-      <Box sx={{ mb: isMobile ? 4 : 6 }} /> {/* Espaço extra entre o CurvedHeader e o título */}
       <CurvedHeader
         userRole=""
         nextAppointment="Sua próxima consulta é com o Dr. Silva dia 22/10/2025 às 15:00"
