@@ -85,7 +85,7 @@ export const getMenuItems = (indPapel: number) => {
             route: '/prontuarios'
           },
           { 
-            seqAplicacao: 8, 
+            seqAplicacao: 13, 
             label: 'Atendimentos', 
             icon: MdLocalHospital,
             route: '/atendimentos'
