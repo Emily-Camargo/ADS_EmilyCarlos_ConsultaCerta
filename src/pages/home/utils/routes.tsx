@@ -57,7 +57,7 @@ export const getMenuItems = (indPapel: number) => {
       case USER_ROLES.PACIENTE:
         return [
           { 
-            seqAplicacao: 2, 
+            seqAplicacao: 8, 
             label: 'Minhas Consultas', 
             icon: MdEventNote,
             route: '/minhas-consultas'
@@ -85,7 +85,7 @@ export const getMenuItems = (indPapel: number) => {
             route: '/prontuarios'
           },
           { 
-            seqAplicacao: 8, 
+            seqAplicacao: 13, 
             label: 'Atendimentos', 
             icon: MdLocalHospital,
             route: '/atendimentos'

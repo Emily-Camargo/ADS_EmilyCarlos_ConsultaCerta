@@ -42,6 +42,10 @@ const MenuSidebar = ({
       navigate('/exames');
     } else if (seqAplicacao === 12) {
       navigate('/admin');
+    } else if (seqAplicacao === 13) {
+      navigate('/atendimentos');
+    } else if (seqAplicacao === 8) {
+      navigate('/minhas-consultas');
     }
     
     onClick();
