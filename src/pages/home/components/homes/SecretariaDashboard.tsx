@@ -1,36 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import CurvedHeader from '../../../../components/curved-header';
-import { Box, Typography, Grid, Tabs, Tab } from '@mui/material';
+import { Box, Grid, Tabs, Tab } from '@mui/material';
 import { useDimension } from '../../../../hooks';
-import { 
-  consultasDoDia,
-  consultasEmAndamento,
-  consultasConfirmada,
-  consultasConcluida,
-  consultasAguardandoConfirmacao,
-  consultasNaoCompareceu
-} from '../../mocks/mocks';
+
 import ConsultaCardEnhanced from '../cards/secretaria/card-secretaria';
 import { useState } from 'react';
+import { statusTabs } from '../../utils/constants';
 
 const SecretariaDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
   const [tabValue, setTabValue] = useState(0);
 
-  const statusTabs = [
-    { label: 'Todas', data: consultasDoDia, count: consultasDoDia.length },
-    { label: 'Em Andamento', data: consultasEmAndamento, count: consultasEmAndamento.length },
-    { label: 'Confirmada', data: consultasConfirmada, count: consultasConfirmada.length },
-    { label: 'Aguardando', data: consultasAguardandoConfirmacao, count: consultasAguardandoConfirmacao.length },
-    { label: 'Concluída', data: consultasConcluida, count: consultasConcluida.length },
-    { label: 'Não Compareceu', data: consultasNaoCompareceu, count: consultasNaoCompareceu.length },
-  ];
-
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-
 
   return (
     <div className="bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
