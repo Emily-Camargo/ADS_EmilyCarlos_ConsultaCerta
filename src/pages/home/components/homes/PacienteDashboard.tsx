@@ -50,7 +50,17 @@ const PacienteDashboard = () => {
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: isMobile ? 2 : 3 }}>
-            <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: 'bold', color: '#1f2937' }}>
+            <Typography
+              variant={isMobile ? "h6" : "h5"}
+              sx={{
+                fontWeight: 'bold',
+                background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                color: 'transparent'
+              }}
+            >
               Módulos Disponíveis
             </Typography>
           </Box>
