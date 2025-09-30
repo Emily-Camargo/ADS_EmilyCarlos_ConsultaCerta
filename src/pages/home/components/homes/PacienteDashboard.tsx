@@ -1,51 +1,25 @@
 import { useNavigate } from 'react-router-dom';
-import {
-  MdEventNote,
-  MdAccessTime,
-  MdAssignment,
-} from 'react-icons/md';
-import { CardStats, QuickActionCard } from '../../../../components/cards';
+import QuickActionCard from '../../../../components/cards/QuickActionCard';
+import CurvedHeader from '../../../../components/curved-header';
 import { Box, Typography, Grid } from '@mui/material';
 import { useDimension } from '../../../../hooks';
 import { getQuickActions } from '../../utils/constants';
-import { getDashboardStats } from '../../mocks/mocks';
 
 const PacienteDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
-  const dashboardStats = getDashboardStats(2);
   const quickActions = getQuickActions(2);
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
-        <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: isMobile ? 2 : 4 }}>
-          <Grid item xs={12} md={4}>
-            <CardStats
-              title="Consultas Agendadas"
-              value={dashboardStats.consultasAgendadas || 0}
-              icon={MdEventNote}
-              color="primary"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <CardStats
-              title="Próxima Consulta"
-              value={dashboardStats.proximaConsulta || 0}
-              icon={MdAccessTime}
-              color="secondary"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <CardStats
-              title="Exames Pendentes"
-              value={dashboardStats.examesPendentes || 0}
-              icon={MdAssignment}
-              color="accent"
-            />
-          </Grid>
-        </Grid>
+      <CurvedHeader
+        userName="Ana"
+        userRole=""
+        nextAppointment="Sua próxima consulta é com o Dr. Silva dia 22/10/2025 às 15:00"
+        primaryColor="#3B82F6"
+        secondaryColor="#1E40AF"
+      />
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`}>
 
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>

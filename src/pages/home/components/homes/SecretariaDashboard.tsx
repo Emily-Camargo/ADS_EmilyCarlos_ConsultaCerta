@@ -1,14 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import {
-  MdPeople,
-  MdCalendarMonth,
-  MdAccessTime,
-} from 'react-icons/md';
-import { CardStats } from '../../../../components/cards';
+import CurvedHeader from '../../../../components/curved-header';
 import { Box, Typography, Grid, Tabs, Tab } from '@mui/material';
 import { useDimension } from '../../../../hooks';
 import { 
-  getDashboardStats, 
   consultasDoDia,
   consultasEmAndamento,
   consultasConfirmada,
@@ -22,7 +16,6 @@ import { useState } from 'react';
 const SecretariaDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
-  const dashboardStats = getDashboardStats(1);
   const [tabValue, setTabValue] = useState(0);
 
   const statusTabs = [
@@ -34,39 +27,21 @@ const SecretariaDashboard = () => {
     { label: 'Não Compareceu', data: consultasNaoCompareceu, count: consultasNaoCompareceu.length },
   ];
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
-      <div className={`max-w-full mx-auto ${isMobile ? 'px-3 py-4' : 'px-6 py-8'}`}>
-        <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: isMobile ? 2 : 4 }} justifyContent="center">
-          <Grid item xs={12} sm={6} md={3}>
-            <CardStats
-              title="Consultas Hoje"
-              value={dashboardStats.consultasHoje || 0}
-              icon={MdCalendarMonth}
-              color="primary"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <CardStats
-              title="Esta Semana"
-              value={dashboardStats.consultasSemana || 0}
-              icon={MdAccessTime}
-              color="secondary"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <CardStats
-              title="Pacientes Ativos"
-              value={dashboardStats.pacientesAtivos || 0}
-              icon={MdPeople}
-              color="accent"
-            />
-          </Grid>
-        </Grid>
+    <div className="bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
+      <CurvedHeader
+        userName="Maria"
+        userRole=""
+        nextAppointment="Tenha um bom dia'"
+        primaryColor="#3B82F6"
+        secondaryColor="#1E40AF"
+      />
+      <div className={`mx-auto ${isMobile ? 'px-3' : 'px-6'}`}>
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ 
@@ -153,7 +128,6 @@ const SecretariaDashboard = () => {
             ))}
           </Grid>
         </Box>
-
       </div>
     </div>
   );

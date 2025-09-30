@@ -1,54 +1,27 @@
 import { useNavigate } from 'react-router-dom';
-import {
-  MdLocalHospital,
-  MdEventNote,
-  MdDescription,
-} from 'react-icons/md';
-import { CardStats, QuickActionCard } from '../../../../components/cards';
+import CurvedHeader from '../../../../components/curved-header';
 import { Box, Typography, Grid } from '@mui/material';
 import { useDimension } from '../../../../hooks';
 import { getQuickActions } from '../../utils/constants';
-import { getDashboardStats } from '../../mocks/mocks';
-
+import QuickActionCard from '../../../../components/cards/QuickActionCard';
 const MedicoDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
-  const dashboardStats = getDashboardStats(3);
   const quickActions = getQuickActions(3);
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3 py-4' : 'px-4 py-8'}`}>
-        <Grid container spacing={isMobile ? 2 : 3} sx={{ mb: isMobile ? 2 : 4 }}>
-          <Grid item xs={12} md={4}>
-            <CardStats
-              title="Atendimentos Hoje"
-              value={dashboardStats.atendimentosHoje || 0}
-              icon={MdLocalHospital}
-              color="primary"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <CardStats
-              title="Consultas Agendadas"
-              value={dashboardStats.consultasAgendadas || 0}
-              icon={MdEventNote}
-              color="secondary"
-            />
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <CardStats
-              title="Prontuários Pendentes"
-              value={dashboardStats.prontuariosPendentes || 0}
-              icon={MdDescription}
-              color="accent"
-            />
-          </Grid>
-        </Grid>
+      <CurvedHeader
+        userName="Silva"
+        userRole="Dr."
+        nextAppointment="Seu próximo atendimento é com Maria Santos às 15:00"
+        primaryColor="#3B82F6"
+        secondaryColor="#1E40AF"
+      />
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`}>
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: isMobile ? 2 : 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: isMobile ? 2 : 3, mt: 3 }}>
           <Typography
               variant={isMobile ? "h6" : "h5"}
               sx={{
@@ -81,7 +54,6 @@ const MedicoDashboard = () => {
             })}
           </Grid>
         </Box>
-
       </div>
     </div>
   );
