@@ -1,29 +1,15 @@
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Grid, Tabs, Tab } from '@mui/material';
 import { useDimension } from '../../hooks';
-import { 
-  atendimentosMedico,
-  atendimentosEmAndamento,
-  atendimentosConfirmada,
-  atendimentosConcluida,
-  atendimentosNaoCompareceu
-} from '../home/mocks/mocks';
 import AtendimentoCard from './components/AtendimentoCard';
 import { useState } from 'react';
 import Filtro from '../../components/filtro';
+import { statusTabs } from './utils/constants';
 
 const AtendimentosPage = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
   const [tabValue, setTabValue] = useState(0);
-
-  const statusTabs = [
-    { label: 'Todas', data: atendimentosMedico, count: atendimentosMedico.length },
-    { label: 'Em Andamento', data: atendimentosEmAndamento, count: atendimentosEmAndamento.length },
-    { label: 'Confirmada', data: atendimentosConfirmada, count: atendimentosConfirmada.length },
-    { label: 'Concluída', data: atendimentosConcluida, count: atendimentosConcluida.length },
-    { label: 'Não Compareceu', data: atendimentosNaoCompareceu, count: atendimentosNaoCompareceu.length },
-  ];
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

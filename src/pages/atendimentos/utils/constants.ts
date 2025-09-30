@@ -1,3 +1,11 @@
+import { 
+  atendimentosMedico,
+  atendimentosEmAndamento,
+  atendimentosConfirmada,
+  atendimentosConcluida,
+  atendimentosNaoCompareceu
+} from '../../home/mocks/mocks';
+
 export const STATUS_COLORS = {
   'Em Andamento': '#f59e0b',
   'Aguardando': '#3b82f6',
@@ -56,3 +64,11 @@ export const getStatusBorder = (status: string): string =>
 
 export const getStatusTextColor = (status: string): string => 
   STATUS_TEXT_COLORS[status as StatusType] || STATUS_TEXT_COLORS.default;
+
+export const statusTabs = [
+  { label: 'Todas', data: atendimentosMedico, count: atendimentosMedico.length },
+  { label: 'Em Andamento', data: atendimentosEmAndamento, count: atendimentosEmAndamento.length },
+  { label: 'Confirmada', data: atendimentosConfirmada, count: atendimentosConfirmada.length },
+  { label: 'Concluída', data: atendimentosConcluida, count: atendimentosConcluida.length },
+  { label: 'Não Compareceu', data: atendimentosNaoCompareceu, count: atendimentosNaoCompareceu.length },
+];
