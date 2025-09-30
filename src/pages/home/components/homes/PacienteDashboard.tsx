@@ -12,15 +12,14 @@ const PacienteDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
+      <Box sx={{ mb: isMobile ? 4 : 6 }} /> {/* Espaço extra entre o CurvedHeader e o título */}
       <CurvedHeader
-        userName="Ana"
         userRole=""
         nextAppointment="Sua próxima consulta é com o Dr. Silva dia 22/10/2025 às 15:00"
         primaryColor="#3B82F6"
         secondaryColor="#1E40AF"
       />
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`}>
-
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: isMobile ? 2 : 3 }}>

@@ -35,9 +35,8 @@ const SecretariaDashboard = () => {
   return (
     <div className="bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
       <CurvedHeader
-        userName="Maria"
         userRole=""
-        nextAppointment="Tenha um bom dia'"
+        nextAppointment="Tenha um bom dia! Essas são as consultas de hoje"
         primaryColor="#3B82F6"
         secondaryColor="#1E40AF"
       />
@@ -45,35 +44,9 @@ const SecretariaDashboard = () => {
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between', 
-            mb: 3 
-          }}>
-            <Typography variant={isMobile ? "h5" : "h5"} sx={{ 
-              fontWeight: 'bold', 
-              color: '#1f2937',
-              background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              Consultas de Hoje
-            </Typography>
-            <Typography variant="body2" sx={{ 
-              color: '#6b7280',
-              fontSize: '0.875rem',
-              fontWeight: '500'
-            }}>
-              {statusTabs[tabValue].count} consultas na aba selecionada
-            </Typography>
-          </Box>
-
-          <Box sx={{ 
             borderBottom: 1, 
             borderColor: 'divider',
             mb: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
             borderRadius: '12px',
             backdropFilter: 'blur(10px)',
             border: '1px solid rgba(255, 255, 255, 0.3)'

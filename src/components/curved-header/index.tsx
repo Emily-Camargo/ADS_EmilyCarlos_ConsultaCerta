@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box, Typography, Avatar } from '@mui/material';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface CurvedHeaderProps {
-  userName: string;
+  userName?: string;
   userRole: string;
   nextAppointment: string;
   profileImage?: string;
@@ -18,6 +19,8 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
   primaryColor = '#4FC3F7',
   secondaryColor = '#29B6F6'
 }) => {
+  const { user } = useAuth();
+  const displayName = userName || user?.nome || 'Usuário';
   return (
     <Box
       sx={{
@@ -29,9 +32,9 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         overflow: 'hidden',
         minHeight: { xs: '140px', md: '160px' },
-        width: '100vw',
-        marginLeft: 'calc(-50vw + 50%)',
-        marginRight: 'calc(-50vw + 50%)',
+        width: '100%',
+        marginLeft: 0,
+        marginRight: 0,
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -101,7 +104,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
         {/* Profile Image */}
         <Avatar
           src={profileImage}
-          alt={userName}
+          alt={displayName}
           sx={{
             width: { xs: 50, md: 60 },
             height: { xs: 50, md: 60 },
@@ -114,7 +117,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
             color: 'white',
           }}
         >
-          {userName.charAt(0).toUpperCase()}
+          {displayName.charAt(0).toUpperCase()}
         </Avatar>
 
         {/* Greeting */}
@@ -128,7 +131,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
             mb: { xs: 1, md: 1.5 },
           }}
         >
-          Olá, {userRole} {userName}
+          Olá, {userRole} {displayName}
         </Typography>
 
         <Typography
