@@ -120,6 +120,13 @@ export const USER_ROLES = {
             path: '/atendimentos',
             colorClass: 'bg-gradient-to-br from-red-400 to-red-600',
           },
+          {
+            title: 'Relatórios & Dashboard',
+            description: 'Visualize dashboards e análises de desempenho.',
+            icon: MdDashboard,
+            path: '/relatorios',
+            colorClass: 'bg-gradient-to-br from-slate-400 to-slate-600',
+          },
         ];
       
       default:

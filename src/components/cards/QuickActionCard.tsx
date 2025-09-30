@@ -21,6 +21,16 @@ const QuickActionCard = ({
         background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.95) 50%, rgba(4, 120, 87, 1) 100%)',
         backgroundSize: '200% 200%',
       };
+    } else if (colorClass.includes('red')) {
+      return {
+        background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.95) 50%, rgba(185, 28, 28, 1) 100%)',
+        backgroundSize: '200% 200%',
+      };
+    } else if (colorClass.includes('purple')) {
+      return {
+        background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.9) 0%, rgba(147, 51, 234, 0.95) 50%, rgba(126, 34, 206, 1) 100%)',
+        backgroundSize: '200% 200%',
+      };
     } else if (colorClass.includes('slate')) {
       return {
         background: 'linear-gradient(135deg, rgba(100, 116, 139, 0.9) 0%, rgba(71, 85, 105, 0.95) 50%, rgba(51, 65, 85, 1) 100%)',
