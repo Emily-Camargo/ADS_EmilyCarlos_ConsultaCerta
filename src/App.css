@@ -11,6 +11,18 @@
   * {
     font-family: "Montserrat", sans-serif, Arial;
   }
+
+  /* Forçar ocultação da barra de rolagem */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
   
   
   
