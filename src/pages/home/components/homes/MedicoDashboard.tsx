@@ -15,7 +15,7 @@ const MedicoDashboard = () => {
         userRole="Dr."
         nextAppointment="Seu próximo atendimento é com Maria Santos às 15:00"
       />
-      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`} style={{ paddingTop: isMobile ? '244px' : '264px' }}>
+      <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`} style={{ paddingTop: isMobile ? '200px' : '244px' }}>
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: isMobile ? 2 : 3, mt: 3 }}>
