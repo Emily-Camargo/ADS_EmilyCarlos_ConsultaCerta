@@ -7,8 +7,7 @@ interface CurvedHeaderProps {
   userRole: string;
   nextAppointment: string;
   profileImage?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
+
 }
 
 const CurvedHeader: React.FC<CurvedHeaderProps> = ({
@@ -16,8 +15,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
   userRole,
   nextAppointment,
   profileImage,
-  primaryColor = '#4FC3F7',
-  secondaryColor = '#29B6F6'
+
 }) => {
   const { user } = useAuth();
   const displayName = userName || user?.nome || 'Usuário';
@@ -29,8 +27,8 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
         left: 0,
         right: 0,
         zIndex: 999,
-        background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
-        borderRadius: '0 0 40px 40px',
+        background: `linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)`,
+        borderRadius: '0 0 55px 55px',
         padding: { xs: '20px 0 30px', md: '24px 0 36px' },
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         overflow: 'hidden',
@@ -44,7 +42,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
           right: 0,
           bottom: 0,
           background: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '0 0 40px 40px',
+          borderRadius: '0 0 60px 60px',
           backdropFilter: 'blur(5px)',
         },
         '&::after': {
@@ -127,7 +125,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
           sx={{
             color: 'white',
             fontWeight: '600',
-            fontSize: { xs: '1.3rem', md: '1.6rem' },
+            fontSize: { xs: '1.1rem', md: '1.4rem' },
             textShadow: '0 1px 4px rgba(0, 0, 0, 0.15)',
             mb: { xs: 1, md: 1.5 },
           }}
@@ -139,7 +137,7 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
           variant="body1"
           sx={{
             color: 'rgba(255, 255, 255, 0.92)',
-            fontSize: { xs: '0.85rem', md: '0.95rem' },
+            fontSize: { xs: '0.80rem', md: '0.90rem' },
             fontWeight: '400',
             textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
             background: 'rgba(255, 255, 255, 0.12)',

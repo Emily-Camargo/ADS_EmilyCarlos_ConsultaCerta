@@ -21,12 +21,10 @@ const SecretariaDashboard = () => {
       <CurvedHeader
         userRole=""
         nextAppointment="Tenha um bom dia! Essas são as consultas de hoje"
-        primaryColor="#3B82F6"
-        secondaryColor="#1E40AF"
       />
-      <div className={`mx-auto ${isMobile ? 'px-3' : 'px-6'}`} style={{ paddingTop: isMobile ? '244px' : '264px' }}>
+      <div className={`mx-auto ${isMobile ? 'px-3' : 'px-6'}`} style={{ paddingTop: isMobile ? '220px' : '250px' }}>
 
-        <Box sx={{ mb: isMobile ? 2 : 4 }}>
+        <Box sx={{ mb: isMobile ? 1 : 2 }}>
           <Box sx={{ 
             borderBottom: 1, 
             borderColor: 'divider',

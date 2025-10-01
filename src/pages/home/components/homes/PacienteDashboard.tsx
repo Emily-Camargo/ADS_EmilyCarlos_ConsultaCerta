@@ -15,8 +15,6 @@ const PacienteDashboard = () => {
       <CurvedHeader
         userRole=""
         nextAppointment="Sua próxima consulta é com o Dr. Silva dia 22/10/2025 às 15:00"
-        primaryColor="#3B82F6"
-        secondaryColor="#1E40AF"
       />
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`} style={{ paddingTop: isMobile ? '244px' : '264px' }}>
 
