@@ -180,9 +180,6 @@ export function CadastrarConsulta({
               <Button color="success" onClick={onConfirmarConsulta}>
                 Confirmar
               </Button>
-              <Button color="secondary" onClick={cancelar}>
-                Fechar
-              </Button>
             </>
           ) : (
             <>

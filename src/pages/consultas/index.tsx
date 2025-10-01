@@ -25,6 +25,25 @@ const ConsultasPage = () => {
   const weekDays = getWeekDays(currentWeek);
   const timeSlots = getTimeSlots();
 
+  const alturaMinima = 80;
+  const alturaPorConsulta = 75;
+
+  // Função para calcular altura de um horário específico
+  const calcularAlturaHorario = (time: string) => {
+    let maxConsultas = 0;
+    weekDays.forEach((_, dayIndex) => {
+      const consultasDoDia = getConsultasForDay(dayIndex);
+      const consultasFiltradas = filtroMedicoSelecionado 
+        ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
+        : consultasDoDia;
+      
+      const consultasDoHorario = consultasFiltradas.filter(c => c?.horario === time);
+      maxConsultas = Math.max(maxConsultas, consultasDoHorario.length);
+    });
+    
+    return Math.max(alturaMinima, maxConsultas * alturaPorConsulta);
+  };
+
   const handleCadastrarConsulta = (consulta: any) => {
     console.log('Nova consulta:', consulta);
     toast.success('Consulta cadastrada com sucesso!');
@@ -117,7 +136,6 @@ const ConsultasPage = () => {
       display: 'flex', 
       height: '100vh', 
       backgroundColor: '#f8fafc',
-      overflow: 'hidden'
     }}>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Box sx={{ p: 3, pb: 0 }}>
@@ -144,7 +162,7 @@ const ConsultasPage = () => {
           </Box>
         )}
 
-        <Box sx={{ flex: 1, px: 3, overflow: 'auto' }}>
+        <Box sx={{ flex: 1, px: 3, pb: 3 }}>
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -154,11 +172,11 @@ const ConsultasPage = () => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <MdCalendarToday color="#64748b" />
-                <Typography variant="h6" sx={{ 
-                  fontWeight: '600', 
-                  color: '#1e293b' 
+                <Typography variant="body2" sx={{ 
+                  color: '#64748b', // cor mais suave
+                  fontWeight: 500
                 }}>
-                  {weekDays[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} a {weekDays[6].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  Semana de {weekDays[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })} a {weekDays[4].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </Typography>
               </Box>
               
@@ -166,7 +184,7 @@ const ConsultasPage = () => {
 
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setCurrentWeek(new Date(currentWeek.getTime() - 7 * 24 * 60 * 60 * 1000))}
+                onClick={() => setCurrentWeek(new Date(currentWeek.getTime() - 5 * 24 * 60 * 60 * 1000))}
                 className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
               >
                 <MdChevronLeft size={20} />
@@ -180,7 +198,7 @@ const ConsultasPage = () => {
               </button>
               
               <button
-                onClick={() => setCurrentWeek(new Date(currentWeek.getTime() + 7 * 24 * 60 * 60 * 1000))}
+                onClick={() => setCurrentWeek(new Date(currentWeek.getTime() + 5 * 24 * 60 * 60 * 1000))}
                 className="p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
               >
                 <MdChevronRight size={20} />
@@ -190,7 +208,6 @@ const ConsultasPage = () => {
 
           <Paper sx={{ 
             borderRadius: '12px',
-            overflow: 'hidden',
             border: '1px solid #e2e8f0'
           }}>
             <Box sx={{ display: 'flex' }}>
@@ -201,7 +218,7 @@ const ConsultasPage = () => {
                 backgroundColor: '#f8fafc'
               }}>
                 <Box sx={{ 
-                  height: 60, 
+                  height: 80, 
                   borderBottom: '1px solid #e2e8f0',
                   display: 'flex',
                   alignItems: 'center',
@@ -216,34 +233,23 @@ const ConsultasPage = () => {
                     Horário
                   </Typography>
                 </Box>
-                {timeSlots
-                  .filter(time => {
-                    // Verifica se existe pelo menos uma consulta neste horário em qualquer dia
-                    return weekDays.some((_, dayIndex) => {
-                      const consultasDoDia = getConsultasForDay(dayIndex);
-                      const consultasFiltradas = filtroMedicoSelecionado 
-                        ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
-                        : consultasDoDia;
-                      return consultasFiltradas.some(c => c.horario === time);
-                    });
-                  })
-                  .map((time) => (
-                    <Box key={time} sx={{ 
-                      height: 60, 
-                      borderBottom: '1px solid #e2e8f0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: 'white'
+                {timeSlots.map((time) => (
+                  <Box key={time} sx={{ 
+                    height: calcularAlturaHorario(time), 
+                    borderBottom: '1px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'white'
+                  }}>
+                    <Typography variant="body2" sx={{ 
+                      fontWeight: '500', 
+                      color: '#374151'
                     }}>
-                      <Typography variant="body2" sx={{ 
-                        fontWeight: '500', 
-                        color: '#374151'
-                      }}>
-                        {time}
-                      </Typography>
-                    </Box>
-                  ))}
+                      {time}
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
 
               {/* Colunas dos Dias */}
@@ -255,20 +261,15 @@ const ConsultasPage = () => {
                   ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
                   : consultasDoDia;
                 
-                // Se não há consultas neste dia após filtro, não renderiza a coluna
-                if (consultasFiltradas.length === 0) {
-                  return null;
-                }
-                
                 return (
                   <Box key={dayIndex} sx={{ 
                     flex: 1, 
-                    borderRight: dayIndex < 6 ? '1px solid #e2e8f0' : 'none',
+                    borderRight: dayIndex < 4 ? '1px solid #e2e8f0' : 'none',
                     backgroundColor: 'white'
                   }}>
                     {/* Cabeçalho do Dia */}
                     <Box sx={{ 
-                      height: 60, 
+                      height: 80, 
                       borderBottom: '1px solid #e2e8f0',
                       display: 'flex',
                       flexDirection: 'column',
@@ -278,7 +279,7 @@ const ConsultasPage = () => {
                     }}>
                       <Typography variant="body2" sx={{ 
                         fontWeight: '600', 
-                        color: '#1e293b',
+                        color: '#64748b',
                         textTransform: 'capitalize'
                       }}>
                         {day.toLocaleDateString('pt-BR', { weekday: 'long' })}
@@ -286,37 +287,36 @@ const ConsultasPage = () => {
                       <Typography variant="caption" sx={{ 
                         color: '#64748b'
                       }}>
-                        {day.getDate()}/{day.getMonth() + 1}
+                        {day.getDate()}/{day.getMonth() + 1}/{day.getFullYear()}
                       </Typography>
                     </Box>
 
-                    {/* Slots de Horário - Apenas horários com agendamentos */}
-                    {timeSlots
-                      .filter(time => {
-                        const consulta = consultasFiltradas.find(c => c?.horario === time);
-                        return consulta !== undefined;
-                      })
-                      .map((time, timeIndex) => {
-                        const consulta = consultasFiltradas.find(c => c?.horario === time);
-                        
-                        return (
-                          <Box key={timeIndex} sx={{ 
-                            height: 60, 
-                            borderBottom: '1px solid #e2e8f0',
-                            position: 'relative',
-                            backgroundColor: 'white',
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: '#f8fafc'
-                            }
-                          }}>
-                            {consulta && (
-                              <Box sx={{
+                    {/* Slots de Horário - Todos os horários */}
+                    {timeSlots.map((time, timeIndex) => {
+                      const consultasDoHorario = consultasFiltradas.filter(c => c?.horario === time);
+                      const alturaHorario = calcularAlturaHorario(time);
+                      
+                      return (
+                        <Box key={timeIndex} sx={{ 
+                          height: alturaHorario, 
+                          borderBottom: '1px solid #e2e8f0',
+                          position: 'relative',
+                          backgroundColor: 'white',
+                          cursor: consultasDoHorario.length > 0 ? 'pointer' : 'default',
+                          '&:hover': {
+                            backgroundColor: consultasDoHorario.length > 0 ? '#f8fafc' : 'white'
+                          }
+                        }}>
+                          {consultasDoHorario.map((consulta, consultaIndex) => {
+                            const topPosition = consultaIndex * alturaPorConsulta + 4;
+                            
+                            return (
+                              <Box key={consulta.id} sx={{
                                 position: 'absolute',
-                                top: 4,
+                                top: topPosition,
                                 left: 4,
                                 right: 4,
-                                bottom: 4,
+                                height: alturaPorConsulta - 8,
                                 backgroundColor: consulta.status === 'concluida' ? '#dcfce7' : 
                                              consulta.status === 'cancelada' ? '#fee2e2' : 
                                              consulta.status === 'confirmada' ? '#dbeafe' : '#fef3c7',
@@ -326,7 +326,13 @@ const ConsultasPage = () => {
                                 flexDirection: 'column',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                p: 1
+                                p: 1,
+                                cursor: 'pointer',
+                                '&:hover': {
+                                  backgroundColor: consulta.status === 'concluida' ? '#bbf7d0' : 
+                                               consulta.status === 'cancelada' ? '#fecaca' : 
+                                               consulta.status === 'confirmada' ? '#bfdbfe' : '#fde68a',
+                                }
                               }}
                               onClick={() => handleVisualizarConsulta(converterParaConsultaData(consulta))}
                               >
@@ -335,16 +341,22 @@ const ConsultasPage = () => {
                                   color: '#1e293b',
                                   textAlign: 'center',
                                   lineHeight: 1.2,
-                                  fontSize: '10px'
+                                  fontSize: '10px',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  width: '100%'
                                 }}>
-                                  {consulta.horario} {consulta.paciente}
+                                  {consulta.paciente}
                                 </Typography>
                                 <Typography variant="caption" sx={{ 
                                   color: '#64748b',
                                   textAlign: 'center',
                                   lineHeight: 1.2,
                                   fontSize: '9px',
-                                  fontWeight: '500'
+                                  fontWeight: '500',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                  width: '100%'
                                 }}>
                                   {consulta.medico}
                                 </Typography>
@@ -357,14 +369,15 @@ const ConsultasPage = () => {
                                   }}>
                                     {consulta.status === 'concluida' ? 'Concluída' : 
                                      consulta.status === 'cancelada' ? 'Cancelada' : 
-                                     consulta.status === 'confirmada' ? 'Confirmada' : 'Aguardando confirmação'}
+                                     consulta.status === 'confirmada' ? 'Confirmada' : 'Aguardando'}
                                   </Typography>
                                 </Box>
                               </Box>
-                            )}
-                          </Box>
-                        );
-                      })}
+                            );
+                          })}
+                        </Box>
+                      );
+                    })}
                   </Box>
                 );
               })}

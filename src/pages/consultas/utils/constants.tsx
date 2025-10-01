@@ -39,15 +39,19 @@ export const getStatusColor = (status: string) => {
 };
 
 /**
- * Retorna um array com as datas dos dias da semana, baseado em uma data de referência.
+ * Retorna um array com as datas dos dias úteis (segunda a sexta), baseado em uma data de referência.
  * @param currentWeek Data de referência (normalmente a data atual ou início da semana)
  */
 export const getWeekDays = (currentWeek: Date): Date[] => {
   const startOfWeek = new Date(currentWeek);
-  startOfWeek.setDate(currentWeek.getDate() - currentWeek.getDay());
+  // Ajusta para começar na segunda-feira (dia 1)
+  const dayOfWeek = currentWeek.getDay();
+  const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Se for domingo (0), volta 6 dias; senão calcula dias até segunda
+  startOfWeek.setDate(currentWeek.getDate() + daysToMonday);
 
   const days: Date[] = [];
-  for (let i = 0; i < 7; i++) {
+  // Gera apenas 5 dias (segunda a sexta)
+  for (let i = 0; i < 5; i++) {
     const day = new Date(startOfWeek);
     day.setDate(startOfWeek.getDate() + i);
     days.push(day);
@@ -57,11 +61,16 @@ export const getWeekDays = (currentWeek: Date): Date[] => {
 
 /**
  * Retorna os horários disponíveis para agendamento de consultas.
+ * Horários de 30 em 30 minutos das 8h às 18h.
  */
 export const getTimeSlots = (): string[] => {
   const slots: string[] = [];
   for (let hour = 8; hour <= 18; hour++) {
     slots.push(`${hour.toString().padStart(2, '0')}:00`);
+    // Adiciona o horário de 30 minutos se não for o último horário
+    if (hour < 18) {
+      slots.push(`${hour.toString().padStart(2, '0')}:30`);
+    }
   }
   return slots;
 };
