@@ -24,7 +24,7 @@ const SecretariaDashboard = () => {
         primaryColor="#3B82F6"
         secondaryColor="#1E40AF"
       />
-      <div className={`mx-auto ${isMobile ? 'px-3' : 'px-6'}`}>
+      <div className={`mx-auto ${isMobile ? 'px-3' : 'px-6'}`} style={{ paddingTop: isMobile ? '244px' : '264px' }}>
 
         <Box sx={{ mb: isMobile ? 2 : 4 }}>
           <Box sx={{ 

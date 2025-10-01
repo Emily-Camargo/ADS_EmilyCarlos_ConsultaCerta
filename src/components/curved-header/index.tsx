@@ -24,17 +24,18 @@ const CurvedHeader: React.FC<CurvedHeaderProps> = ({
   return (
     <Box
       sx={{
-        position: 'relative',
+        position: 'fixed',
+        top: '64px',
+        left: 0,
+        right: 0,
+        zIndex: 999,
         background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
         borderRadius: '0 0 40px 40px',
         padding: { xs: '20px 0 30px', md: '24px 0 36px' },
-        marginBottom: '16px',
         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
         overflow: 'hidden',
         minHeight: { xs: '140px', md: '160px' },
         width: '100%',
-        marginLeft: 0,
-        marginRight: 0,
         '&::before': {
           content: '""',
           position: 'absolute',
