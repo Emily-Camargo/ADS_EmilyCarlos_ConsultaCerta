@@ -62,3 +62,72 @@ export function formatarDataHrBR(dataISO) {
 export const filter = (input: string): RegExp => {
   return new RegExp(input.replace(/[^A-Z0-9áàâãéèêíïóôõöúç:_./-\s]/gi, ''), 'i')
 }
+
+// Funções utilitárias para acessar dados do usuário logado
+export const getIdUsuario = (): number | null => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const userData = JSON.parse(storedUser);
+      return userData.idUsuario || null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const getIdPerfil = (): number | null => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const userData = JSON.parse(storedUser);
+      return userData.idPerfil || null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const getEmailUsuario = (): string | null => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const userData = JSON.parse(storedUser);
+      return userData.email || null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const getNomeUsuario = (): string | null => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      const userData = JSON.parse(storedUser);
+      return userData.nome || null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const getTokenAcesso = (): string | null => {
+  return localStorage.getItem('access_token');
+};
+
+export const getUsuarioLogado = () => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      return JSON.parse(storedUser);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};

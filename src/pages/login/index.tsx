@@ -7,6 +7,8 @@ import { useDimension } from '../../hooks'
 import { useAuth } from '../../contexts/AuthContext'
 import CadastroDrawer from './cadastro/cadastro-usuario'
 import EsqueceuSenhaModal from './esqueceu-senha/esqueceu-senha'
+import { postLogin } from '../../services/usuario'
+import { toast } from 'react-toastify'
 
 const Acessar = () => {
   const navigate = useNavigate()
@@ -21,63 +23,80 @@ const Acessar = () => {
   const [isEsqueceuSenhaOpen, setIsEsqueceuSenhaOpen] = useState(false)
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault()
       
       if (!username || !password) {
+        toast.error('Por favor, preencha todos os campos')
         return
       }
 
       setIsLoading(true)
       
-      // Simula um delay de carregamento
-      setTimeout(() => {
-        // Simula diferentes tipos de usuários baseado no email/username
-        let userData;
-        
-        // Credenciais de teste:
-        
-        if (username.toLowerCase() === 'secretaria@teste.com' || username.toLowerCase().includes('secretaria')) {
-          userData = {
-            id: 1,
-            nome: 'Maria Silva Santos',
-            email: 'secretaria@teste.com',
-            indPapel: 1, // Secretária
-            avatar: null
-          };
-        } else if (username.toLowerCase() === 'paciente@teste.com' || username.toLowerCase().includes('paciente')) {
-          userData = {
-            id: 2,
-            nome: 'João Santos Costa',
-            email: 'paciente@teste.com',
-            indPapel: 2, // Paciente
-            avatar: null
-          };
-        } else if (username.toLowerCase() === 'medico@teste.com' || username.toLowerCase().includes('medico')) {
-          userData = {
-            id: 3,
-            nome: 'Dr. Carlos Oliveira',
-            email: 'medico@teste.com',
-            indPapel: 3, // Médico
-            avatar: null
-          };
-        } else {
-          // Default para secretária
-          userData = {
-            id: 1,
-            nome: 'Maria Silva Santos',
-            email: 'secretaria@teste.com',
-            indPapel: 1,
-            avatar: null
-          };
+      try {
+        // Chama a API de login
+        const response = await postLogin({
+          email: username,
+          senha: password
+        })
+
+        // Valida se a resposta contém os dados esperados
+        if (!response.data || !response.data.access_token || !response.data.user) {
+          toast.error('Credenciais inválidas. Tente novamente.')
+          setIsLoading(false)
+          return
         }
 
-        // Simula um token de acesso
-        localStorage.setItem('access_token', 'mock_access_token')
-        login(userData)
+        const { access_token, user } = response.data
+
+        // Valida se o usuário tem os dados necessários
+        if (!user.idUsuario || !user.email || !user.nome || !user.idPerfil) {
+          toast.error('Erro ao processar dados do usuário. Tente novamente.')
+          setIsLoading(false)
+          return
+        }
+
+        // Monta o objeto de usuário com os dados da API
+        const userData = {
+          idUsuario: user.idUsuario,
+          nome: user.nome,
+          email: user.email,
+          idPerfil: user.idPerfil,
+          perfil: user.perfil
+        }
+
+        // Salva o usuário e o token usando o contexto
+        login(userData, access_token)
+        
+        toast.success(`Bem-vindo(a), ${user.nome}!`)
         navigate('/home')
+      } catch (error: any) {
+        if (error.response) {
+          // Erro retornado pela API
+          const status = error.response.status
+          const message = error.response.data?.message || error.response.data?.error
+          
+          if (status === 401 || status === 403) {
+            toast.error('Credenciais inválidas. Tente novamente.')
+          } else if (status === 404) {
+            toast.error('Usuário não encontrado')
+          } else if (status === 400) {
+            toast.error(message || 'Dados inválidos. Verifique email e senha.')
+          } else if (message) {
+            toast.error(message)
+          } else {
+            toast.error('Credenciais inválidas. Tente novamente.')
+          }
+        } else if (error.request) {
+          // Erro de rede
+          toast.error('Erro de conexão. Verifique sua internet.')
+        } else {
+          // Outro tipo de erro
+          toast.error('Credenciais inválidas. Tente novamente.')
+        }
+      } finally {
         setIsLoading(false)
-      }, 1000)
+      }
     },
     [username, password, navigate, login],
   )

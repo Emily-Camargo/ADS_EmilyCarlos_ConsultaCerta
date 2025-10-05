@@ -49,7 +49,6 @@ const MinhasConsultasPage: React.FC = () => {
   }
 
   const handleVisualizarConsulta = (consulta: ConsultaPaciente) => {
-    console.log('Visualizar consulta:', consulta)
     toast.info('Funcionalidade de visualização será implementada em breve')
   }
 
@@ -65,7 +64,6 @@ const MinhasConsultasPage: React.FC = () => {
   }
 
   const handleReagendarConsulta = (consulta: ConsultaPaciente) => {
-    console.log('Reagendar consulta:', consulta)
     toast.info('Funcionalidade de reagendamento será implementada em breve')
   }
 

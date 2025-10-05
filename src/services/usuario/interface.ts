@@ -30,14 +30,24 @@ export interface CriaUsuarioRes {
   perfil: PerfilUsuario;
 }
 
-// export interface LoginReq {
-//   email: string
-//   senha: string
-// }
+export interface LoginReq {
+  email: string
+  senha: string
+}
 
-// export interface LoginRes {
-//   access_token: string
-// }
+export interface LoginResUser {
+  idUsuario: number;
+  nome: string;
+  email: string;
+  idPerfil: number;
+  perfil: PerfilUsuario;
+}
+
+export interface LoginRes {
+  access_token: string;
+  user:LoginResUser;
+  expiresIn: number;
+}
 
 export interface StatusRes {
   status: string

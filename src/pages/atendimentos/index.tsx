@@ -16,11 +16,11 @@ const AtendimentosPage = () => {
   };
 
   const handleIniciarAtendimento = (id: number) => {
-    console.log(`Iniciando atendimento para consulta ID: ${id}`);
+    // Lógica para iniciar atendimento
   };
 
   const handleNaoCompareceu = (id: number) => {
-    console.log(`Marcando como não compareceu para consulta ID: ${id}`);
+    // Lógica para marcar como não compareceu
   };
 
 

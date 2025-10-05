@@ -32,8 +32,8 @@ api.interceptors.request.use(
       // Recupera o token do localStorage
       const token = localStorage.getItem('access_token');
       
-      // Se o token existir e não for o mock, adiciona ao header Authorization
-      if (token && token !== 'mock_access_token' && config.headers) {
+      // Se o token existir, adiciona ao header Authorization
+      if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }

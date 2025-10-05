@@ -91,13 +91,7 @@ const PWAInstallModal = () => {
     }
 
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('Usuário aceitou a instalação');
-    } else {
-      console.log('Usuário rejeitou a instalação');
-    }
+    await deferredPrompt.userChoice;
     
     setDeferredPrompt(null);
     setShowInstallModal(false);

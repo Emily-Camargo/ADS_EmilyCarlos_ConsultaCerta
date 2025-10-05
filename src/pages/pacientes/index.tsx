@@ -16,7 +16,7 @@ function Pacientes() {
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
 
   const searchClick = () => {
-    console.log('searchClick')
+    // Lógica de busca
   }
 
   const redefinir = () => {
@@ -32,7 +32,6 @@ function Pacientes() {
             : p
         )
       )
-      console.log('Paciente editado:', novoPaciente)
       setPacienteParaEditar(null)
     } else {
       const pacienteCompleto: PacienteData = {
@@ -42,7 +41,6 @@ function Pacientes() {
       }
       
       setPacientes(prev => [...prev, pacienteCompleto])
-      console.log('Paciente cadastrado:', pacienteCompleto)
     }
   }
 

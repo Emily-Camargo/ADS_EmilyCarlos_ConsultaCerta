@@ -32,8 +32,8 @@ export const USER_ROLES = {
   } as const;
 
 
-  export const getQuickActions = (indPapel: number) => {
-    switch (indPapel) {
+  export const getQuickActions = (idPerfil: number) => {
+    switch (idPerfil) {
       case USER_ROLES.RECEPCIONISTA:
         return [
           {

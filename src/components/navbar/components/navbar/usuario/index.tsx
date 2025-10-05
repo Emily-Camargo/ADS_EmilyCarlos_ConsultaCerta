@@ -24,7 +24,6 @@ const ContaComponent = ({
     
     switch (action) {
       case 'profile':
-        console.log('Navegando para perfil')
         break
       case 'logout':
         handleLogout()
@@ -40,8 +39,8 @@ const ContaComponent = ({
     window.location.href = '/acessar'
   }
 
-  const getRoleName = (indPapel: number) => {
-    switch (indPapel) {
+  const getRoleName = (idPerfil: number) => {
+    switch (idPerfil) {
       case 1:
         return 'Administrador';
       case 2:
@@ -58,7 +57,7 @@ const ContaComponent = ({
   const userData = user ? {
     name: user.nome,
     email: user.email,
-    role: getRoleName(user.indPapel),
+    role: getRoleName(user.idPerfil),
     avatar: user.avatar
   } : {
     name: 'Usuário',
