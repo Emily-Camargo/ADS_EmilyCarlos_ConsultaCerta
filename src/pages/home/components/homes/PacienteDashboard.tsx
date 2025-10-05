@@ -8,7 +8,7 @@ import { getQuickActions } from '../../utils/constants';
 const PacienteDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
-  const quickActions = getQuickActions(2);
+  const quickActions = getQuickActions(4);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">

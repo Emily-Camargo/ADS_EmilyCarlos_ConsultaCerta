@@ -45,7 +45,6 @@ const ConsultasPage = () => {
   };
 
   const handleCadastrarConsulta = (consulta: any) => {
-    console.log('Nova consulta:', consulta);
     toast.success('Consulta cadastrada com sucesso!');
     setModalCadastrar(false);
   };
@@ -56,21 +55,18 @@ const ConsultasPage = () => {
   };
 
   const handleConfirmarConsulta = () => {
-    console.log('Consulta confirmada:', consultaSelecionada);
     toast.success('Consulta confirmada com sucesso!');
     setModalVisualizar(false);
     setConsultaSelecionada(null);
   };
 
   const handleCancelarConsulta = () => {
-    console.log('Consulta cancelada:', consultaSelecionada);
     toast.success('Consulta cancelada com sucesso!');
     setModalVisualizar(false);
     setConsultaSelecionada(null);
   };
 
   const handleReagendarConsulta = () => {
-    console.log('Reagendar consulta:', consultaSelecionada);
     setModalVisualizar(false);
     // Aqui você pode implementar a lógica de reagendamento
     toast.info('Funcionalidade de reagendamento será implementada em breve');
@@ -149,7 +145,7 @@ const ConsultasPage = () => {
           />
         </Box>
 
-        {user?.indPapel === 1 && (
+        {user?.idPerfil === 1 && (
           <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
             <Button 
               variant="gradient" 

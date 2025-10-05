@@ -1,8 +1,8 @@
 import { USER_ROLES } from "../utils/constants";
 
-export const getDashboardStats = (indPapel: number) => {
-  switch (indPapel) {
-    case USER_ROLES.SECRETARIA:
+export const getDashboardStats = (idPerfil: number) => {
+  switch (idPerfil) {
+    case USER_ROLES.RECEPCIONISTA:
       return {
         consultasHoje: 12,
         consultasSemana: 47,

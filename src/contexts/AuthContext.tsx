@@ -1,18 +1,28 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface User {
-  id: number;
+  idUsuario: number;
   nome: string;
   email: string;
-  indPapel: number; // 1: Administrador, 2: Recepcionista, 3: Médico, 4: Paciente
+  idPerfil: number; // ID do perfil: 1: Secretária, 2: Paciente, 3: Médico
+  perfil?: {
+    idPerfil: number;
+    nome: string;
+    descricao: string;
+  };
   avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (userData: User) => void;
+  login: (userData: User, token: string) => void;
   logout: () => void;
   isLoading: boolean;
+  getIdUsuario: () => number | null;
+  getIdPerfil: () => number | null;
+  getEmail: () => string | null;
+  getNome: () => string | null;
+  getToken: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,9 +57,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = (userData: User) => {
+  const login = (userData: User, token: string) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem('access_token', token);
   };
 
   const logout = () => {
@@ -58,11 +69,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('access_token');
   };
 
+  const getIdUsuario = (): number | null => {
+    if (user) return user.idUsuario;
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.idUsuario || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const getIdPerfil = (): number | null => {
+    if (user) return user.idPerfil;
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.idPerfil || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const getEmail = (): string | null => {
+    if (user) return user.email;
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.email || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const getNome = (): string | null => {
+    if (user) return user.nome;
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.nome || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const getToken = (): string | null => {
+    return localStorage.getItem('access_token');
+  };
+
   const value = {
     user,
     login,
     logout,
     isLoading,
+    getIdUsuario,
+    getIdPerfil,
+    getEmail,
+    getNome,
+    getToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

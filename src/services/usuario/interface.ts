@@ -30,15 +30,53 @@ export interface CriaUsuarioRes {
   perfil: PerfilUsuario;
 }
 
-// export interface LoginReq {
-//   email: string
-//   senha: string
-// }
+export interface LoginReq {
+  email: string
+  senha: string
+}
 
-// export interface LoginRes {
-//   access_token: string
-// }
+export interface LoginResUser {
+  idUsuario: number;
+  nome: string;
+  email: string;
+  idPerfil: number;
+  perfil: PerfilUsuario;
+}
 
-export interface StatusRes {
-  status: string
+export interface LoginRes {
+  access_token: string;
+  user:LoginResUser;
+  expiresIn: number;
+}
+
+export interface InfoUsuarioReq {
+  id: number;
+}
+
+export interface PacienteInfo {
+  idPaciente: number;
+  dataNascimento: string;
+  genero: string;
+  tipoSanguineo: string;
+  convenio: string;
+  numeroCarteirinha: string;
+  contatoEmergenciaNome: string;
+  contatoEmergenciaTelefone: string;
+  observacoes: string;
+}
+
+export interface InfoUsuarioRes {
+  idUsuario: number;
+  idPerfil: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  telefone: string;
+  numeroWhatsapp: string;
+  whatsappAutorizado: boolean;
+  ativo: boolean;
+  dataCriacao: string;
+  ultimoAcesso: string | null;
+  perfil: PerfilUsuario;
+  paciente?: PacienteInfo;
 }

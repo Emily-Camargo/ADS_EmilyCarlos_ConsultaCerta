@@ -63,13 +63,7 @@ export const usePWAInstall = (): PWAInstallState => {
     if (!installPrompt) return;
 
     installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('Usuário aceitou a instalação');
-    } else {
-      console.log('Usuário rejeitou a instalação');
-    }
+    await installPrompt.userChoice;
     
     setInstallPrompt(null);
   };

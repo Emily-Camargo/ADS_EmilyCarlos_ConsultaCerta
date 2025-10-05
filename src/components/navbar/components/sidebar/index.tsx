@@ -27,7 +27,7 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
     setOpenIndex(openIndex === aplicacao ? null : aplicacao)
   }
 
-  const menuItems = user ? getMenuItems(user.indPapel) : []
+  const menuItems = user ? getMenuItems(user.idPerfil) : []
 
   return (
     <Drawer

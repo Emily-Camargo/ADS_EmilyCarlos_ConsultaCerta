@@ -7,6 +7,8 @@ import { useDimension } from '../../hooks'
 import { useAuth } from '../../contexts/AuthContext'
 import CadastroDrawer from './cadastro/cadastro-usuario'
 import EsqueceuSenhaModal from './esqueceu-senha/esqueceu-senha'
+import { postLogin } from '../../services/usuario'
+import { toast } from 'react-toastify'
 
 const Acessar = () => {
   const navigate = useNavigate()
@@ -21,63 +23,68 @@ const Acessar = () => {
   const [isEsqueceuSenhaOpen, setIsEsqueceuSenhaOpen] = useState(false)
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault()
       
       if (!username || !password) {
+        toast.error('Por favor, preencha todos os campos')
         return
       }
 
       setIsLoading(true)
       
-      // Simula um delay de carregamento
-      setTimeout(() => {
-        // Simula diferentes tipos de usuários baseado no email/username
-        let userData;
-        
-        // Credenciais de teste:
-        
-        if (username.toLowerCase() === 'secretaria@teste.com' || username.toLowerCase().includes('secretaria')) {
-          userData = {
-            id: 1,
-            nome: 'Maria Silva Santos',
-            email: 'secretaria@teste.com',
-            indPapel: 1, // Secretária
-            avatar: null
-          };
-        } else if (username.toLowerCase() === 'paciente@teste.com' || username.toLowerCase().includes('paciente')) {
-          userData = {
-            id: 2,
-            nome: 'João Santos Costa',
-            email: 'paciente@teste.com',
-            indPapel: 2, // Paciente
-            avatar: null
-          };
-        } else if (username.toLowerCase() === 'medico@teste.com' || username.toLowerCase().includes('medico')) {
-          userData = {
-            id: 3,
-            nome: 'Dr. Carlos Oliveira',
-            email: 'medico@teste.com',
-            indPapel: 3, // Médico
-            avatar: null
-          };
-        } else {
-          // Default para secretária
-          userData = {
-            id: 1,
-            nome: 'Maria Silva Santos',
-            email: 'secretaria@teste.com',
-            indPapel: 1,
-            avatar: null
-          };
+      try {
+        const response = await postLogin({
+          email: username,
+          senha: password
+        })
+
+        if (!response || !response.data) {
+          toast.error('Erro ao processar resposta do servidor. Tente novamente.')
+          return
         }
 
-        // Simula um token de acesso
-        localStorage.setItem('access_token', 'mock_access_token')
-        login(userData)
+        const { access_token, user } = response.data
+
+        // Valida se recebeu o token de acesso
+        if (!access_token) {
+          toast.error('Token de autenticação não recebido. Tente novamente.')
+          return
+        }
+
+        if (!user) {
+          toast.error('Dados do usuário não recebidos. Tente novamente.')
+          return
+        }
+
+        if (!user.idUsuario || !user.email || !user.nome || !user.idPerfil) {
+          toast.error('Dados do usuário incompletos. Tente novamente.')
+          return
+        }
+
+        const userData = {
+          idUsuario: user.idUsuario,
+          nome: user.nome,
+          email: user.email,
+          idPerfil: user.idPerfil,
+          perfil: user.perfil
+        }
+
+        login(userData, access_token)
+        
+        toast.success(`Bem-vindo(a), ${user.nome}!`)
+        
         navigate('/home')
+      } catch (error: any) {
+
+          const message = error.response?.data?.message || 
+                       error.response?.data?.error || 
+                       'Erro ao fazer login. Tente novamente.'
+        
+        toast.error(message)
+      } finally {
         setIsLoading(false)
-      }, 1000)
+      }
     },
     [username, password, navigate, login],
   )

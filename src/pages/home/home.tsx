@@ -15,7 +15,7 @@ const Home = () => {
     return <div>Usuário não autenticado</div>;
   }
 
-  switch (user.indPapel) {
+  switch (user.idPerfil) {
     case 2:
       return <SecretariaDashboard />;
     case 3:

@@ -19,7 +19,6 @@ function Agenda() {
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
 
   const searchClick = () => {
-    console.log('Filtrar horários:', data)
     // Aqui seria implementada a lógica de filtro
     toast.info('Filtros aplicados com sucesso!')
   }
@@ -63,7 +62,6 @@ function Agenda() {
   }
 
   const handleBloquearAgenda = (dadosBloqueio: any) => {
-    console.log('Bloqueio criado:', dadosBloqueio)
     toast.success('Agenda bloqueada com sucesso!')
     // Aqui seria implementada a lógica de bloqueio
   }

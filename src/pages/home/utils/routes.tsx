@@ -11,8 +11,8 @@ import {
 
 import { USER_ROLES } from "../utils/constants";
 
-export const getMenuItems = (indPapel: number) => {
-    switch (indPapel) {
+export const getMenuItems = (idPerfil: number) => {
+    switch (idPerfil) {
       case USER_ROLES.ADMIN:
         return [
           { 
