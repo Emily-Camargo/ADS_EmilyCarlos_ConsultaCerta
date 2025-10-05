@@ -4,24 +4,58 @@ import { Button } from '@mantine/core'
 import Input from '../../../components/Inputs/Input'
 import { MdClose, MdPerson, MdVisibility, MdVisibilityOff } from 'react-icons/md'
 import { InputAdornment, Switch, FormControlLabel } from '@mui/material'
+import { useMutation } from 'react-query'
 import { CadastroDrawerProps, FormData } from '../interfaces'
+import { postCriaUsuario } from '../../../services/usuario'
+import { CriaUsuarioReq } from '../../../services/usuario/interface'
+import { toast } from 'react-toastify'
 
 const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string>('')
   const [formData, setFormData] = useState<FormData>({
-    id_perfil: 1,
+    idPerfil: 4,
     nome: '',
     cpf: '',
     email: '',
     telefone: '',
-    numero_whatsapp: '',
-    whatsapp_autorizado: false,
-    senha_hash: '',
-    ativo: true
+    numeroWhatsapp: '',
+    whatsappAutorizado: false,
+    senha: ''
+  })
+
+  const createUserMutation = useMutation({
+    mutationKey: ['createUser'],
+    mutationFn: (data: CriaUsuarioReq) => postCriaUsuario(data),
+    onSuccess: () => {
+      toast.success('Usuário cadastrado com sucesso! Faça seu login para continuar.')
+      resetForm()
+      onClose()
+    },
+    onError: (error: any) => {
+      console.error('Erro ao criar usuário:', error)
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao cadastrar usuário. Tente novamente.'
+      )
+    }
   })
 
   const perfilPaciente = { id: 1, nome: 'Paciente' }
+
+  const resetForm = () => {
+    setFormData({
+      idPerfil: 4,
+      nome: '',
+      cpf: '',
+      email: '',
+      telefone: '',
+      numeroWhatsapp: '',
+      whatsappAutorizado: false,
+      senha: ''
+    })
+    setErrorMessage('')
+  }
 
   const handleInputChange = (field: keyof FormData, value: string | number | boolean) => {
     setFormData(prev => ({
@@ -31,46 +65,25 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
   }
 
   const handleClose = () => {
-    setFormData({
-      id_perfil: 1,
-      nome: '',
-      cpf: '',
-      email: '',
-      telefone: '',
-      numero_whatsapp: '',
-      whatsapp_autorizado: false,
-      senha_hash: '',
-      ativo: true
-    })
+    resetForm()
     onClose()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     
-    try {
-      console.log('Dados do cadastro:', formData)
-      
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setFormData({
-        id_perfil: 1,
-        nome: '',
-        cpf: '',
-        email: '',
-        telefone: '',
-        numero_whatsapp: '',
-        whatsapp_autorizado: false,
-        senha_hash: '',
-        ativo: true
-      })
-      onClose()
-    } catch (error) {
-      console.error('Erro ao cadastrar:', error)
-    } finally {
-      setIsLoading(false)
+    const userData: CriaUsuarioReq = {
+      idPerfil: formData.idPerfil,
+      nome: formData.nome,
+      cpf: formData.cpf,
+      email: formData.email,
+      telefone: formData.telefone,
+      numeroWhatsapp: formData.numeroWhatsapp,
+      whatsappAutorizado: formData.whatsappAutorizado,
+      senha: formData.senha
     }
+    
+    createUserMutation.mutate(userData)
   }
 
   return (
@@ -98,6 +111,11 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
         </DrawerHeader>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+          {errorMessage && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+              {errorMessage}
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Perfil
@@ -177,8 +195,8 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
               size="small"
               type="text"
               label="Número do WhatsApp"
-              value={formData.numero_whatsapp}
-              onChange={(e) => handleInputChange('numero_whatsapp', e.target.value)}
+              value={formData.numeroWhatsapp}
+              onChange={(e) => handleInputChange('numeroWhatsapp', e.target.value)}
               className="w-full"
               placeholder="(00) 00000-0000"
               mask="(00) 00000-0000"
@@ -189,8 +207,8 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
             <FormControlLabel
               control={
                 <Switch
-                  checked={formData.whatsapp_autorizado}
-                  onChange={(e) => handleInputChange('whatsapp_autorizado', e.target.checked)}
+                  checked={formData.whatsappAutorizado}
+                  onChange={(e) => handleInputChange('whatsappAutorizado', e.target.checked)}
                   color="primary"
                 />
               }
@@ -205,8 +223,8 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
               size="small"
               type={showPassword ? 'text' : 'password'}
               label="Senha *"
-              value={formData.senha_hash}
-              onChange={(e) => handleInputChange('senha_hash', e.target.value)}
+              value={formData.senha}
+              onChange={(e) => handleInputChange('senha', e.target.value)}
               className="w-full"
               placeholder="Digite sua senha"
               InputProps={{
@@ -240,14 +258,14 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !formData.nome || !formData.cpf || !formData.email || !formData.telefone || !formData.senha_hash}
+              disabled={createUserMutation.isLoading || !formData.nome || !formData.cpf || !formData.email || !formData.telefone || !formData.senha}
               className="flex-1"
               size="sm"
               radius="md"
-              loading={isLoading}
+              loading={createUserMutation.isLoading}
               color="teal"
             >
-              {isLoading ? 'Cadastrando...' : 'Cadastrar'}
+              {createUserMutation.isLoading ? 'Cadastrando...' : 'Cadastrar'}
             </Button>
           </div>
         </form>

@@ -4,7 +4,7 @@ export interface User {
   id: number;
   nome: string;
   email: string;
-  indPapel: number; // 1: Secretária, 2: Paciente, 3: Médico
+  indPapel: number; // 1: Administrador, 2: Recepcionista, 3: Médico, 4: Paciente
   avatar?: string;
 }
 

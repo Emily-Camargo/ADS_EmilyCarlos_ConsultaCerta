@@ -43,11 +43,13 @@ const ContaComponent = ({
   const getRoleName = (indPapel: number) => {
     switch (indPapel) {
       case 1:
-        return 'Secretária';
+        return 'Administrador';
       case 2:
-        return 'Paciente';
+        return 'Recepcionista';
       case 3:
         return 'Médico';
+      case 4:
+        return 'Paciente';
       default:
         return 'Usuário';
     }

@@ -1,26 +1,43 @@
 export interface CriaUsuarioReq {
-  id?: number
-  nome_usuario?: string
-  email?: string
-  senha?: string
-}
-
-export interface RetornaUsuarioRes {
-  id: number
-  nome_usuario: string
+  nome: string
+  cpf: string
   email: string
+  telefone: string
+  numeroWhatsapp: string
+  whatsappAutorizado: boolean
   senha: string
-  criado_em: string
+  idPerfil: number
 }
 
-export interface LoginReq {
-  email: string
-  senha: string
+export interface PerfilUsuario {
+  idPerfil: number;
+  nome: string;
+  descricao: string;
 }
 
-export interface LoginRes {
-  access_token: string
+export interface CriaUsuarioRes {
+  idUsuario: number;
+  idPerfil: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  telefone: string;
+  numeroWhatsapp: string;
+  whatsappAutorizado: boolean;
+  ativo: boolean;
+  dataCriacao: string;
+  ultimoAcesso: string | null;
+  perfil: PerfilUsuario;
 }
+
+// export interface LoginReq {
+//   email: string
+//   senha: string
+// }
+
+// export interface LoginRes {
+//   access_token: string
+// }
 
 export interface StatusRes {
   status: string

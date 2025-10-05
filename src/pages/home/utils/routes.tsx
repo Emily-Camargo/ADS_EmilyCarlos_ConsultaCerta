@@ -13,7 +13,29 @@ import { USER_ROLES } from "../utils/constants";
 
 export const getMenuItems = (indPapel: number) => {
     switch (indPapel) {
-      case USER_ROLES.SECRETARIA:
+      case USER_ROLES.ADMIN:
+        return [
+          { 
+            seqAplicacao: 1, 
+            label: 'Dashboard Administrativo', 
+            icon: MdDashboard,
+            route: '/admin'
+          },
+          { 
+            seqAplicacao: 2, 
+            label: 'Usuários', 
+            icon: MdPeople,
+            route: '/usuarios'
+          },
+          { 
+            seqAplicacao: 3, 
+            label: 'Relatórios', 
+            icon: MdAssignment,
+            route: '/relatorios'
+          },
+        ];
+      
+      case USER_ROLES.RECEPCIONISTA:
         return [
           { 
             seqAplicacao: 2, 

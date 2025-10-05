@@ -4,15 +4,14 @@ export interface CadastroDrawerProps {
 }
 
 export interface FormData {
-  id_perfil: number
+  idPerfil: number
   nome: string
   cpf: string
   email: string
   telefone: string
-  numero_whatsapp: string
-  whatsapp_autorizado: boolean
-  senha_hash: string
-  ativo: boolean
+  numeroWhatsapp: string
+  whatsappAutorizado: boolean
+  senha: string
 }
 
 export interface EsqueceuSenhaModalProps {

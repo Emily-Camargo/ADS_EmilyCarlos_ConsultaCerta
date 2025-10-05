@@ -12,7 +12,7 @@ const MedicoDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
       <CurvedHeader
-        userRole="Dr."
+        userRole=""
         nextAppointment="Seu próximo atendimento é com Maria Santos às 15:00"
       />
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`} style={{ paddingTop: isMobile ? '200px' : '244px' }}>

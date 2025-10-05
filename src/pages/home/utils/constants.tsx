@@ -25,16 +25,16 @@ export const getStatusColor = (status: string) => {
 
 
 export const USER_ROLES = {
-    SECRETARIA: 1,
-    PACIENTE: 2,
+    ADMIN: 1,
+    RECEPCIONISTA: 2,
     MEDICO: 3,
-    ADMIN: 4,
+    PACIENTE: 4,
   } as const;
 
 
   export const getQuickActions = (indPapel: number) => {
     switch (indPapel) {
-      case USER_ROLES.SECRETARIA:
+      case USER_ROLES.RECEPCIONISTA:
         return [
           {
             title: 'Consultas',
@@ -82,6 +82,31 @@ export const USER_ROLES = {
             title: 'Relatórios',
             description: 'Visualize dashboards e análises de desempenho.',
             icon: MdDashboard,
+            path: '/relatorios',
+            colorClass: 'bg-gradient-to-br from-slate-400 to-slate-600',
+          },
+        ];
+      
+      case USER_ROLES.ADMIN:
+        return [
+          {
+            title: 'Dashboard Administrativo',
+            description: 'Painel de controle e configurações do sistema.',
+            icon: MdDashboard,
+            path: '/admin',
+            colorClass: 'bg-gradient-to-br from-purple-400 to-purple-600',
+          },
+          {
+            title: 'Usuários',
+            description: 'Gerencie usuários e permissões do sistema.',
+            icon: MdPeople,
+            path: '/usuarios',
+            colorClass: 'bg-gradient-to-br from-blue-400 to-blue-600',
+          },
+          {
+            title: 'Relatórios',
+            description: 'Visualize relatórios e análises do sistema.',
+            icon: MdAssignment,
             path: '/relatorios',
             colorClass: 'bg-gradient-to-br from-slate-400 to-slate-600',
           },
