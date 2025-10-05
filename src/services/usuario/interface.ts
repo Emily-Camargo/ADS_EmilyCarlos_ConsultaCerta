@@ -49,6 +49,34 @@ export interface LoginRes {
   expiresIn: number;
 }
 
-export interface StatusRes {
-  status: string
+export interface InfoUsuarioReq {
+  id: number;
+}
+
+export interface PacienteInfo {
+  idPaciente: number;
+  dataNascimento: string;
+  genero: string;
+  tipoSanguineo: string;
+  convenio: string;
+  numeroCarteirinha: string;
+  contatoEmergenciaNome: string;
+  contatoEmergenciaTelefone: string;
+  observacoes: string;
+}
+
+export interface InfoUsuarioRes {
+  idUsuario: number;
+  idPerfil: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  telefone: string;
+  numeroWhatsapp: string;
+  whatsappAutorizado: boolean;
+  ativo: boolean;
+  dataCriacao: string;
+  ultimoAcesso: string | null;
+  perfil: PerfilUsuario;
+  paciente?: PacienteInfo;
 }

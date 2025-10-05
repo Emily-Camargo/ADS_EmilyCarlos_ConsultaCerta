@@ -45,7 +45,7 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
 
   const resetForm = () => {
     setFormData({
-      idPerfil: 4,
+      idPerfil: 3,
       nome: '',
       cpf: '',
       email: '',

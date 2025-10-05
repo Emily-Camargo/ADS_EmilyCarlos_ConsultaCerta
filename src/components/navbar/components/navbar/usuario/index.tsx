@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import { 
@@ -13,6 +14,7 @@ const ContaComponent = ({
   setAnchorEl,
 }: ContaUsuarioComponentsProps) => {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
   const open = Boolean(anchorEl)
 
   const handleClose = () => {
@@ -24,6 +26,7 @@ const ContaComponent = ({
     
     switch (action) {
       case 'profile':
+        navigate('/perfil')
         break
       case 'logout':
         handleLogout()
