@@ -51,12 +51,14 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Se receber erro 401 (Não autorizado), limpa o token e redireciona para login
-    if (error.response?.status === 401) {
+    const isPublicRoute = PUBLIC_ROUTES.some(route => 
+      error.config?.url?.includes(route)
+    );
+    
+    if (error.response?.status === 401 && !isPublicRoute) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
       
-      // Redireciona para a página de login
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

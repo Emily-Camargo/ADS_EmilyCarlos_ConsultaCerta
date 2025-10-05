@@ -34,29 +34,34 @@ const Acessar = () => {
       setIsLoading(true)
       
       try {
-        // Chama a API de login
         const response = await postLogin({
           email: username,
           senha: password
         })
 
-        // Valida se a resposta contém os dados esperados
-        if (!response.data || !response.data.access_token || !response.data.user) {
-          toast.error('Credenciais inválidas. Tente novamente.')
-          setIsLoading(false)
+        if (!response || !response.data) {
+          toast.error('Erro ao processar resposta do servidor. Tente novamente.')
           return
         }
 
         const { access_token, user } = response.data
 
-        // Valida se o usuário tem os dados necessários
-        if (!user.idUsuario || !user.email || !user.nome || !user.idPerfil) {
-          toast.error('Erro ao processar dados do usuário. Tente novamente.')
-          setIsLoading(false)
+        // Valida se recebeu o token de acesso
+        if (!access_token) {
+          toast.error('Token de autenticação não recebido. Tente novamente.')
           return
         }
 
-        // Monta o objeto de usuário com os dados da API
+        if (!user) {
+          toast.error('Dados do usuário não recebidos. Tente novamente.')
+          return
+        }
+
+        if (!user.idUsuario || !user.email || !user.nome || !user.idPerfil) {
+          toast.error('Dados do usuário incompletos. Tente novamente.')
+          return
+        }
+
         const userData = {
           idUsuario: user.idUsuario,
           nome: user.nome,
@@ -65,35 +70,18 @@ const Acessar = () => {
           perfil: user.perfil
         }
 
-        // Salva o usuário e o token usando o contexto
         login(userData, access_token)
         
         toast.success(`Bem-vindo(a), ${user.nome}!`)
+        
         navigate('/home')
       } catch (error: any) {
-        if (error.response) {
-          // Erro retornado pela API
-          const status = error.response.status
-          const message = error.response.data?.message || error.response.data?.error
-          
-          if (status === 401 || status === 403) {
-            toast.error('Credenciais inválidas. Tente novamente.')
-          } else if (status === 404) {
-            toast.error('Usuário não encontrado')
-          } else if (status === 400) {
-            toast.error(message || 'Dados inválidos. Verifique email e senha.')
-          } else if (message) {
-            toast.error(message)
-          } else {
-            toast.error('Credenciais inválidas. Tente novamente.')
-          }
-        } else if (error.request) {
-          // Erro de rede
-          toast.error('Erro de conexão. Verifique sua internet.')
-        } else {
-          // Outro tipo de erro
-          toast.error('Credenciais inválidas. Tente novamente.')
-        }
+
+          const message = error.response?.data?.message || 
+                       error.response?.data?.error || 
+                       'Erro ao fazer login. Tente novamente.'
+        
+        toast.error(message)
       } finally {
         setIsLoading(false)
       }
