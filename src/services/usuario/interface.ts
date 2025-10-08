@@ -65,6 +65,18 @@ export interface PacienteInfo {
   observacoes: string;
 }
 
+export interface MedicoInfo {
+  idMedico: number;
+  idClinica: number;
+  idEspecialidade: number;
+  crm: string;
+  valorConsulta: string;
+  tempoConsulta: number;
+  ativo: boolean;
+  especialidade: string;
+  clinica: string;
+}
+
 export interface InfoUsuarioRes {
   idUsuario: number;
   idPerfil: number;
@@ -79,4 +91,5 @@ export interface InfoUsuarioRes {
   ultimoAcesso: string | null;
   perfil: PerfilUsuario;
   paciente?: PacienteInfo;
+  medico?: MedicoInfo;
 }

@@ -4,7 +4,7 @@ import { getInfoUsuario } from '../../services/usuario';
 import { InfoUsuarioRes } from '../../services/usuario/interface';
 import CustomLoaders from '../../components/Loader';
 import { Card, Avatar, Group, Text, Badge, Stack, Paper, Title, Divider, Grid, Button } from '@mantine/core';
-import { MdPerson, MdEmail, MdPhone, MdCalendarToday, MdWhatsapp, MdVerifiedUser, MdEdit, MdLocalHospital, MdBloodtype, MdContactEmergency } from 'react-icons/md';
+import { MdPerson, MdEmail, MdPhone, MdCalendarToday, MdWhatsapp, MdVerifiedUser, MdEdit, MdLocalHospital, MdBloodtype, MdContactEmergency, MdAttachMoney, MdAccessTime, MdBusiness } from 'react-icons/md';
 import { EditarPacientePerfil } from './components/modal/editar-paciente';
 import { PacientePerfilForm } from './utils/interfaces';
 import { toast } from 'react-toastify';
@@ -267,6 +267,79 @@ const MeuPerfil = () => {
             </Card>
           </Grid.Col>
         </Grid>
+
+        {/* Informações do Médico - Apenas para perfil de Médico (idPerfil === 3) */}
+        {userData.idPerfil === 3 && userData.medico && (
+          <Card shadow="sm" p="md" radius="md" withBorder className="mt-3 bg-white">
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="sm" className="tracking-wider">
+              Informações Profissionais
+            </Text>
+            <Divider mb="sm" />
+
+            <Grid gutter="xs">
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdLocalHospital} 
+                  label="Especialidade" 
+                  value={userData.medico.especialidade}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdVerifiedUser} 
+                  label="CRM" 
+                  value={userData.medico.crm}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <div className="flex items-start gap-2 py-2">
+                  <MdVerifiedUser size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <Text size="xs" c="dimmed" fw={500} className="mb-0.5">Status</Text>
+                    <Badge 
+                      color={userData.medico.ativo ? 'green' : 'red'} 
+                      variant="light" 
+                      size="sm"
+                    >
+                      {userData.medico.ativo ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                </div>
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdBusiness} 
+                  label="Clínica" 
+                  value={userData.medico.clinica}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdAttachMoney} 
+                  label="Valor da Consulta" 
+                  value={`R$ ${parseFloat(userData.medico.valorConsulta).toFixed(2).replace('.', ',')}`}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdAccessTime} 
+                  label="Tempo de Consulta" 
+                  value={`${userData.medico.tempoConsulta} minutos`}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+            </Grid>
+          </Card>
+        )}
 
         {/* Informações do Paciente - Apenas para perfil de Paciente (idPerfil === 4) */}
         {userData.idPerfil === 4 && (
