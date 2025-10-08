@@ -93,3 +93,19 @@ export interface InfoUsuarioRes {
   paciente?: PacienteInfo;
   medico?: MedicoInfo;
 }
+
+export interface AtualizarPacienteReq {
+  dataNascimento: string;
+  genero: string;
+  tipoSanguineo: string;
+  convenio: string;
+  numeroCarteirinha: string;
+  contatoEmergenciaNome: string;
+  contatoEmergenciaTelefone: string;
+  observacoes: string;
+}
+
+export interface AtualizarPacienteParams {
+  idUsuario: number;
+  data: AtualizarPacienteReq;
+}

@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '../../config/api';
-import { CriaUsuarioReq, CriaUsuarioRes, InfoUsuarioReq, InfoUsuarioRes, LoginReq, LoginRes } from './interface';
+import { CriaUsuarioReq, CriaUsuarioRes, InfoUsuarioReq, InfoUsuarioRes, LoginReq, LoginRes, AtualizarPacienteParams, AtualizarPacienteReq } from './interface';
 
 export const postCriaUsuario = async (
   data: CriaUsuarioReq,
@@ -32,5 +32,16 @@ export const getInfoUsuario = async (
     );
     
     return Promise.resolve(response);
+};
+
+export const putAtualizarPaciente = async (
+  params: AtualizarPacienteParams,
+): Promise<AxiosResponse<InfoUsuarioRes>> => {
+  const response = await api.put<InfoUsuarioRes>(
+    `usuarios/atualizar-usuario/${params.idUsuario}`,
+    params.data
+  );
+  
+  return Promise.resolve(response);
 };
 

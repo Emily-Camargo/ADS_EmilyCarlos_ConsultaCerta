@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getInfoUsuario } from '../../services/usuario';
+import { getInfoUsuario, putAtualizarPaciente } from '../../services/usuario';
 import { InfoUsuarioRes } from '../../services/usuario/interface';
 import CustomLoaders from '../../components/Loader';
 import { Card, Avatar, Group, Text, Badge, Stack, Paper, Title, Divider, Grid, Button } from '@mantine/core';
@@ -8,6 +8,7 @@ import { MdPerson, MdEmail, MdPhone, MdCalendarToday, MdWhatsapp, MdVerifiedUser
 import { EditarPacientePerfil } from './components/modal/editar-paciente';
 import { PacientePerfilForm } from './utils/interfaces';
 import { toast } from 'react-toastify';
+import { useMutation } from 'react-query';
 
 const MeuPerfil = () => {
   const { getIdUsuario } = useAuth();
@@ -16,47 +17,48 @@ const MeuPerfil = () => {
   const [error, setError] = useState<string | null>(null);
   const [modalEditarPaciente, setModalEditarPaciente] = useState(false);
 
+  const fetchUserData = async () => {
+    const idUsuario = getIdUsuario();
+    
+    if (!idUsuario) {
+      setError('Usuário não autenticado');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await getInfoUsuario({ id: idUsuario });
+      setUserData(response.data);
+      setError(null);
+    } catch (err: any) {
+      console.error('Erro ao buscar dados do usuário:', err);
+      setError('Não foi possível carregar os dados do perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const atualizarPacienteMutation = useMutation({
+    mutationKey: ['atualizarPaciente'],
+    mutationFn: putAtualizarPaciente,
+    onSuccess: async () => {
+      setModalEditarPaciente(false);
+      toast.success('Informações atualizadas com sucesso!');
+      await fetchUserData();
+    },
+    onError: (error: any) => {
+      console.error('Erro ao atualizar informações:', error);
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao atualizar informações. Tente novamente.'
+      );
+    }
+  });
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const idUsuario = getIdUsuario();
-      
-      if (!idUsuario) {
-        setError('Usuário não autenticado');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await getInfoUsuario({ id: idUsuario });
-        setUserData(response.data);
-        setError(null);
-      } catch (err: any) {
-        console.error('Erro ao buscar dados do usuário:', err);
-        setError('Não foi possível carregar os dados do perfil');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserData();
-  }, [getIdUsuario]);
-
-  if (loading) {
-    return <CustomLoaders open />;
-  }
-
-  if (error || !userData) {
-    return (
-      <div className="p-6 max-sm:p-4">
-        <Paper p="xl" radius="md" withBorder className="text-center">
-          <Text c="red" size="lg">
-            {error || 'Erro ao carregar perfil'}
-          </Text>
-        </Paper>
-      </div>
-    );
-  }
+  }, []);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Nunca';
@@ -119,33 +121,26 @@ const MeuPerfil = () => {
   };
 
   const handleSalvarPaciente = async (dadosPaciente: PacientePerfilForm) => {
-    try {
-      // TODO: Implementar a chamada à API para atualizar os dados do paciente
-      console.log('Dados do paciente para salvar:', dadosPaciente);
-      
-      // Atualizar localmente até implementar a API
-      if (userData) {
-        setUserData({
-          ...userData,
-          paciente: {
-            idPaciente: userData.paciente?.idPaciente || 0,
-            dataNascimento: dadosPaciente.dataNascimento,
-            genero: dadosPaciente.genero,
-            tipoSanguineo: dadosPaciente.tipoSanguineo,
-            convenio: dadosPaciente.convenio,
-            numeroCarteirinha: dadosPaciente.numeroCarteirinha,
-            contatoEmergenciaNome: dadosPaciente.contatoEmergenciaNome,
-            contatoEmergenciaTelefone: dadosPaciente.contatoEmergenciaTelefone,
-            observacoes: dadosPaciente.observacoes,
-          }
-        });
-      }
-      
-      toast.success('Informações atualizadas com sucesso!');
-    } catch (error) {
-      console.error('Erro ao atualizar informações:', error);
-      toast.error('Erro ao atualizar informações');
+    const idUsuario = getIdUsuario();
+    
+    if (!idUsuario) {
+      toast.error('Usuário não autenticado');
+      return;
     }
+
+    atualizarPacienteMutation.mutate({
+      idUsuario,
+      data: {
+        dataNascimento: dadosPaciente.dataNascimento,
+        genero: dadosPaciente.genero,
+        tipoSanguineo: dadosPaciente.tipoSanguineo,
+        convenio: dadosPaciente.convenio,
+        numeroCarteirinha: dadosPaciente.numeroCarteirinha,
+        contatoEmergenciaNome: dadosPaciente.contatoEmergenciaNome,
+        contatoEmergenciaTelefone: dadosPaciente.contatoEmergenciaTelefone,
+        observacoes: dadosPaciente.observacoes,
+      }
+    });
   };
 
   const getPacienteDataForEdit = (): PacientePerfilForm | null => {
@@ -180,6 +175,22 @@ const MeuPerfil = () => {
       </div>
     </div>
   );
+
+  if (loading) {
+    return <CustomLoaders open />;
+  }
+
+  if (error || !userData) {
+    return (
+      <div className="p-6 max-sm:p-4">
+        <Paper p="xl" radius="md" withBorder className="text-center">
+          <Text c="red" size="lg">
+            {error || 'Erro ao carregar perfil'}
+          </Text>
+        </Paper>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -441,6 +452,7 @@ const MeuPerfil = () => {
           setModal={setModalEditarPaciente}
           onConfirmar={handleSalvarPaciente}
           pacienteData={getPacienteDataForEdit()}
+          loading={atualizarPacienteMutation.isLoading}
         />
       </div>
     </div>

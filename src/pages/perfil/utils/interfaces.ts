@@ -14,5 +14,6 @@ export interface EditarPacientePerfilProps {
   setModal: (open: boolean) => void
   onConfirmar: (paciente: PacientePerfilForm) => void
   pacienteData?: PacientePerfilForm | null
+  loading?: boolean
 }
 
