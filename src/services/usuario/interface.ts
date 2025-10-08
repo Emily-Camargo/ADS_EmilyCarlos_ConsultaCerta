@@ -53,6 +53,10 @@ export interface InfoUsuarioReq {
   id: number;
 }
 
+export interface BuscarUsuariosReq {
+  idPerfil?: number;
+}
+
 export interface PacienteInfo {
   idPaciente: number;
   dataNascimento: string;
@@ -108,4 +112,16 @@ export interface AtualizarPacienteReq {
 export interface AtualizarPacienteParams {
   idUsuario: number;
   data: AtualizarPacienteReq;
+}
+
+export interface CadastrarPacienteReq {
+  idUsuario: number;
+  dataNascimento: string;
+  genero: string;
+  tipoSanguineo: string;
+  convenio: string;
+  numeroCarteirinha: string;
+  contatoEmergenciaNome: string;
+  contatoEmergenciaTelefone: string;
+  observacoes: string;
 }

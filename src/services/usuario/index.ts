@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '../../config/api';
-import { CriaUsuarioReq, CriaUsuarioRes, InfoUsuarioReq, InfoUsuarioRes, LoginReq, LoginRes, AtualizarPacienteParams, AtualizarPacienteReq } from './interface';
+import { CriaUsuarioReq, CriaUsuarioRes, InfoUsuarioReq, InfoUsuarioRes, LoginReq, LoginRes, AtualizarPacienteParams, BuscarUsuariosReq, CadastrarPacienteReq } from './interface';
 
 export const postCriaUsuario = async (
   data: CriaUsuarioReq,
@@ -34,6 +34,17 @@ export const getInfoUsuario = async (
     return Promise.resolve(response);
 };
 
+export const postCadastrarPaciente = async (
+  data: CadastrarPacienteReq,
+): Promise<AxiosResponse<InfoUsuarioRes>> => {
+  const response = await api.post<InfoUsuarioRes>(
+    'usuarios/registrar-paciente',
+    data
+  );
+  
+  return Promise.resolve(response);
+};
+
 export const putAtualizarPaciente = async (
   params: AtualizarPacienteParams,
 ): Promise<AxiosResponse<InfoUsuarioRes>> => {
@@ -41,6 +52,21 @@ export const putAtualizarPaciente = async (
     `usuarios/atualizar-usuario/${params.idUsuario}`,
     params.data
   );
+  
+  return Promise.resolve(response);
+};
+
+export const getBuscarPacientes = async (): Promise<AxiosResponse<InfoUsuarioRes[]>> => {
+  const data: BuscarUsuariosReq = { idPerfil: 4 };
+  const response = await api.post<InfoUsuarioRes[]>('/usuarios/buscar', data);
+  
+  return Promise.resolve(response);
+};
+
+export const getBuscarPaciente = async (
+  id: number
+): Promise<AxiosResponse<InfoUsuarioRes>> => {
+  const response = await api.get<InfoUsuarioRes>(`/usuarios/buscar/${id}`, {});
   
   return Promise.resolve(response);
 };

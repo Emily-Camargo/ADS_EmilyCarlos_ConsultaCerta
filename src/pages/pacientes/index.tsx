@@ -1,19 +1,61 @@
-import { memo, useState } from "react"
+import { memo, useState, useEffect } from "react"
 import { inputsPacientes, pacientesFil } from "./utils/filtro"
 import Filtro from "../../components/filtro"
 import { useImmer } from "use-immer"
 import { Button } from "@mantine/core"
 import { TabelaPacientes } from "./components/tabela/tabela"
-import { mockPacientes } from "./mock"
 import { CadastrarPaciente } from "./components/modal/cadastrar-paciente"
 import { PacienteData } from "./utils/interfaces"
+import { getBuscarPacientes } from "../../services/usuario"
+import { InfoUsuarioRes } from "../../services/usuario/interface"
 
 function Pacientes() {
   const [data, setData] = useImmer(pacientesFil)
   const [modalCadastro, setModalCadastro] = useState(false)
-  const [pacientes, setPacientes] = useState<PacienteData[]>(mockPacientes)
+  const [pacientes, setPacientes] = useState<PacienteData[]>([])
   const [pacienteParaEditar, setPacienteParaEditar] = useState<PacienteData | null>(null)
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Converter dados da API para o formato PacienteData
+  const converterParaPacienteData = (usuarios: InfoUsuarioRes[]): PacienteData[] => {
+    return usuarios
+      .filter(usuario => usuario.paciente) // Filtrar apenas usuários que são pacientes
+      .map(usuario => ({
+        id_paciente: usuario.paciente!.idPaciente,
+        nome_paciente: usuario.nome,
+        cpf: usuario.cpf,
+        celular: usuario.telefone,
+        id_usuario: usuario.idUsuario,
+        data_nascimento: usuario.paciente!.dataNascimento,
+        genero: usuario.paciente!.genero,
+        tipo_sanguineo: usuario.paciente!.tipoSanguineo,
+        convenio: usuario.paciente!.convenio,
+        numero_carteirinha: usuario.paciente!.numeroCarteirinha,
+        contato_emergencia_nome: usuario.paciente!.contatoEmergenciaNome,
+        contato_emergencia_telefone: usuario.paciente!.contatoEmergenciaTelefone,
+        observacoes: usuario.paciente!.observacoes,
+      }))
+  }
+
+  // Buscar pacientes da API
+  const buscarPacientes = async () => {
+    setIsLoading(true)
+    try {
+      const response = await getBuscarPacientes()
+      const pacientesConvertidos = converterParaPacienteData(response.data)
+      setPacientes(pacientesConvertidos)
+    } catch (error) {
+      console.error("Erro ao buscar pacientes:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Carregar pacientes ao montar o componente
+  useEffect(() => {
+    buscarPacientes()
+  }, [])
 
   const searchClick = () => {
     // Lógica de busca
@@ -23,25 +65,10 @@ function Pacientes() {
     setData(pacientesFil)
   }
 
-  const handleCadastrarPaciente = (novoPaciente: any) => {
-    if (pacienteParaEditar) {
-      setPacientes(prev => 
-        prev.map(p => 
-          p.id_paciente === pacienteParaEditar.id_paciente 
-            ? { ...novoPaciente }
-            : p
-        )
-      )
-      setPacienteParaEditar(null)
-    } else {
-      const pacienteCompleto: PacienteData = {
-        ...novoPaciente,
-        id_paciente: Math.max(...pacientes.map(p => p.id_paciente)) + 1,
-        id_usuario: 1000 + Math.floor(Math.random() * 1000), // Simula um ID de usuário
-      }
-      
-      setPacientes(prev => [...prev, pacienteCompleto])
-    }
+  const handleCadastrarPaciente = async () => {
+    // Recarregar a lista de pacientes da API
+    await buscarPacientes()
+    setPacienteParaEditar(null)
   }
 
   const editarPaciente = (paciente: PacienteData) => {
@@ -79,7 +106,7 @@ function Pacientes() {
       </Button>
       <TabelaPacientes 
         pacientes={pacientes} 
-        isLoading={false}
+        isLoading={isLoading}
         editarPaciente={editarPaciente}
         detalhesPaciente={detalhesPaciente}
       />
