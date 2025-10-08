@@ -49,6 +49,7 @@ const MeuPerfil = () => {
     },
     onError: (error: any) => {
       console.error('Erro ao atualizar informações:', error);
+      setModalEditarPaciente(true);
       toast.error(
         error?.response?.data?.message || 
         'Erro ao atualizar informações. Tente novamente.'
