@@ -43,6 +43,7 @@ interface AuthContextType {
   getIdUsuario: () => number | null;
   getIdPerfil: () => number | null;
   getIdMedico: () => number | null;
+  getIdPaciente: () => number | null;
   getEmail: () => string | null;
   getNome: () => string | null;
   getToken: () => string | null;
@@ -134,6 +135,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return null;
   };
 
+  const getIdPaciente = (): number | null => {
+    if (user?.paciente) return user.paciente.idPaciente;
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.paciente?.idPaciente || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
   const getEmail = (): string | null => {
     if (user) return user.email;
     const storedUser = localStorage.getItem('user');
@@ -174,6 +189,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getIdUsuario,
     getIdPerfil,
     getIdMedico,
+    getIdPaciente,
     getEmail,
     getNome,
     getToken,

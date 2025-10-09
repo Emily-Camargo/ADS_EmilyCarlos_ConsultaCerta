@@ -1,7 +1,8 @@
 export interface BuscarConsultasReq {
-  dataInicio: string;
-  dataFim: string;
+  dataInicio?: string;
+  dataFim?: string;
   idMedico?: number;
+  idPaciente?: number;
 }
 
 export interface MedicoConsulta {
