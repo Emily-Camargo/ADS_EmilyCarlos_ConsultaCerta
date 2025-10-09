@@ -37,12 +37,12 @@ const SecretariaDashboard = () => {
     // Filtra apenas consultas válidas com paciente e médico definidos
     const consultasValidas = consultas.filter(c => c.paciente && c.medico);
     
-    const agendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'Agendada');
-    const confirmadas = consultasValidas.filter(c => c.status.toLowerCase() === 'Confirmada');
-    const emAndamento = consultasValidas.filter(c => c.status.toLowerCase() === 'Em andamento');
-    const concluidas = consultasValidas.filter(c => c.status.toLowerCase() === 'Concluída' || c.status.toLowerCase() === 'Concluida');
-    const canceladas = consultasValidas.filter(c => c.status.toLowerCase() === 'Cancelada');
-    const reagendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'Reagendada');
+    const agendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'agendada');
+    const confirmadas = consultasValidas.filter(c => c.status.toLowerCase() === 'confirmada');
+    const emAndamento = consultasValidas.filter(c => c.status.toLowerCase() === 'em andamento');
+    const concluidas = consultasValidas.filter(c => c.status.toLowerCase() === 'concluída' || c.status.toLowerCase() === 'concluida');
+    const canceladas = consultasValidas.filter(c => c.status.toLowerCase() === 'cancelada');
+    const reagendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'reagendada');
 
     setStatusTabs([
       { label: 'Todas', data: consultasValidas, count: consultasValidas.length },
@@ -60,7 +60,10 @@ const SecretariaDashboard = () => {
       try {
         setLoading(true);
         const hoje = new Date();
-        const dataFormatada = hoje.toISOString().split('T')[0];
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const dataFormatada = `${ano}-${mes}-${dia}`;
         
         const response = await postBuscarConsultas({
           dataInicio: dataFormatada,

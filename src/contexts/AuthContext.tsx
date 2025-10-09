@@ -10,6 +10,28 @@ export interface User {
     nome: string;
     descricao: string;
   };
+  medico?: {
+    idMedico: number;
+    idClinica: number;
+    idEspecialidade: number;
+    crm: string;
+    valorConsulta: string;
+    tempoConsulta: number;
+    ativo: boolean;
+    especialidade: string;
+    clinica: string;
+  };
+  paciente?: {
+    idPaciente: number;
+    dataNascimento: string;
+    genero: string;
+    tipoSanguineo: string;
+    convenio: string;
+    numeroCarteirinha: string;
+    contatoEmergenciaNome: string;
+    contatoEmergenciaTelefone: string;
+    observacoes: string;
+  };
   avatar?: string;
 }
 
@@ -20,6 +42,7 @@ interface AuthContextType {
   isLoading: boolean;
   getIdUsuario: () => number | null;
   getIdPerfil: () => number | null;
+  getIdMedico: () => number | null;
   getEmail: () => string | null;
   getNome: () => string | null;
   getToken: () => string | null;
@@ -97,6 +120,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return null;
   };
 
+  const getIdMedico = (): number | null => {
+    if (user?.medico) return user.medico.idMedico;
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        return userData.medico?.idMedico || null;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
   const getEmail = (): string | null => {
     if (user) return user.email;
     const storedUser = localStorage.getItem('user');
@@ -136,6 +173,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isLoading,
     getIdUsuario,
     getIdPerfil,
+    getIdMedico,
     getEmail,
     getNome,
     getToken,

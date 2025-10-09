@@ -41,6 +41,7 @@ export interface LoginResUser {
   email: string;
   idPerfil: number;
   perfil: PerfilUsuario;
+  medico?: MedicoInfo;
 }
 
 export interface LoginRes {
