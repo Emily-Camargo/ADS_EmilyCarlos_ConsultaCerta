@@ -46,6 +46,7 @@ export function colunasPacientes({ editarPaciente, detalhesPaciente }: ColunasPa
       name: 'Convênio',
       selector: (row) => row.convenio,
       sortable: true,
+      center: true,
     },
     {
       name: 'Carteirinha',

@@ -41,6 +41,7 @@ export interface LoginResUser {
   email: string;
   idPerfil: number;
   perfil: PerfilUsuario;
+  medico?: MedicoInfo;
 }
 
 export interface LoginRes {
@@ -53,6 +54,10 @@ export interface InfoUsuarioReq {
   id: number;
 }
 
+export interface BuscarUsuariosReq {
+  idPerfil?: number;
+}
+
 export interface PacienteInfo {
   idPaciente: number;
   dataNascimento: string;
@@ -63,6 +68,18 @@ export interface PacienteInfo {
   contatoEmergenciaNome: string;
   contatoEmergenciaTelefone: string;
   observacoes: string;
+}
+
+export interface MedicoInfo {
+  idMedico: number;
+  idClinica: number;
+  idEspecialidade: number;
+  crm: string;
+  valorConsulta: string;
+  tempoConsulta: number;
+  ativo: boolean;
+  especialidade: string;
+  clinica: string;
 }
 
 export interface InfoUsuarioRes {
@@ -79,4 +96,33 @@ export interface InfoUsuarioRes {
   ultimoAcesso: string | null;
   perfil: PerfilUsuario;
   paciente?: PacienteInfo;
+  medico?: MedicoInfo;
+}
+
+export interface AtualizarPacienteReq {
+  dataNascimento: string;
+  genero: string;
+  tipoSanguineo: string;
+  convenio: string;
+  numeroCarteirinha: string;
+  contatoEmergenciaNome: string;
+  contatoEmergenciaTelefone: string;
+  observacoes: string;
+}
+
+export interface AtualizarPacienteParams {
+  idUsuario: number;
+  data: AtualizarPacienteReq;
+}
+
+export interface CadastrarPacienteReq {
+  idUsuario: number;
+  dataNascimento: string;
+  genero: string;
+  tipoSanguineo: string;
+  convenio: string;
+  numeroCarteirinha: string;
+  contatoEmergenciaNome: string;
+  contatoEmergenciaTelefone: string;
+  observacoes: string;
 }

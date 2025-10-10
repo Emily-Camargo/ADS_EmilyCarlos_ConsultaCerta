@@ -38,7 +38,7 @@ export interface TabelaPacientesProps {
 export interface CadastrarPacienteProps {
   modal: boolean
   setModal: (open: boolean) => void
-  onConfirmar: (paciente: Omit<PacienteData, 'id_paciente' | 'id_usuario'>) => void
+  onConfirmar: () => void
   pacienteParaEditar?: PacienteData | null
   modoVisualizacao?: boolean
 }

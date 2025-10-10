@@ -1,13 +1,15 @@
 import Dialog from '../../../../components/dialog'
 import Button from '../../../../components/button'
 import { useState, useEffect } from 'react'
-import { Grid } from '@mui/material'
+import { Grid, CircularProgress } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
 import { CadastrarPacienteProps, PacienteData, PacienteForm } from '../../utils/interfaces'
-import { mockPacientes } from '../../mock'
 import { generoOptions, initialForm, tipoSanguineoOptions } from '../../utils/constants'
 import { toast } from 'react-toastify'
+import { getBuscarPaciente, putAtualizarPaciente, getBuscarPacientes, postCadastrarPaciente } from '../../../../services/usuario'
+import { InfoUsuarioRes, AtualizarPacienteParams, CadastrarPacienteReq } from '../../../../services/usuario/interface'
+import { useMutation, useQuery } from 'react-query'
 
 export function CadastrarPaciente({
   modal,
@@ -18,56 +20,181 @@ export function CadastrarPaciente({
 }: Readonly<CadastrarPacienteProps>) {
   const [formData, setFormData] = useState<PacienteForm>(initialForm)
   const [pacienteSelecionado, setPacienteSelecionado] = useState<PacienteData | null>(null)
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState<InfoUsuarioRes | null>(null)
 
   const isEdicao = !!pacienteParaEditar
   const isVisualizacao = modoVisualizacao
 
-  useEffect(() => {
-    if (pacienteParaEditar && modal) {
-      setPacienteSelecionado(pacienteParaEditar)
-      setFormData({
-        data_nascimento: pacienteParaEditar.data_nascimento,
-        genero: pacienteParaEditar.genero,
-        tipo_sanguineo: pacienteParaEditar.tipo_sanguineo,
-        convenio: pacienteParaEditar.convenio,
-        numero_carteirinha: pacienteParaEditar.numero_carteirinha,
-        contato_emergencia_nome: pacienteParaEditar.contato_emergencia_nome,
-        contato_emergencia_telefone: pacienteParaEditar.contato_emergencia_telefone,
-        observacoes: pacienteParaEditar.observacoes,
-      })
-    } else if (!modal) {
+  // Converter InfoUsuarioRes para PacienteData
+  const converterParaPacienteData = (usuario: InfoUsuarioRes): PacienteData => {
+    return {
+      id_paciente: usuario.paciente!.idPaciente,
+      nome_paciente: usuario.nome,
+      cpf: usuario.cpf,
+      celular: usuario.telefone,
+      id_usuario: usuario.idUsuario,
+      data_nascimento: usuario.paciente!.dataNascimento,
+      genero: usuario.paciente!.genero,
+      tipo_sanguineo: usuario.paciente!.tipoSanguineo,
+      convenio: usuario.paciente!.convenio,
+      numero_carteirinha: usuario.paciente!.numeroCarteirinha,
+      contato_emergencia_nome: usuario.paciente!.contatoEmergenciaNome,
+      contato_emergencia_telefone: usuario.paciente!.contatoEmergenciaTelefone,
+      observacoes: usuario.paciente!.observacoes,
+    }
+  }
+
+  // useQuery para buscar todos os usuários (para modo cadastro)
+  const { data: usuariosSemPaciente, isLoading: isLoadingUsuarios } = useQuery(
+    ['usuariosSemPaciente'],
+    () => getBuscarPacientes(),
+    {
+      enabled: modal && !isEdicao && !isVisualizacao,
+      select: (response) => {
+        // Filtrar apenas usuários SEM dados de paciente
+        return response.data.filter(usuario => !usuario.paciente)
+      },
+      onError: (error: any) => {
+        console.error('Erro ao buscar usuários:', error)
+        toast.error(
+          error?.response?.data?.message || 
+          'Erro ao carregar usuários'
+        )
+      }
+    }
+  )
+
+  // useQuery para buscar dados do paciente
+  const { isLoading } = useQuery(
+    ['paciente', pacienteParaEditar?.id_usuario],
+    () => getBuscarPaciente(pacienteParaEditar!.id_usuario),
+    {
+      enabled: !!pacienteParaEditar && modal && (isEdicao || isVisualizacao),
+      onSuccess: (response) => {
+        const pacienteData = converterParaPacienteData(response.data)
+        setPacienteSelecionado(pacienteData)
+        setFormData({
+          data_nascimento: pacienteData.data_nascimento,
+          genero: pacienteData.genero,
+          tipo_sanguineo: pacienteData.tipo_sanguineo,
+          convenio: pacienteData.convenio,
+          numero_carteirinha: pacienteData.numero_carteirinha,
+          contato_emergencia_nome: pacienteData.contato_emergencia_nome,
+          contato_emergencia_telefone: pacienteData.contato_emergencia_telefone,
+          observacoes: pacienteData.observacoes,
+        })
+      },
+      onError: (error: any) => {
+        console.error('Erro ao buscar dados do paciente:', error)
+        toast.error(
+          error?.response?.data?.message || 
+          'Erro ao carregar dados do paciente'
+        )
+      }
+    }
+  )
+
+  // useMutation para cadastrar paciente
+  const cadastrarPacienteMutation = useMutation({
+    mutationKey: ['cadastrarPaciente'],
+    mutationFn: (data: CadastrarPacienteReq) => postCadastrarPaciente(data),
+    onSuccess: () => {
+      toast.success('Paciente cadastrado com sucesso!')
+      onConfirmar() // Callback para recarregar a lista
+      setFormData(initialForm)
+      setUsuarioSelecionado(null)
+      setModal(false)
+    },
+    onError: (error: any) => {
+      console.error('Erro ao cadastrar paciente:', error)
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao cadastrar paciente. Tente novamente.'
+      )
+    }
+  })
+
+  // useMutation para atualizar paciente
+  const atualizarPacienteMutation = useMutation({
+    mutationKey: ['atualizarPaciente'],
+    mutationFn: (params: AtualizarPacienteParams) => putAtualizarPaciente(params),
+    onSuccess: () => {
+      toast.success('Paciente atualizado com sucesso!')
+      onConfirmar() // Callback para recarregar a lista
       setFormData(initialForm)
       setPacienteSelecionado(null)
+      setModal(false)
+    },
+    onError: (error: any) => {
+      console.error('Erro ao atualizar paciente:', error)
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao atualizar paciente. Tente novamente.'
+      )
     }
-  }, [pacienteParaEditar, modal])
+  })
+
+  useEffect(() => {
+    if (!modal) {
+      setFormData(initialForm)
+      setPacienteSelecionado(null)
+      setUsuarioSelecionado(null)
+    }
+  }, [modal])
 
   const cancelar = () => {
     setModal(false)
     setFormData(initialForm)
     setPacienteSelecionado(null)
+    setUsuarioSelecionado(null)
   }
 
   const confirmar = () => {
-    if (!pacienteSelecionado) {
-      toast.warn('Selecione um paciente!')
+    if (!isEdicao && !usuarioSelecionado) {
+      toast.warn('Selecione um usuário!')
       return
     }
 
-    const pacienteCompleto = {
-      nome_paciente: pacienteSelecionado.nome_paciente,
-      cpf: pacienteSelecionado.cpf,
-      celular: pacienteSelecionado.celular,
-      ...formData,
-      ...(isEdicao && { 
-        id_paciente: pacienteParaEditar!.id_paciente,
-        id_usuario: pacienteParaEditar!.id_usuario 
-      })
+    if (isEdicao && !pacienteSelecionado) {
+      toast.warn('Erro ao carregar dados do paciente!')
+      return
     }
 
-    onConfirmar(pacienteCompleto)
-    setFormData(initialForm)
-    setPacienteSelecionado(null)
-    setModal(false)
+    // Validar campos obrigatórios
+    if (!formData.data_nascimento || !formData.genero || !formData.tipo_sanguineo) {
+      toast.warn('Preencha todos os campos obrigatórios!')
+      return
+    }
+
+    if (isEdicao) {
+      // Usar mutation para atualizar
+      atualizarPacienteMutation.mutate({
+        idUsuario: pacienteSelecionado!.id_usuario,
+        data: {
+          dataNascimento: formData.data_nascimento,
+          genero: formData.genero,
+          tipoSanguineo: formData.tipo_sanguineo,
+          convenio: formData.convenio,
+          numeroCarteirinha: formData.numero_carteirinha,
+          contatoEmergenciaNome: formData.contato_emergencia_nome,
+          contatoEmergenciaTelefone: formData.contato_emergencia_telefone,
+          observacoes: formData.observacoes,
+        }
+      })
+    } else {
+      // Modo cadastro - usar mutation de cadastrar
+      cadastrarPacienteMutation.mutate({
+        idUsuario: usuarioSelecionado!.idUsuario,
+        dataNascimento: formData.data_nascimento,
+        genero: formData.genero,
+        tipoSanguineo: formData.tipo_sanguineo,
+        convenio: formData.convenio,
+        numeroCarteirinha: formData.numero_carteirinha,
+        contatoEmergenciaNome: formData.contato_emergencia_nome,
+        contatoEmergenciaTelefone: formData.contato_emergencia_telefone,
+        observacoes: formData.observacoes,
+      })
+    }
   }
 
   const handleInputChange = (field: keyof PacienteForm) => (
@@ -79,11 +206,16 @@ export function CadastrarPaciente({
     }))
   }
 
-  const handlePacienteSelect = (
+  const handleUsuarioSelect = (
     _event: React.SyntheticEvent,
-    value: PacienteData | null
+    value: InfoUsuarioRes | null
   ) => {
-    setPacienteSelecionado(value)
+    if (value && value.paciente) {
+      toast.error('Paciente com dados já cadastrados')
+      setUsuarioSelecionado(null)
+      return
+    }
+    setUsuarioSelecionado(value)
   }
 
   const handleGeneroSelect = (
@@ -125,12 +257,20 @@ export function CadastrarPaciente({
       onClose={cancelar}
       actions={
         <>
-          <Button color="error" onClick={cancelar}>
+          <Button 
+            color="error" 
+            onClick={cancelar}
+            disabled={cadastrarPacienteMutation.isLoading || atualizarPacienteMutation.isLoading}
+          >
             {isVisualizacao ? 'Fechar' : 'Cancelar'}
           </Button>
           {!isVisualizacao && (
-            <Button color="primary" onClick={confirmar}>
-              {getTextoBotao()}
+            <Button 
+              color="primary" 
+              onClick={confirmar}
+              disabled={isLoading || cadastrarPacienteMutation.isLoading || atualizarPacienteMutation.isLoading}
+            >
+              {(cadastrarPacienteMutation.isLoading || atualizarPacienteMutation.isLoading) ? 'Salvando...' : getTextoBotao()}
             </Button>
           )}
         </>
@@ -146,30 +286,41 @@ export function CadastrarPaciente({
           }
         </p>
         
-        <Grid container spacing={2} className="pt-4">
-          {!isEdicao && !isVisualizacao && (
-            <Grid item xs={12}>
-              <InputSelect
-                value={pacienteSelecionado}
-                options={mockPacientes}
-                textFieldProps={{ label: 'Selecionar Paciente *' }}
-                multiple={false}
-                onChange={handlePacienteSelect}
-                optionLabel={(v) => `${v.nome_paciente} - ${v.cpf}`}
-              />
-            </Grid>
-          )}
+        {isLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <CircularProgress />
+          </div>
+        ) : (
+          <Grid container spacing={2} className="pt-4">
+            {!isEdicao && !isVisualizacao && (
+              <Grid item xs={12}>
+                {isLoadingUsuarios ? (
+                  <div className="flex justify-center py-4">
+                    <CircularProgress size={24} />
+                  </div>
+                ) : (
+                  <InputSelect
+                    value={usuarioSelecionado}
+                    options={usuariosSemPaciente || []}
+                    textFieldProps={{ label: 'Selecionar Usuário *' }}
+                    multiple={false}
+                    onChange={handleUsuarioSelect}
+                    optionLabel={(v) => `${v.nome} - ${v.cpf}`}
+                  />
+                )}
+              </Grid>
+            )}
 
-          {(isEdicao || isVisualizacao) && (
-            <Grid item xs={12}>
-              <Input
-                label="Paciente"
-                value={pacienteSelecionado ? `${pacienteSelecionado.nome_paciente} - ${pacienteSelecionado.cpf}` : ''}
-                disabled
-                fullWidth
-              />
-            </Grid>
-          )}
+            {(isEdicao || isVisualizacao) && (
+              <Grid item xs={12}>
+                <Input
+                  label="Paciente"
+                  value={pacienteSelecionado ? `${pacienteSelecionado.nome_paciente} - ${pacienteSelecionado.cpf}` : ''}
+                  disabled
+                  fullWidth
+                />
+              </Grid>
+            )}
 
           <Grid item xs={12} md={6}>
             <Input
@@ -261,6 +412,7 @@ export function CadastrarPaciente({
             />
           </Grid>
         </Grid>
+        )}
       </div>
     </Dialog>
   )

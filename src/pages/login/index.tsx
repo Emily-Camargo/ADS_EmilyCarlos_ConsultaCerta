@@ -7,7 +7,7 @@ import { useDimension } from '../../hooks'
 import { useAuth } from '../../contexts/AuthContext'
 import CadastroDrawer from './cadastro/cadastro-usuario'
 import EsqueceuSenhaModal from './esqueceu-senha/esqueceu-senha'
-import { postLogin } from '../../services/usuario'
+import { postLogin, getInfoUsuario } from '../../services/usuario'
 import { toast } from 'react-toastify'
 
 const Acessar = () => {
@@ -62,17 +62,30 @@ const Acessar = () => {
           return
         }
 
+        // Salva o token temporariamente para usar na próxima requisição
+        localStorage.setItem('access_token', access_token);
+
+        // Busca dados completos do usuário (incluindo dados do médico, paciente, etc)
+        const userInfoResponse = await getInfoUsuario({ id: user.idUsuario });
+        const fullUserData = userInfoResponse.data;
+
+        console.log('Dados completos do usuário:', fullUserData);
+
         const userData = {
-          idUsuario: user.idUsuario,
-          nome: user.nome,
-          email: user.email,
-          idPerfil: user.idPerfil,
-          perfil: user.perfil
+          idUsuario: fullUserData.idUsuario,
+          nome: fullUserData.nome,
+          email: fullUserData.email,
+          idPerfil: fullUserData.idPerfil,
+          perfil: fullUserData.perfil,
+          medico: fullUserData.medico, // Inclui dados do médico se existirem
+          paciente: fullUserData.paciente // Inclui dados do paciente se existirem
         }
+
+        console.log('Dados do usuário a serem salvos:', userData);
 
         login(userData, access_token)
         
-        toast.success(`Bem-vindo(a), ${user.nome}!`)
+        toast.success(`Bem-vindo(a), ${fullUserData.nome}!`)
         
         navigate('/home')
       } catch (error: any) {

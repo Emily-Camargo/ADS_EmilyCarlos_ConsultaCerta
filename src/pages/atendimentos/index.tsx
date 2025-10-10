@@ -1,15 +1,33 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Grid, Tabs, Tab } from '@mui/material';
+import { Box, Typography, Grid, Tabs, Tab, CircularProgress } from '@mui/material';
 import { useDimension } from '../../hooks';
 import AtendimentoCard from './components/AtendimentoCard';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Filtro from '../../components/filtro';
-import { statusTabs } from './utils/constants';
+import { postBuscarConsultas } from '../../services/consultas';
+import { ConsultaRes } from '../../services/consultas/interface';
+import { useAuth } from '../../contexts/AuthContext';
+
+interface StatusTab {
+  label: string;
+  data: ConsultaRes[];
+  count: number;
+}
 
 const AtendimentosPage = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
+  const { getIdMedico } = useAuth();
   const [tabValue, setTabValue] = useState(0);
+  const [statusTabs, setStatusTabs] = useState<StatusTab[]>([
+    { label: 'Todas', data: [], count: 0 },
+    { label: 'Agendada', data: [], count: 0 },
+    { label: 'Confirmada', data: [], count: 0 },
+    { label: 'Em andamento', data: [], count: 0 },
+    { label: 'Concluída', data: [], count: 0 },
+    { label: 'Cancelada', data: [], count: 0 },
+  ]);
+  const [loading, setLoading] = useState(true);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -17,12 +35,77 @@ const AtendimentosPage = () => {
 
   const handleIniciarAtendimento = (id: number) => {
     // Lógica para iniciar atendimento
+    console.log('Iniciar atendimento:', id);
   };
 
   const handleNaoCompareceu = (id: number) => {
     // Lógica para marcar como não compareceu
+    console.log('Não compareceu:', id);
   };
 
+  const separarPorStatus = (consultas: ConsultaRes[]) => {
+    // Filtra apenas consultas válidas com paciente e médico definidos
+    const consultasValidas = consultas.filter(c => c.paciente && c.medico);
+    
+    const agendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'agendada');
+    const confirmadas = consultasValidas.filter(c => c.status.toLowerCase() === 'confirmada');
+    const emAndamento = consultasValidas.filter(c => c.status.toLowerCase() === 'em andamento');
+    const concluidas = consultasValidas.filter(c => c.status.toLowerCase() === 'concluída' || c.status.toLowerCase() === 'concluida');
+    const canceladas = consultasValidas.filter(c => c.status.toLowerCase() === 'cancelada');
+
+    setStatusTabs([
+      { label: 'Todas', data: consultasValidas, count: consultasValidas.length },
+      { label: 'Agendada', data: agendadas, count: agendadas.length },
+      { label: 'Confirmada', data: confirmadas, count: confirmadas.length },
+      { label: 'Em andamento', data: emAndamento, count: emAndamento.length },
+      { label: 'Concluída', data: concluidas, count: concluidas.length },
+      { label: 'Cancelada', data: canceladas, count: canceladas.length },
+    ]);
+  };
+
+  useEffect(() => {
+    const buscarConsultas = async () => {
+      try {
+        setLoading(true);
+        const idMedico = getIdMedico();
+        
+        if (!idMedico) {
+          console.error('ID do médico não encontrado');
+          setLoading(false);
+          return;
+        }
+
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const dataFormatada = `${ano}-${mes}-${dia}`;
+        
+        const response = await postBuscarConsultas({
+          dataInicio: dataFormatada,
+          dataFim: dataFormatada,
+          idMedico: idMedico,
+        });
+
+        separarPorStatus(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar consultas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    buscarConsultas();
+  }, []);
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50 flex items-center justify-center">
+        <CircularProgress size={60} sx={{ color: '#3b82f6' }} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
@@ -88,23 +171,43 @@ const AtendimentosPage = () => {
             </Tabs>
           </Box>
           
-          <Grid container spacing={isMobile ? 2 : 4}>
-            {statusTabs[tabValue].data.map((atendimento) => (
-              <Grid item xs={12} sm={6} md={3} key={atendimento.id}>
-                <AtendimentoCard
-                  id={atendimento.id}
-                  paciente={atendimento.paciente}
-                  medico="Dr. Carlos Oliveira"
-                  horario={atendimento.horario}
-                  status={atendimento.status}
-                  especialidade={atendimento.especialidade}
-                  onClick={() => navigate('/atendimentos')}
-                  onIniciarAtendimento={handleIniciarAtendimento}
-                  onNaoCompareceu={handleNaoCompareceu}
-                />
-              </Grid>
-            ))}
-          </Grid>
+          {statusTabs[tabValue].data.length === 0 ? (
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              minHeight: '200px',
+              color: '#6b7280',
+              fontSize: '1.125rem',
+              fontWeight: '500'
+            }}>
+              Nenhum atendimento encontrado para este status
+            </Box>
+          ) : (
+            <Grid container spacing={isMobile ? 2 : 4}>
+              {statusTabs[tabValue].data.map((consulta) => {
+                const dataHora = new Date(consulta.dataHora);
+                const horario = dataHora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const status = consulta.status.charAt(0).toUpperCase() + consulta.status.slice(1);
+                
+                return (
+                  <Grid item xs={12} sm={6} md={3} key={consulta.idConsulta}>
+                    <AtendimentoCard
+                      id={consulta.idConsulta}
+                      paciente={consulta.paciente.nome}
+                      medico={consulta.medico.nome}
+                      horario={horario}
+                      status={status}
+                      especialidade={consulta.medico.especialidade}
+                      onClick={() => navigate('/atendimentos')}
+                      onIniciarAtendimento={handleIniciarAtendimento}
+                      onNaoCompareceu={handleNaoCompareceu}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
         </Box>
 
       </div>

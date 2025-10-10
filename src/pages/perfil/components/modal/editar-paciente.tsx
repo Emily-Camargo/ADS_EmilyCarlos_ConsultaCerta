@@ -13,6 +13,7 @@ export function EditarPacientePerfil({
   setModal,
   onConfirmar,
   pacienteData,
+  loading = false,
 }: Readonly<EditarPacientePerfilProps>) {
   const [formData, setFormData] = useState<PacientePerfilForm>(initialFormPerfil)
 
@@ -106,11 +107,11 @@ export function EditarPacientePerfil({
       onClose={cancelar}
       actions={
         <>
-          <Button color="error" onClick={cancelar}>
+          <Button color="error" onClick={cancelar} disabled={loading}>
             Cancelar
           </Button>
-          <Button color="primary" onClick={confirmar}>
-            Salvar
+          <Button color="primary" onClick={confirmar} disabled={loading}>
+            {loading ? 'Salvando...' : 'Salvar'}
           </Button>
         </>
       }

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { getInfoUsuario } from '../../services/usuario';
+import { getInfoUsuario, putAtualizarPaciente } from '../../services/usuario';
 import { InfoUsuarioRes } from '../../services/usuario/interface';
 import CustomLoaders from '../../components/Loader';
 import { Card, Avatar, Group, Text, Badge, Stack, Paper, Title, Divider, Grid, Button } from '@mantine/core';
-import { MdPerson, MdEmail, MdPhone, MdCalendarToday, MdWhatsapp, MdVerifiedUser, MdEdit, MdLocalHospital, MdBloodtype, MdContactEmergency } from 'react-icons/md';
+import { MdPerson, MdEmail, MdPhone, MdCalendarToday, MdWhatsapp, MdVerifiedUser, MdEdit, MdLocalHospital, MdBloodtype, MdContactEmergency, MdAttachMoney, MdAccessTime, MdBusiness } from 'react-icons/md';
 import { EditarPacientePerfil } from './components/modal/editar-paciente';
 import { PacientePerfilForm } from './utils/interfaces';
 import { toast } from 'react-toastify';
+import { useMutation } from 'react-query';
 
 const MeuPerfil = () => {
   const { getIdUsuario } = useAuth();
@@ -16,47 +17,49 @@ const MeuPerfil = () => {
   const [error, setError] = useState<string | null>(null);
   const [modalEditarPaciente, setModalEditarPaciente] = useState(false);
 
+  const fetchUserData = async () => {
+    const idUsuario = getIdUsuario();
+    
+    if (!idUsuario) {
+      setError('Usuário não autenticado');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await getInfoUsuario({ id: idUsuario });
+      setUserData(response.data);
+      setError(null);
+    } catch (err: any) {
+      console.error('Erro ao buscar dados do usuário:', err);
+      setError('Não foi possível carregar os dados do perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const atualizarPacienteMutation = useMutation({
+    mutationKey: ['atualizarPaciente'],
+    mutationFn: putAtualizarPaciente,
+    onSuccess: async () => {
+      setModalEditarPaciente(false);
+      toast.success('Informações atualizadas com sucesso!');
+      await fetchUserData();
+    },
+    onError: (error: any) => {
+      console.error('Erro ao atualizar informações:', error);
+      setModalEditarPaciente(true);
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao atualizar informações. Tente novamente.'
+      );
+    }
+  });
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      const idUsuario = getIdUsuario();
-      
-      if (!idUsuario) {
-        setError('Usuário não autenticado');
-        setLoading(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        const response = await getInfoUsuario({ id: idUsuario });
-        setUserData(response.data);
-        setError(null);
-      } catch (err: any) {
-        console.error('Erro ao buscar dados do usuário:', err);
-        setError('Não foi possível carregar os dados do perfil');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUserData();
-  }, [getIdUsuario]);
-
-  if (loading) {
-    return <CustomLoaders open />;
-  }
-
-  if (error || !userData) {
-    return (
-      <div className="p-6 max-sm:p-4">
-        <Paper p="xl" radius="md" withBorder className="text-center">
-          <Text c="red" size="lg">
-            {error || 'Erro ao carregar perfil'}
-          </Text>
-        </Paper>
-      </div>
-    );
-  }
+  }, []);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Nunca';
@@ -119,33 +122,26 @@ const MeuPerfil = () => {
   };
 
   const handleSalvarPaciente = async (dadosPaciente: PacientePerfilForm) => {
-    try {
-      // TODO: Implementar a chamada à API para atualizar os dados do paciente
-      console.log('Dados do paciente para salvar:', dadosPaciente);
-      
-      // Atualizar localmente até implementar a API
-      if (userData) {
-        setUserData({
-          ...userData,
-          paciente: {
-            idPaciente: userData.paciente?.idPaciente || 0,
-            dataNascimento: dadosPaciente.dataNascimento,
-            genero: dadosPaciente.genero,
-            tipoSanguineo: dadosPaciente.tipoSanguineo,
-            convenio: dadosPaciente.convenio,
-            numeroCarteirinha: dadosPaciente.numeroCarteirinha,
-            contatoEmergenciaNome: dadosPaciente.contatoEmergenciaNome,
-            contatoEmergenciaTelefone: dadosPaciente.contatoEmergenciaTelefone,
-            observacoes: dadosPaciente.observacoes,
-          }
-        });
-      }
-      
-      toast.success('Informações atualizadas com sucesso!');
-    } catch (error) {
-      console.error('Erro ao atualizar informações:', error);
-      toast.error('Erro ao atualizar informações');
+    const idUsuario = getIdUsuario();
+    
+    if (!idUsuario) {
+      toast.error('Usuário não autenticado');
+      return;
     }
+
+    atualizarPacienteMutation.mutate({
+      idUsuario,
+      data: {
+        dataNascimento: dadosPaciente.dataNascimento,
+        genero: dadosPaciente.genero,
+        tipoSanguineo: dadosPaciente.tipoSanguineo,
+        convenio: dadosPaciente.convenio,
+        numeroCarteirinha: dadosPaciente.numeroCarteirinha,
+        contatoEmergenciaNome: dadosPaciente.contatoEmergenciaNome,
+        contatoEmergenciaTelefone: dadosPaciente.contatoEmergenciaTelefone,
+        observacoes: dadosPaciente.observacoes,
+      }
+    });
   };
 
   const getPacienteDataForEdit = (): PacientePerfilForm | null => {
@@ -180,6 +176,22 @@ const MeuPerfil = () => {
       </div>
     </div>
   );
+
+  if (loading) {
+    return <CustomLoaders open />;
+  }
+
+  if (error || !userData) {
+    return (
+      <div className="p-6 max-sm:p-4">
+        <Paper p="xl" radius="md" withBorder className="text-center">
+          <Text c="red" size="lg">
+            {error || 'Erro ao carregar perfil'}
+          </Text>
+        </Paper>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -267,6 +279,79 @@ const MeuPerfil = () => {
             </Card>
           </Grid.Col>
         </Grid>
+
+        {/* Informações do Médico - Apenas para perfil de Médico (idPerfil === 3) */}
+        {userData.idPerfil === 3 && userData.medico && (
+          <Card shadow="sm" p="md" radius="md" withBorder className="mt-3 bg-white">
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase" mb="sm" className="tracking-wider">
+              Informações Profissionais
+            </Text>
+            <Divider mb="sm" />
+
+            <Grid gutter="xs">
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdLocalHospital} 
+                  label="Especialidade" 
+                  value={userData.medico.especialidade}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdVerifiedUser} 
+                  label="CRM" 
+                  value={userData.medico.crm}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <div className="flex items-start gap-2 py-2">
+                  <MdVerifiedUser size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <Text size="xs" c="dimmed" fw={500} className="mb-0.5">Status</Text>
+                    <Badge 
+                      color={userData.medico.ativo ? 'green' : 'red'} 
+                      variant="light" 
+                      size="sm"
+                    >
+                      {userData.medico.ativo ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                </div>
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdBusiness} 
+                  label="Clínica" 
+                  value={userData.medico.clinica}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdAttachMoney} 
+                  label="Valor da Consulta" 
+                  value={`R$ ${parseFloat(userData.medico.valorConsulta).toFixed(2).replace('.', ',')}`}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, sm: 6, md: 4 }}>
+                <InfoItem 
+                  icon={MdAccessTime} 
+                  label="Tempo de Consulta" 
+                  value={`${userData.medico.tempoConsulta} minutos`}
+                  iconColor="text-green-600"
+                />
+              </Grid.Col>
+            </Grid>
+          </Card>
+        )}
 
         {/* Informações do Paciente - Apenas para perfil de Paciente (idPerfil === 4) */}
         {userData.idPerfil === 4 && (
@@ -368,6 +453,7 @@ const MeuPerfil = () => {
           setModal={setModalEditarPaciente}
           onConfirmar={handleSalvarPaciente}
           pacienteData={getPacienteDataForEdit()}
+          loading={atualizarPacienteMutation.isLoading}
         />
       </div>
     </div>
