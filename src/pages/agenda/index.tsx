@@ -10,7 +10,7 @@ import { DetalhesMedico } from "./components/modal/detalhes-medico"
 import { HorarioAtendimento } from "./utils/interfaces"
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
-import { agendaKeys, fetchHorarios, fetchHorariosMedico } from "./utils/queries"
+import { agendaKeys, fetchHorarios } from "./utils/queries"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
@@ -18,20 +18,13 @@ function Agenda() {
   const [modalBloqueio, setModalBloqueio] = useState(false)
   const [modalDetalhes, setModalDetalhes] = useState(false)
   const [horarioParaEditar, setHorarioParaEditar] = useState<HorarioAtendimento | null>(null)
+  const [horarioParaVisualizar, setHorarioParaVisualizar] = useState<HorarioAtendimento | null>(null)
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
-  const [medicoParaDetalhes, setMedicoParaDetalhes] = useState<number | null>(null)
 
   // Query para buscar horários
   const { data: horarios = [], isLoading, error } = useQuery({
     queryKey: agendaKeys.horarios(),
     queryFn: fetchHorarios,
-  })
-
-  // Query para buscar detalhes de um médico específico
-  const { data: horariosMedico = [], isLoading: isLoadingDetalhes } = useQuery({
-    queryKey: agendaKeys.horariosMedico(medicoParaDetalhes!),
-    queryFn: () => fetchHorariosMedico(medicoParaDetalhes!),
-    enabled: !!medicoParaDetalhes,
   })
 
   const queryClient = useQueryClient()
@@ -94,7 +87,7 @@ function Agenda() {
   }
 
   const detalhesHorario = (horario: HorarioAtendimento) => {
-    setMedicoParaDetalhes(horario.id_medico)
+    setHorarioParaVisualizar(horario)
     setModalDetalhes(true)
   }
 
@@ -161,9 +154,7 @@ function Agenda() {
       <DetalhesMedico
         modal={modalDetalhes}
         setModal={setModalDetalhes}
-        horariosMedico={horariosMedico}
-        isLoading={isLoadingDetalhes}
-        nomeMedico={horarios.find(h => h.id_medico === medicoParaDetalhes)?.nome_medico || 'Médico'}
+        horario={horarioParaVisualizar}
       />
 
       <BloquearAgenda

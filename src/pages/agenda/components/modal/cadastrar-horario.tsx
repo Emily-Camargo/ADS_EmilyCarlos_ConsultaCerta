@@ -181,21 +181,21 @@ export function CadastrarHorario({
 
   const handleDiaSemanaSelect = (
     _event: React.SyntheticEvent,
-    value: { value: number; label: string } | null
+    value: any
   ) => {
     setFormData(prev => ({
       ...prev,
-      dia_semana: value?.value || 0
+      dia_semana: (typeof value?.value === 'number' ? value.value : 0)
     }))
   }
 
   const handleIntervaloSelect = (
     _event: React.SyntheticEvent,
-    value: { value: number; label: string } | null
+    value: any
   ) => {
     setFormData(prev => ({
       ...prev,
-      intervalo_minutos: value?.value || 0
+      intervalo_minutos: (typeof value?.value === 'number' ? value.value : 0)
     }))
   }
 
