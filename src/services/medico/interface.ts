@@ -37,3 +37,25 @@ export interface MedicoAgendaPutReq {
     almocoFim: string;
     ativo: boolean;
 }
+
+export interface BloquearAgendaReq {
+    idMedico: number;
+    dataInicio: string;
+    dataFim: string;
+    motivo: string;
+    tipoBloqueio: string;
+}
+
+export interface BloquearAgendaRes {
+    idBloqueio: number;
+    idMedico: number;
+    dataInicio: string;
+    dataFim: string;
+    motivo: string;
+    tipoBloqueio: string;
+    criadoPor: number;
+    criadoEm: string;
+    nomeMedico: string;
+    nomeEspecialidade: string;
+    nomeCriadoPor: string;
+}

@@ -7,7 +7,7 @@ import { TabelaHorarios } from "./components/tabela/tabela"
 import { CadastrarHorario } from "./components/modal/cadastrar-horario"
 import { BloquearAgenda } from "./components/modal/bloquear-agenda"
 import { DetalhesMedico } from "./components/modal/detalhes-medico"
-import { HorarioAtendimento } from "./utils/interfaces"
+import { HorarioAtendimento, BloqueioAgenda } from "./utils/interfaces"
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient } from 'react-query'
 import { agendaKeys, fetchHorarios } from "./utils/queries"
@@ -19,7 +19,10 @@ function Agenda() {
   const [modalDetalhes, setModalDetalhes] = useState(false)
   const [horarioParaEditar, setHorarioParaEditar] = useState<HorarioAtendimento | null>(null)
   const [horarioParaVisualizar, setHorarioParaVisualizar] = useState<HorarioAtendimento | null>(null)
+  const [bloqueioParaEditar, setBloqueioParaEditar] = useState<BloqueioAgenda | null>(null)
+  const [bloqueioParaVisualizar, setBloqueioParaVisualizar] = useState<BloqueioAgenda | null>(null)
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
+  const [modoVisualizacaoBloqueio, setModoVisualizacaoBloqueio] = useState(false)
 
   // Query para buscar horários
   const { data: horarios = [], isLoading, error } = useQuery({
@@ -103,8 +106,38 @@ function Agenda() {
   }
 
   const abrirModalBloqueio = () => {
-    setHorarioParaEditar(null)
+    setBloqueioParaEditar(null)
+    setBloqueioParaVisualizar(null)
+    setModoVisualizacaoBloqueio(false)
     setModalBloqueio(true)
+  }
+
+  const editarBloqueio = (bloqueio: BloqueioAgenda) => {
+    setBloqueioParaEditar(bloqueio)
+    setBloqueioParaVisualizar(null)
+    setModoVisualizacaoBloqueio(false)
+    setModalBloqueio(true)
+  }
+
+  const detalhesBloqueio = (bloqueio: BloqueioAgenda) => {
+    setBloqueioParaVisualizar(bloqueio)
+    setBloqueioParaEditar(null)
+    setModoVisualizacaoBloqueio(true)
+    setModalBloqueio(true)
+  }
+
+  const removerBloqueio = (bloqueio: BloqueioAgenda) => {
+    // TODO: Implementar modal de confirmação e chamada da API de exclusão
+    toast.info(`Remover bloqueio ${bloqueio.id_bloqueio} - Implementar API de exclusão`)
+  }
+
+  const fecharModalBloqueio = (aberto: boolean) => {
+    setModalBloqueio(aberto)
+    if (!aberto) {
+      setBloqueioParaEditar(null)
+      setBloqueioParaVisualizar(null)
+      setModoVisualizacaoBloqueio(false)
+    }
   }
 
   return (
@@ -141,6 +174,9 @@ function Agenda() {
         editarHorario={editarHorario}
         detalhesHorario={detalhesHorario}
         bloquearHorario={bloquearHorario}
+        editarBloqueio={editarBloqueio}
+        detalhesBloqueio={detalhesBloqueio}
+        removerBloqueio={removerBloqueio}
       />
       
       <CadastrarHorario
@@ -159,10 +195,10 @@ function Agenda() {
 
       <BloquearAgenda
         modal={modalBloqueio}
-        setModal={setModalBloqueio}
+        setModal={fecharModalBloqueio}
         onConfirmar={handleBloquearAgenda}
-        bloqueioParaEditar={null}
-        modoVisualizacao={false}
+        bloqueioParaEditar={bloqueioParaEditar || bloqueioParaVisualizar}
+        modoVisualizacao={modoVisualizacaoBloqueio}
       />
     </div>
   )

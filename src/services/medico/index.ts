@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import api from "../../config/api";
-import { AgendaRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
+import { AgendaRes, BloquearAgendaReq, BloquearAgendaRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
 import { getBuscarMedicos } from "../usuario";
 import { InfoUsuarioRes } from "../usuario/interface";
 
@@ -44,5 +44,20 @@ export const putHorariosMedico = async (idHorario: number, data: MedicoAgendaPut
     const response = await api.put<AgendaRes[]>(
       `/medicos/horario-atendimento/${idHorario}`, data);
 
+    return Promise.resolve(response);
+};
+
+export const postBloquearAgenda = async (data: BloquearAgendaReq): Promise<AxiosResponse<BloquearAgendaRes>> => {
+    const response = await api.post<BloquearAgendaRes>(
+      `/medicos/bloqueio-agenda`, data);
+
+    return Promise.resolve(response);
+};
+
+export const getBloqueiosMedico = async (idMedico: number): Promise<AxiosResponse<BloquearAgendaRes[]>> => {
+    const response = await api.get<BloquearAgendaRes[]>(
+      `/medicos/bloqueios-agenda/medico/${idMedico}`
+    );
+    
     return Promise.resolve(response);
 };

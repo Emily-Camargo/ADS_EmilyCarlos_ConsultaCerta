@@ -5,13 +5,15 @@ import { Grid } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
 import { BloqueioAgendaProps, BloqueioForm } from '../../utils/interfaces'
-import { mockMedicos } from '../../mock'
 import { 
   initialBloqueioForm, 
   tiposBloqueioOptions 
 } from '../../utils/constants'
 import { validarPeriodoBloqueio } from '../../utils/functions'
 import { toast } from 'react-toastify'
+import { postBloquearAgenda, getMedicos } from '../../../../services/medico'
+import { useQuery } from 'react-query'
+import { InfoUsuarioRes } from '../../../../services/usuario/interface'
 
 export function BloquearAgenda({
   modal,
@@ -21,9 +23,29 @@ export function BloquearAgenda({
   modoVisualizacao = false,
 }: Readonly<BloqueioAgendaProps>) {
   const [formData, setFormData] = useState<BloqueioForm>(initialBloqueioForm)
+  const [loading, setLoading] = useState(false)
 
   const isEdicao = !!bloqueioParaEditar
   const isVisualizacao = modoVisualizacao
+
+  // Query para buscar médicos
+  const { data: medicosData, isLoading: isLoadingMedicos } = useQuery({
+    queryKey: ['medicos'],
+    queryFn: async () => {
+      const response = await getMedicos()
+      return response
+    },
+    enabled: modal, // Só busca quando o modal está aberto
+  })
+
+  // Mapear médicos para o formato esperado
+  const medicos = medicosData?.map((usuario: InfoUsuarioRes) => ({
+    id_medico: usuario.medico?.idMedico || 0,
+    nome_medico: usuario.nome,
+    especialidade: usuario.medico?.especialidade || '',
+    crm: usuario.medico?.crm || '',
+    ativo: usuario.ativo && (usuario.medico?.ativo ?? true),
+  })) || []
 
   useEffect(() => {
     if (bloqueioParaEditar && modal) {
@@ -45,7 +67,7 @@ export function BloquearAgenda({
     setFormData(initialBloqueioForm)
   }
 
-  const confirmar = () => {
+  const confirmar = async () => {
     if (formData.id_medico === 0) {
       toast.warn('Selecione um médico!')
       return
@@ -66,22 +88,66 @@ export function BloquearAgenda({
       return
     }
 
-    const bloqueioCompleto = {
-      ...formData,
-      data_inicio: new Date(formData.data_inicio).toISOString(),
-      data_fim: new Date(formData.data_fim).toISOString(),
-      ...(isEdicao && { 
-        id_bloqueio: bloqueioParaEditar!.id_bloqueio,
-        criado_em: bloqueioParaEditar!.criado_em
-      }),
-      ...(!isEdicao && {
-        criado_em: new Date().toISOString()
-      })
-    }
+    setLoading(true)
 
-    onConfirmar(bloqueioCompleto)
-    setFormData(initialBloqueioForm)
-    setModal(false)
+    try {
+      if (!isEdicao) {
+        // Criar novo bloqueio via API
+        const payload = {
+          idMedico: formData.id_medico,
+          dataInicio: new Date(formData.data_inicio).toISOString(),
+          dataFim: new Date(formData.data_fim).toISOString(),
+          motivo: formData.motivo,
+          tipoBloqueio: formData.tipo_bloqueio,
+        }
+
+        const response = await postBloquearAgenda(payload)
+        
+        if (response.data) {
+          toast.success('Agenda bloqueada com sucesso!')
+          
+          // Converter resposta da API para o formato esperado pelo componente pai
+          const bloqueioCompleto = {
+            id_bloqueio: response.data.idBloqueio,
+            id_medico: response.data.idMedico,
+            data_inicio: response.data.dataInicio,
+            data_fim: response.data.dataFim,
+            motivo: response.data.motivo,
+            tipo_bloqueio: response.data.tipoBloqueio,
+            criado_por: response.data.criadoPor,
+            criado_em: response.data.criadoEm,
+          }
+          
+          onConfirmar(bloqueioCompleto)
+          setFormData(initialBloqueioForm)
+          setModal(false)
+        }
+      } else {
+        // Edição - mantém comportamento local por enquanto
+        const bloqueioCompleto = {
+          ...formData,
+          data_inicio: new Date(formData.data_inicio).toISOString(),
+          data_fim: new Date(formData.data_fim).toISOString(),
+          id_bloqueio: bloqueioParaEditar!.id_bloqueio,
+          criado_em: bloqueioParaEditar!.criado_em
+        }
+
+        onConfirmar(bloqueioCompleto)
+        setFormData(initialBloqueioForm)
+        setModal(false)
+        toast.success('Bloqueio atualizado com sucesso!')
+      }
+    } catch (error: any) {
+      console.error('Erro ao bloquear agenda:', error)
+      
+      const mensagemErro = error?.response?.data?.message || 
+                          error?.message || 
+                          'Erro ao processar solicitação'
+      
+      toast.error(`Erro: ${mensagemErro}`)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleInputChange = (field: keyof BloqueioForm) => (
@@ -95,7 +161,7 @@ export function BloquearAgenda({
 
   const handleMedicoSelect = (
     _event: React.SyntheticEvent,
-    value: typeof mockMedicos[0] | null
+    value: typeof medicos[0] | null
   ) => {
     setFormData(prev => ({
       ...prev,
@@ -105,11 +171,11 @@ export function BloquearAgenda({
 
   const handleTipoBloqueioSelect = (
     _event: React.SyntheticEvent,
-    value: { value: string; label: string } | null
+    value: typeof tiposBloqueioOptions[0] | null
   ) => {
     setFormData(prev => ({
       ...prev,
-      tipo_bloqueio: value?.value || 'OUTROS'
+      tipo_bloqueio: String(value?.value || 'OUTROS')
     }))
   }
 
@@ -124,8 +190,10 @@ export function BloquearAgenda({
     return 'Bloquear'
   }
 
-  const medicoSelecionado = mockMedicos.find(m => m.id_medico === formData.id_medico)
+  const medicoSelecionado = medicos.find(m => m.id_medico === formData.id_medico)
   const tipoSelecionado = tiposBloqueioOptions.find(t => t.value === formData.tipo_bloqueio)
+
+  const dataMinima = new Date().toISOString().slice(0, 16)
 
   return (
     <Dialog
@@ -135,12 +203,12 @@ export function BloquearAgenda({
       onClose={cancelar}
       actions={
         <>
-          <Button color="error" onClick={cancelar}>
+          <Button color="error" onClick={cancelar} disabled={loading}>
             {isVisualizacao ? 'Fechar' : 'Cancelar'}
           </Button>
           {!isVisualizacao && (
-            <Button color="primary" onClick={confirmar}>
-              {getTextoBotao()}
+            <Button color="primary" onClick={confirmar} disabled={loading}>
+              {loading ? 'Processando...' : getTextoBotao()}
             </Button>
           )}
         </>
@@ -160,15 +228,16 @@ export function BloquearAgenda({
           <Grid item xs={12}>
             <InputSelect
               value={medicoSelecionado || null}
-              options={mockMedicos.filter(m => m.ativo)}
+              options={medicos.filter(m => m.ativo)}
               textFieldProps={{ 
                 label: 'Médico *', 
-                disabled: isVisualizacao 
+                disabled: isVisualizacao || isLoadingMedicos 
               }}
               multiple={false}
               onChange={handleMedicoSelect}
               optionLabel={(v) => `${v.nome_medico} - ${v.especialidade}`}
-              disabled={isVisualizacao}
+              disabled={isVisualizacao || isLoadingMedicos}
+              loading={isLoadingMedicos}
             />
           </Grid>
 
@@ -181,6 +250,7 @@ export function BloquearAgenda({
               fullWidth
               disabled={isVisualizacao}
               shrink
+              inputProps={{ min: dataMinima }}
            />
           </Grid>
 
@@ -193,6 +263,7 @@ export function BloquearAgenda({
               fullWidth
               disabled={isVisualizacao}
               shrink
+              inputProps={{ min: dataMinima }}
             />
           </Grid>
 

@@ -250,7 +250,6 @@ export function CadastrarHorario({
 
   const isLoading = mutationCadastrar.isLoading || mutationEditar.isLoading
   
-  // Data mínima para vigência (data atual)
   const dataMinima = new Date().toISOString().split('T')[0]
 
   return (
