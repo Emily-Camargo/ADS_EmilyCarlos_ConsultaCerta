@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import api from "../../config/api";
-import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, EspecialidadeMedicoReq, EspecialidadeMedicoRes, EspecialidadeRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
+import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, EspecialidadeMedicoReq, EspecialidadeMedicoRes, EspecialidadeRes, HorariosMedicoReq, HorariosMedicoRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
 import { getBuscarMedicos } from "../usuario";
 import { InfoUsuarioRes } from "../usuario/interface";
 import { StatusRes } from "../interfaceGeneric";
@@ -90,6 +90,15 @@ export const getEspecialidades = async (): Promise<AxiosResponse<EspecialidadeRe
 export const postEspecialidadesMedico = async (data: EspecialidadeMedicoReq): Promise<AxiosResponse<EspecialidadeMedicoRes[]>> => {
     const response = await api.post<EspecialidadeMedicoRes[]>(
       `/medicos/especialidade`,
+      data
+    );
+    
+    return Promise.resolve(response);
+};
+
+export const postHorariosDisponiveis = async (data: HorariosMedicoReq): Promise<AxiosResponse<HorariosMedicoRes[]>> => {
+    const response = await api.post<HorariosMedicoRes[]>(
+      `/medicos/horarios-disponiveis`,
       data
     );
     

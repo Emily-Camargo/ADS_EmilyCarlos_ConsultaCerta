@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { Grid } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
-import { CadastrarConsultaProps, ConsultaData, ConsultaForm, PacienteData } from '../../../consultas/utils/interfaces'
+import { CadastrarConsultaProps, ConsultaForm, PacienteData } from '../../../consultas/utils/interfaces'
 import { toast } from 'react-toastify'
-import { getEspecialidades, postEspecialidadesMedico } from '../../../../services/medico'
-import { EspecialidadeRes, EspecialidadeMedicoRes } from '../../../../services/medico/interface'
+import { getEspecialidades, postEspecialidadesMedico, postHorariosDisponiveis } from '../../../../services/medico'
+import { EspecialidadeRes, EspecialidadeMedicoRes, HorariosMedicoRes } from '../../../../services/medico/interface'
 import { getBuscarPacientes } from '../../../../services/usuario'
 import { InfoUsuarioRes } from '../../../../services/usuario/interface'
 
@@ -28,6 +28,9 @@ export function CadastrarConsulta({
     observacoes: '',
     valor_consulta: '',
   })
+  const [dataSelecionada, setDataSelecionada] = useState('')
+  const [horaSelecionada, setHoraSelecionada] = useState('')
+  const [horariosDisponiveis, setHorariosDisponiveis] = useState<string[]>([])
   const [pacientes, setPacientes] = useState<PacienteData[]>([])
   const [pacienteSelecionado, setPacienteSelecionado] = useState<PacienteData | null>(null)
   const [medicoSelecionado, setMedicoSelecionado] = useState<EspecialidadeMedicoRes | null>(null)
@@ -37,6 +40,7 @@ export function CadastrarConsulta({
   const [carregandoPacientes, setCarregandoPacientes] = useState(false)
   const [carregandoEspecialidades, setCarregandoEspecialidades] = useState(false)
   const [carregandoMedicos, setCarregandoMedicos] = useState(false)
+  const [carregandoHorarios, setCarregandoHorarios] = useState(false)
 
   const isEdicao = !!consultaParaEditar
   const isVisualizacao = modoVisualizacao
@@ -110,6 +114,53 @@ export function CadastrarConsulta({
     }
   }
 
+  const carregarHorariosDisponiveis = async (dataInicio: string, idMedico: number) => {
+    try {
+      setCarregandoHorarios(true)
+      const response = await postHorariosDisponiveis({ dataInicio, idMedico })
+      
+      console.log('Resposta da API de horários:', response.data)
+      console.log('Data selecionada:', dataInicio)
+      
+      // Verificar se a resposta é um array
+      if (Array.isArray(response.data)) {
+        // Filtrar apenas os horários do dia selecionado
+        const horariosDoDia = response.data.find((item: HorariosMedicoRes) => {
+          console.log('Comparando:', item.data, 'com', dataInicio)
+          return item.data === dataInicio
+        })
+        
+        console.log('Horários do dia encontrado:', horariosDoDia)
+        
+        if (horariosDoDia && horariosDoDia.horarios && horariosDoDia.horarios.length > 0) {
+          setHorariosDisponiveis(horariosDoDia.horarios)
+          toast.success(`${horariosDoDia.horarios.length} horários disponíveis`)
+        } else {
+          setHorariosDisponiveis([])
+          toast.info('Não há horários disponíveis para esta data')
+        }
+      } else {
+        // Se não for array, assumir que é um único objeto
+        console.log('Resposta não é array, processando como objeto único')
+        const dadosHorario = response.data as HorariosMedicoRes
+        if (dadosHorario.horarios && dadosHorario.horarios.length > 0) {
+          setHorariosDisponiveis(dadosHorario.horarios)
+          toast.success(`${dadosHorario.horarios.length} horários disponíveis`)
+        } else {
+          setHorariosDisponiveis([])
+          toast.info('Não há horários disponíveis para esta data')
+        }
+      }
+    } catch (error: any) {
+      toast.error('Erro ao carregar horários disponíveis')
+      console.error('Erro completo:', error)
+      console.error('Resposta do erro:', error?.response?.data)
+      setHorariosDisponiveis([])
+    } finally {
+      setCarregandoHorarios(false)
+    }
+  }
+
   useEffect(() => {
     if (consultaParaEditar && modal) {
       setPacienteSelecionado(consultaParaEditar.paciente)
@@ -124,6 +175,15 @@ export function CadastrarConsulta({
         ativo: consultaParaEditar.medico.ativo
       }
       setMedicoSelecionado(medicoConvertido)
+      
+      // Separar data e hora
+      const dataHora = new Date(consultaParaEditar.data_hora)
+      const data = dataHora.toISOString().split('T')[0]
+      const hora = dataHora.toTimeString().split(' ')[0].substring(0, 5)
+      
+      setDataSelecionada(data)
+      setHoraSelecionada(hora)
+      
       setFormData({
         id_paciente: consultaParaEditar.id_paciente,
         id_medico: consultaParaEditar.id_medico,
@@ -141,6 +201,9 @@ export function CadastrarConsulta({
       })
       setPacienteSelecionado(null)
       setMedicoSelecionado(null)
+      setDataSelecionada('')
+      setHoraSelecionada('')
+      setHorariosDisponiveis([])
     }
   }, [consultaParaEditar, modal])
 
@@ -175,8 +238,13 @@ export function CadastrarConsulta({
       return
     }
 
-    if (!formData.data_hora) {
-      toast.warn('Selecione a data e hora da consulta!')
+    if (!dataSelecionada) {
+      toast.warn('Selecione a data da consulta!')
+      return
+    }
+
+    if (!horaSelecionada) {
+      toast.warn('Selecione o horário da consulta!')
       return
     }
 
@@ -185,8 +253,12 @@ export function CadastrarConsulta({
       return
     }
 
+    // Combinar data e hora
+    const dataHoraCombinada = `${dataSelecionada}T${horaSelecionada}:00`
+
     const consultaCompleta = {
       ...formData,
+      data_hora: dataHoraCombinada,
       ...(isEdicao && { 
         id_consulta: consultaParaEditar!.id_consulta,
         criado_em: consultaParaEditar!.criado_em,
@@ -206,6 +278,9 @@ export function CadastrarConsulta({
     setMedicoSelecionado(null)
     setEspecialidadeSelecionada(null)
     setMedicos([])
+    setDataSelecionada('')
+    setHoraSelecionada('')
+    setHorariosDisponiveis([])
     setModal(false)
   }
 
@@ -256,6 +331,32 @@ export function CadastrarConsulta({
       id_medico: value?.idMedico || 0,
       valor_consulta: value?.valorConsulta?.toString() || ''
     }))
+    
+    // Se já houver uma data selecionada, carregar horários disponíveis
+    if (value && dataSelecionada) {
+      setHoraSelecionada('')
+      setHorariosDisponiveis([])
+      carregarHorariosDisponiveis(dataSelecionada, value.idMedico)
+    }
+  }
+
+  const handleDataChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const novaData = event.target.value
+    setDataSelecionada(novaData)
+    setHoraSelecionada('')
+    setHorariosDisponiveis([])
+    
+    // Carregar horários disponíveis quando tiver data e médico selecionados
+    if (novaData && formData.id_medico > 0) {
+      carregarHorariosDisponiveis(novaData, formData.id_medico)
+    }
+  }
+
+  const handleHoraSelect = (
+    _event: React.SyntheticEvent,
+    value: string | null
+  ) => {
+    setHoraSelecionada(value || '')
   }
 
   const getTitulo = () => {
@@ -266,14 +367,6 @@ export function CadastrarConsulta({
   const getTextoBotao = () => {
     if (isEdicao) return 'Salvar'
     return 'Cadastrar'
-  }
-
-  const formatarDataHora = (dataHora: string) => {
-    if (!dataHora) return ''
-    const data = new Date(dataHora)
-    const dataFormatada = data.toISOString().split('T')[0]
-    const horaFormatada = data.toTimeString().split(' ')[0].substring(0, 5)
-    return `${dataFormatada}T${horaFormatada}`
   }
 
   return (
@@ -367,13 +460,28 @@ export function CadastrarConsulta({
 
           <Grid item xs={12} md={6}>
             <Input
-              label="Data e Hora *"
-              value={formatarDataHora(formData.data_hora)}
-              onChange={handleInputChange('data_hora')}
-              type="datetime-local"
+              label="Data da Consulta *"
+              value={dataSelecionada}
+              onChange={handleDataChange}
+              type="date"
               fullWidth
-              disabled={isVisualizacao}
+              disabled={isVisualizacao || !medicoSelecionado}
               shrink
+            />
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <InputSelect
+              value={horaSelecionada || null}
+              options={horariosDisponiveis}
+              textFieldProps={{ 
+                label: 'Horário *', 
+                disabled: isVisualizacao || !dataSelecionada || carregandoHorarios
+              }}
+              multiple={false}
+              onChange={handleHoraSelect}
+              optionLabel={(v) => v}
+              disabled={isVisualizacao || !dataSelecionada || carregandoHorarios}
             />
           </Grid>
 

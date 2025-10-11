@@ -88,3 +88,13 @@ export interface EspecialidadeMedicoRes {
 export interface EspecialidadeMedicoReq {
     idEspecialidade: number;
 }
+
+export interface HorariosMedicoReq {
+    dataInicio: string;
+    idMedico: number;
+}
+
+export interface HorariosMedicoRes {
+    data: string;
+    horarios: string[];
+}
