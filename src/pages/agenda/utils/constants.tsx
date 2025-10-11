@@ -2,13 +2,13 @@ import { HorarioForm, BloqueioForm, SelectOption } from './interfaces'
 
 // Formulário inicial para horários
 export const initialHorarioForm: HorarioForm = {
-  id_medico: 0,
-  dia_semana: 1,
-  hora_inicio: '08:00',
-  hora_fim: '17:00',
-  intervalo_minutos: 30,
-  almoco_inicio: '12:00',
-  almoco_fim: '13:00',
+  id_medico: 999,
+  dia_semana: 0,
+  hora_inicio: '',
+  hora_fim: '',
+  intervalo_minutos: 0,
+  almoco_inicio: '',
+  almoco_fim: '',
   data_vigencia_inicio: '',
   data_vigencia_fim: '',
   ativo: true,

@@ -71,3 +71,9 @@ export const getBuscarPaciente = async (
   return Promise.resolve(response);
 };
 
+export const getBuscarMedicos = async (): Promise<AxiosResponse<InfoUsuarioRes[]>> => {
+  const data: BuscarUsuariosReq = { idPerfil: 3 };
+  const response = await api.post<InfoUsuarioRes[]>('/usuarios/buscar', data);
+  
+  return Promise.resolve(response);
+};

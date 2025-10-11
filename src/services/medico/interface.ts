@@ -15,3 +15,16 @@ export interface AgendaRes {
     nomeMedico: string;
     nomeEspecialidade: string;
 }
+
+export interface MedicoAgendaReq {
+    idMedico: number;
+    diaSemana: number;
+    horaInicio: string;
+    horaFim: string;
+    intervaloMinutos: number;
+    almocoInicio: string;
+    almocoFim: string;
+    dataVigenciaInicio: string;
+    dataVigenciaFim: string;
+    ativo: boolean;
+}

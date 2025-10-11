@@ -93,7 +93,7 @@ export interface TabelaBloqueiosProps {
 export interface CadastrarHorarioProps {
   modal: boolean
   setModal: (open: boolean) => void
-  onConfirmar: (horario: Omit<HorarioAtendimento, 'id_horario' | 'criado_em' | 'atualizado_em'>) => void
+  onConfirmar?: (horario: Omit<HorarioAtendimento, 'id_horario' | 'criado_em' | 'atualizado_em'>) => void
   horarioParaEditar?: HorarioAtendimento | null
   modoVisualizacao?: boolean
   isLoadingDetalhes?: boolean

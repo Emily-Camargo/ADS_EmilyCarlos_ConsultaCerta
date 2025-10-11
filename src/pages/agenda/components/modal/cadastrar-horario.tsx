@@ -5,7 +5,6 @@ import { Grid } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
 import { CadastrarHorarioProps, HorarioForm } from '../../utils/interfaces'
-import { mockMedicos } from '../../mock'
 import { 
   initialHorarioForm, 
   diasSemanaOptions, 
@@ -17,19 +16,59 @@ import {
   validarDatasVigencia 
 } from '../../utils/functions'
 import { toast } from 'react-toastify'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { postHorariosMedico, getMedicos } from '../../../../services/medico'
+import { MedicoAgendaReq } from '../../../../services/medico/interface'
+import { InfoUsuarioRes } from '../../../../services/usuario/interface'
 
 export function CadastrarHorario({
   modal,
   setModal,
-  onConfirmar,
   horarioParaEditar = null,
   modoVisualizacao = false,
   isLoadingDetalhes = false,
 }: Readonly<CadastrarHorarioProps>) {
   const [formData, setFormData] = useState<HorarioForm>(initialHorarioForm)
+  const queryClient = useQueryClient()
 
   const isEdicao = !!horarioParaEditar
   const isVisualizacao = modoVisualizacao
+
+  // Query para buscar médicos
+  const { data: medicosData, isLoading: isLoadingMedicos } = useQuery({
+    queryKey: ['medicos'],
+    queryFn: async () => {
+      const response = await getMedicos()
+      return response
+    },
+    enabled: modal, // Só busca quando o modal está aberto
+  })
+
+  // Mutation para cadastrar/editar horário
+  const mutationHorario = useMutation({
+    mutationFn: async (data: MedicoAgendaReq) => {
+      const response = await postHorariosMedico(data)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success(isEdicao ? 'Horário atualizado com sucesso!' : 'Horário cadastrado com sucesso!')
+      queryClient.invalidateQueries(['horarios'])
+      setFormData(initialHorarioForm)
+      setModal(false)
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao salvar horário')
+    },
+  })
+
+  // Mapear médicos para o formato esperado
+  const medicos = medicosData?.map((usuario: InfoUsuarioRes) => ({
+    id_medico: usuario.medico?.idMedico || 0,
+    nome_medico: usuario.nome,
+    especialidade: usuario.medico?.especialidade || '',
+    crm: usuario.medico?.crm || '',
+    ativo: usuario.ativo && (usuario.medico?.ativo ?? true),
+  })) || []
 
   useEffect(() => {
     if (horarioParaEditar && modal) {
@@ -61,8 +100,23 @@ export function CadastrarHorario({
       return
     }
 
+    if (formData.dia_semana === 0) {
+      toast.warn('Selecione um dia da semana!')
+      return
+    }
+
+    if (!formData.hora_inicio || !formData.hora_fim) {
+      toast.warn('Preencha os horários de início e fim!')
+      return
+    }
+
     if (!validarHorario(formData.hora_inicio, formData.hora_fim)) {
       toast.warn('Horário de início deve ser anterior ao horário de fim!')
+      return
+    }
+
+    if (formData.intervalo_minutos === 0) {
+      toast.warn('Selecione um intervalo entre consultas!')
       return
     }
 
@@ -85,18 +139,21 @@ export function CadastrarHorario({
       }
     }
 
-    const horarioCompleto = {
-      ...formData,
-      ...(isEdicao && { 
-        id_horario: horarioParaEditar!.id_horario,
-        criado_em: horarioParaEditar!.criado_em,
-        atualizado_em: new Date().toISOString()
-      })
+    // Converter formato snake_case para camelCase para a API
+    const dataParaAPI: MedicoAgendaReq = {
+      idMedico: formData.id_medico,
+      diaSemana: formData.dia_semana,
+      horaInicio: formData.hora_inicio,
+      horaFim: formData.hora_fim,
+      intervaloMinutos: formData.intervalo_minutos,
+      almocoInicio: formData.almoco_inicio || '',
+      almocoFim: formData.almoco_fim || '',
+      dataVigenciaInicio: formData.data_vigencia_inicio || '',
+      dataVigenciaFim: formData.data_vigencia_fim || '',
+      ativo: formData.ativo,
     }
 
-    onConfirmar(horarioCompleto)
-    setFormData(initialHorarioForm)
-    setModal(false)
+    mutationHorario.mutate(dataParaAPI)
   }
 
   const handleInputChange = (field: keyof HorarioForm) => (
@@ -114,7 +171,7 @@ export function CadastrarHorario({
 
   const handleMedicoSelect = (
     _event: React.SyntheticEvent,
-    value: typeof mockMedicos[0] | null
+    value: typeof medicos[0] | null
   ) => {
     setFormData(prev => ({
       ...prev,
@@ -128,7 +185,7 @@ export function CadastrarHorario({
   ) => {
     setFormData(prev => ({
       ...prev,
-      dia_semana: value?.value || 1
+      dia_semana: value?.value || 0
     }))
   }
 
@@ -138,7 +195,7 @@ export function CadastrarHorario({
   ) => {
     setFormData(prev => ({
       ...prev,
-      intervalo_minutos: value?.value || 30
+      intervalo_minutos: value?.value || 0
     }))
   }
 
@@ -153,7 +210,7 @@ export function CadastrarHorario({
     return 'Cadastrar'
   }
 
-  const medicoSelecionado = mockMedicos.find(m => m.id_medico === formData.id_medico)
+  const medicoSelecionado = medicos.find(m => m.id_medico === formData.id_medico)
   const diaSelecionado = diasSemanaOptions.find(d => d.value === formData.dia_semana)
   const intervaloSelecionado = intervalosOptions.find(i => i.value === formData.intervalo_minutos)
 
@@ -165,12 +222,12 @@ export function CadastrarHorario({
       onClose={cancelar}
       actions={
         <>
-          <Button color="error" onClick={cancelar}>
+          <Button color="error" onClick={cancelar} disabled={mutationHorario.isLoading}>
             {isVisualizacao ? 'Fechar' : 'Cancelar'}
           </Button>
           {!isVisualizacao && (
-            <Button color="primary" onClick={confirmar}>
-              {getTextoBotao()}
+            <Button color="primary" onClick={confirmar} disabled={mutationHorario.isLoading}>
+              {mutationHorario.isLoading ? 'Salvando...' : getTextoBotao()}
             </Button>
           )}
         </>
@@ -198,15 +255,15 @@ export function CadastrarHorario({
           <Grid item xs={12} md={6}>
             <InputSelect
               value={medicoSelecionado || null}
-              options={mockMedicos.filter(m => m.ativo)}
+              options={medicos.filter(m => m.ativo)}
               textFieldProps={{ 
-                label: 'Médico *', 
-                disabled: isVisualizacao 
+                label: isLoadingMedicos ? 'Carregando médicos...' : 'Médico *', 
+                disabled: isVisualizacao || isLoadingMedicos 
               }}
               multiple={false}
               onChange={handleMedicoSelect}
               optionLabel={(v) => `${v.nome_medico} - ${v.especialidade}`}
-              disabled={isVisualizacao}
+              disabled={isVisualizacao || isLoadingMedicos}
             />
           </Grid>
 
