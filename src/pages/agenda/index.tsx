@@ -29,7 +29,6 @@ function Agenda() {
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
   const [modoVisualizacaoBloqueio, setModoVisualizacaoBloqueio] = useState(false)
 
-  // Query para buscar horários
   const { data: horarios = [], isLoading, error } = useQuery({
     queryKey: agendaKeys.horarios(),
     queryFn: fetchHorarios,
@@ -37,7 +36,6 @@ function Agenda() {
 
   const queryClient = useQueryClient()
 
-  // Mutation para editar bloqueio
   const mutationEditarBloqueio = useMutation({
     mutationFn: async ({ idBloqueio, data }: { idBloqueio: number, data: BloquearAgendaPutReq }) => {
       const response = await putBloqueiosMedico(idBloqueio, data)
@@ -45,7 +43,6 @@ function Agenda() {
     },
     onSuccess: () => {
       toast.success('Bloqueio atualizado com sucesso!')
-      // Invalidar a query de bloqueios do médico específico
       queryClient.invalidateQueries(['bloqueios-medico'])
     },
     onError: (error: any) => {
@@ -53,7 +50,6 @@ function Agenda() {
     },
   })
 
-  // Mutation para deletar bloqueio
   const mutationDeletarBloqueio = useMutation({
     mutationFn: async (idBloqueio: number) => {
       const response = await deleteBloqueiosMedico(idBloqueio)
@@ -61,7 +57,6 @@ function Agenda() {
     },
     onSuccess: () => {
       toast.success('Bloqueio removido com sucesso!')
-      // Invalidar a query de bloqueios do médico específico
       queryClient.invalidateQueries(['bloqueios-medico'])
       setModalConfirmarExclusao(false)
       setBloqueioParaRemover(null)
@@ -76,45 +71,12 @@ function Agenda() {
   }
 
   const searchClick = () => {
-    // Aqui seria implementada a lógica de filtro
     toast.info('Filtros aplicados com sucesso!')
   }
 
   const redefinir = () => {
     setData(agendaFil)
     toast.info('Filtros redefinidos!')
-  }
-
-  const handleCadastrarHorario = (novoHorario: any) => {
-    if (horarioParaEditar) {
-      // Atualizar dados localmente e invalidar query para refetch
-      queryClient.setQueryData(agendaKeys.horarios(), (oldData: HorarioAtendimento[] = []) => 
-        oldData.map(h => 
-          h.id_horario === horarioParaEditar.id_horario 
-            ? { 
-                ...novoHorario,
-                id_horario: horarioParaEditar.id_horario,
-                criado_em: horarioParaEditar.criado_em,
-                atualizado_em: new Date().toISOString()
-              }
-            : h
-        )
-      )
-      toast.success('Horário atualizado com sucesso!')
-      setHorarioParaEditar(null)
-    } else {
-      // Adicionar novo horário localmente e invalidar query para refetch
-      queryClient.setQueryData(agendaKeys.horarios(), (oldData: HorarioAtendimento[] = []) => {
-        const horarioCompleto: HorarioAtendimento = {
-          ...novoHorario,
-          id_horario: Math.max(...oldData.map(h => h.id_horario), 0) + 1,
-          criado_em: new Date().toISOString(),
-          atualizado_em: new Date().toISOString()
-        }
-        return [...oldData, horarioCompleto]
-      })
-      toast.success('Horário cadastrado com sucesso!')
-    }
   }
 
   const handleBloquearAgenda = (bloqueio: any) => {
@@ -244,7 +206,6 @@ function Agenda() {
       <CadastrarHorario
         modal={modalCadastro}
         setModal={setModalCadastro}
-        onConfirmar={handleCadastrarHorario}
         horarioParaEditar={horarioParaEditar}
         modoVisualizacao={modoVisualizacao}
       />

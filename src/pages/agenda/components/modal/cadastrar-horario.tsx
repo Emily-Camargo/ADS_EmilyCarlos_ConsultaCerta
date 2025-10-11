@@ -20,6 +20,7 @@ import { useMutation, useQuery, useQueryClient } from 'react-query'
 import { postHorariosMedico, putHorariosMedico, getMedicos } from '../../../../services/medico'
 import { MedicoAgendaReq, MedicoAgendaPutReq } from '../../../../services/medico/interface'
 import { InfoUsuarioRes } from '../../../../services/usuario/interface'
+import { agendaKeys } from '../../utils/queries'
 
 export function CadastrarHorario({
   modal,
@@ -52,7 +53,7 @@ export function CadastrarHorario({
     },
     onSuccess: () => {
       toast.success('Horário cadastrado com sucesso!')
-      queryClient.invalidateQueries(['horarios'])
+      queryClient.invalidateQueries(agendaKeys.horarios())
       setFormData(initialHorarioForm)
       setModal(false)
     },
@@ -69,7 +70,7 @@ export function CadastrarHorario({
     },
     onSuccess: () => {
       toast.success('Horário atualizado com sucesso!')
-      queryClient.invalidateQueries(['horarios'])
+      queryClient.invalidateQueries(agendaKeys.horarios())
       setFormData(initialHorarioForm)
       setModal(false)
     },
