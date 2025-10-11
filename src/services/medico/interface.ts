@@ -28,3 +28,12 @@ export interface MedicoAgendaReq {
     dataVigenciaFim: string;
     ativo: boolean;
 }
+
+export interface MedicoAgendaPutReq {
+    horaInicio: string;
+    horaFim: string;
+    intervaloMinutos: number;
+    almocoInicio: string;
+    almocoFim: string;
+    ativo: boolean;
+}

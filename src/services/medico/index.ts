@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import api from "../../config/api";
-import { AgendaRes, MedicoAgendaReq } from "./interface";
+import { AgendaRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
 import { getBuscarMedicos } from "../usuario";
 import { InfoUsuarioRes } from "../usuario/interface";
 
@@ -30,7 +30,6 @@ export const postHorariosMedico = async (data: MedicoAgendaReq): Promise<AxiosRe
 export const getMedicos = async (): Promise<InfoUsuarioRes[]> => {
     try {
         const response = await getBuscarMedicos();
-        // Filtrar apenas usuários que são médicos (idPerfil = 3) e que têm informações de médico
         const medicos = response.data.filter(usuario => 
             usuario.idPerfil === 3 && usuario.medico && usuario.ativo
         );
@@ -39,4 +38,11 @@ export const getMedicos = async (): Promise<InfoUsuarioRes[]> => {
         console.error('Erro ao buscar médicos:', error);
         throw error;
     }
+};
+
+export const putHorariosMedico = async (idHorario: number, data: MedicoAgendaPutReq): Promise<AxiosResponse<AgendaRes[]>> => {
+    const response = await api.put<AgendaRes[]>(
+      `/medicos/horario-atendimento/${idHorario}`, data);
+
+    return Promise.resolve(response);
 };
