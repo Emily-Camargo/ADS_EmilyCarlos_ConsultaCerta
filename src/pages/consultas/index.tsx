@@ -6,13 +6,13 @@ import {
   MdChevronRight
 } from 'react-icons/md';
 import Filtro from '../../components/filtro';
-// import { Button } from '@mantine/core';
+import { Button } from '@mantine/core';
 import { getStatusColor, getStatusIcon, getTimeSlots, getWeekDays } from './utils/constants';
-// import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
+import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
 import { toast } from 'react-toastify';
 import { ConsultaData } from './utils/interfaces';
 import { filtroMedico } from './utils/filtro';
-// import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { postBuscarConsultas } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
 
@@ -26,11 +26,11 @@ interface ConsultaCalendario {
 }
 
 const ConsultasPage = () => {
-  // const { user } = useAuth();
+  const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  // const [modalCadastrar, setModalCadastrar] = useState(false);
-  // const [modalVisualizar, setModalVisualizar] = useState(false);
-  // const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
+  const [modalCadastrar, setModalCadastrar] = useState(false);
+  const [modalVisualizar, setModalVisualizar] = useState(false);
+  const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
   const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<string>('');
   const [consultas, setConsultas] = useState<ConsultaRes[]>([]);
   const [loading, setLoading] = useState(false);
@@ -52,12 +52,22 @@ const ConsultasPage = () => {
       const dataInicio = weekDays[0].toISOString().split('T')[0];
       const dataFim = weekDays[4].toISOString().split('T')[0];
       
+      // Se o usuário for médico (idPerfil === 3), envia o idMedico dele
+      let idMedicoParam: number | undefined = undefined;
+      
+      if (user?.idPerfil === 3 && user?.medico?.idMedico) {
+        idMedicoParam = user.medico.idMedico;
+      } else if (filtroMedicoSelecionado) {
+        idMedicoParam = parseInt(filtroMedicoSelecionado);
+      }
+      
       console.log('Buscando consultas de', dataInicio, 'até', dataFim);
+      console.log('ID Perfil:', user?.idPerfil, '| ID Médico:', idMedicoParam);
       
       const response = await postBuscarConsultas({
         dataInicio,
         dataFim,
-        idMedico: filtroMedicoSelecionado ? parseInt(filtroMedicoSelecionado) : undefined,
+        idMedico: idMedicoParam,
       });
       
       console.log('Consultas retornadas:', response.data);
@@ -131,34 +141,34 @@ const ConsultasPage = () => {
     return Math.max(alturaMinima, maxConsultas * alturaPorConsulta);
   };
 
-  // const handleCadastrarConsulta = () => {
-  //   toast.success('Consulta cadastrada com sucesso!');
-  //   setModalCadastrar(false);
-  //   buscarConsultas();
-  // };
+  const handleCadastrarConsulta = () => {
+    toast.success('Consulta cadastrada com sucesso!');
+    setModalCadastrar(false);
+    buscarConsultas();
+  };
 
   const handleVisualizarConsulta = (consulta: ConsultaData) => {
     console.log('Consulta selecionada:', consulta);
     toast.info('Modal de visualização será implementado em breve');
   };
 
-  // const handleConfirmarConsulta = () => {
-  //   toast.success('Consulta confirmada com sucesso!');
-  //   setModalVisualizar(false);
-  //   setConsultaSelecionada(null);
-  // };
+  const handleConfirmarConsulta = () => {
+    toast.success('Consulta confirmada com sucesso!');
+    setModalVisualizar(false);
+    setConsultaSelecionada(null);
+  };
 
-  // const handleCancelarConsulta = () => {
-  //   toast.success('Consulta cancelada com sucesso!');
-  //   setModalVisualizar(false);
-  //   setConsultaSelecionada(null);
-  // };
+  const handleCancelarConsulta = () => {
+    toast.success('Consulta cancelada com sucesso!');
+    setModalVisualizar(false);
+    setConsultaSelecionada(null);
+  };
 
-  // const handleReagendarConsulta = () => {
-  //   setModalVisualizar(false);
-  //   // Aqui você pode implementar a lógica de reagendamento
-  //   toast.info('Funcionalidade de reagendamento será implementada em breve');
-  // };
+  const handleReagendarConsulta = () => {
+    setModalVisualizar(false);
+    // Aqui você pode implementar a lógica de reagendamento
+    toast.info('Funcionalidade de reagendamento será implementada em breve');
+  };
 
   const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -224,18 +234,21 @@ const ConsultasPage = () => {
       backgroundColor: '#f8fafc',
     }}>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ p: 3, pb: 0 }}>
-          <Filtro 
-            inputSelect={[{
-              ...filtroMedico,
-              onChange: handleMedicoChange
-            }]}
-            onSubmit={handleFiltroSubmit}
-            onClear={handleLimparFiltros}
-          />
-        </Box>
+        {/* Mostrar filtro apenas se NÃO for médico (idPerfil !== 3) */}
+        {user?.idPerfil !== 3 && (
+          <Box sx={{ p: 3, pb: 0 }}>
+            <Filtro 
+              inputSelect={[{
+                ...filtroMedico,
+                onChange: handleMedicoChange
+              }]}
+              onSubmit={handleFiltroSubmit}
+              onClear={handleLimparFiltros}
+            />
+          </Box>
+        )}
 
-        {/* {user?.idPerfil === 1 && (
+        {user?.idPerfil === 2 && (
           <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
             <Button 
               variant="gradient" 
@@ -246,9 +259,9 @@ const ConsultasPage = () => {
               Cadastrar Consulta
             </Button>
           </Box>
-        )} */}
+        )}
 
-        <Box sx={{ flex: 1, px: 3, pb: 3 }}>
+        <Box sx={{ flex: 1, px: 3, pb: 3, pt: user?.idPerfil === 3 ? 3 : 0 }}>
           {loading && (
             <Box sx={{ 
               display: 'flex', 
@@ -483,7 +496,7 @@ const ConsultasPage = () => {
         </Box>
       </Box>
 
-      {/* <CadastrarConsulta
+       <CadastrarConsulta
         modal={modalCadastrar}
         setModal={setModalCadastrar}
         onConfirmar={handleCadastrarConsulta}
@@ -498,7 +511,7 @@ const ConsultasPage = () => {
         onConfirmarConsulta={handleConfirmarConsulta}
         onCancelarConsulta={handleCancelarConsulta}
         onReagendarConsulta={handleReagendarConsulta}
-      /> */}
+      /> 
     </Box>
   );
 };

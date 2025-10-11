@@ -66,3 +66,25 @@ export interface BloquearAgendaPutReq {
     motivo: string;
     tipoBloqueio: string;
 }
+
+
+export interface EspecialidadeRes {
+    idEspecialidade: number;
+    nome: string;
+    descricao: string;
+    ativo: boolean;
+}
+
+export interface EspecialidadeMedicoRes {
+    idMedico: number;
+    nome: string;
+    crm: string;
+    especialidade: string;
+    valorConsulta: number;
+    tempoConsulta: number;
+    ativo: boolean;
+}
+
+export interface EspecialidadeMedicoReq {
+    idEspecialidade: number;
+}

@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import api from "../../config/api";
-import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
+import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, EspecialidadeMedicoReq, EspecialidadeMedicoRes, EspecialidadeRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
 import { getBuscarMedicos } from "../usuario";
 import { InfoUsuarioRes } from "../usuario/interface";
 import { StatusRes } from "../interfaceGeneric";
@@ -78,3 +78,21 @@ export const deleteBloqueiosMedico = async (idBloqueio: number): Promise<AxiosRe
     
     return Promise.resolve(response);
 };
+
+export const getEspecialidades = async (): Promise<AxiosResponse<EspecialidadeRes[]>> => {
+    const response = await api.get<EspecialidadeRes[]>(
+      `/medicos/especialidades`
+    );
+    
+    return Promise.resolve(response);
+};
+
+export const postEspecialidadesMedico = async (data: EspecialidadeMedicoReq): Promise<AxiosResponse<EspecialidadeMedicoRes[]>> => {
+    const response = await api.post<EspecialidadeMedicoRes[]>(
+      `/medicos/especialidade`,
+      data
+    );
+    
+    return Promise.resolve(response);
+};
+
