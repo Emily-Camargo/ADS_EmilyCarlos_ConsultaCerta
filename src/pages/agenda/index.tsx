@@ -9,18 +9,23 @@ import { BloquearAgenda } from "./components/modal/bloquear-agenda"
 import { DetalhesMedico } from "./components/modal/detalhes-medico"
 import { HorarioAtendimento, BloqueioAgenda } from "./utils/interfaces"
 import { toast } from 'react-toastify'
-import { useQuery, useQueryClient } from 'react-query'
+import { useQuery, useQueryClient, useMutation } from 'react-query'
 import { agendaKeys, fetchHorarios } from "./utils/queries"
+import { putBloqueiosMedico, deleteBloqueiosMedico } from "../../services/medico"
+import { BloquearAgendaPutReq } from "../../services/medico/interface"
+import Confirmar from "../../components/dialog/confirmar"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
   const [modalCadastro, setModalCadastro] = useState(false)
   const [modalBloqueio, setModalBloqueio] = useState(false)
   const [modalDetalhes, setModalDetalhes] = useState(false)
+  const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false)
   const [horarioParaEditar, setHorarioParaEditar] = useState<HorarioAtendimento | null>(null)
   const [horarioParaVisualizar, setHorarioParaVisualizar] = useState<HorarioAtendimento | null>(null)
   const [bloqueioParaEditar, setBloqueioParaEditar] = useState<BloqueioAgenda | null>(null)
   const [bloqueioParaVisualizar, setBloqueioParaVisualizar] = useState<BloqueioAgenda | null>(null)
+  const [bloqueioParaRemover, setBloqueioParaRemover] = useState<BloqueioAgenda | null>(null)
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
   const [modoVisualizacaoBloqueio, setModoVisualizacaoBloqueio] = useState(false)
 
@@ -31,6 +36,40 @@ function Agenda() {
   })
 
   const queryClient = useQueryClient()
+
+  // Mutation para editar bloqueio
+  const mutationEditarBloqueio = useMutation({
+    mutationFn: async ({ idBloqueio, data }: { idBloqueio: number, data: BloquearAgendaPutReq }) => {
+      const response = await putBloqueiosMedico(idBloqueio, data)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Bloqueio atualizado com sucesso!')
+      // Invalidar a query de bloqueios do médico específico
+      queryClient.invalidateQueries(['bloqueios-medico'])
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao atualizar bloqueio')
+    },
+  })
+
+  // Mutation para deletar bloqueio
+  const mutationDeletarBloqueio = useMutation({
+    mutationFn: async (idBloqueio: number) => {
+      const response = await deleteBloqueiosMedico(idBloqueio)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Bloqueio removido com sucesso!')
+      // Invalidar a query de bloqueios do médico específico
+      queryClient.invalidateQueries(['bloqueios-medico'])
+      setModalConfirmarExclusao(false)
+      setBloqueioParaRemover(null)
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao remover bloqueio')
+    },
+  })
 
   if (error) {
     toast.error('Erro ao carregar horários de atendimento')
@@ -78,9 +117,21 @@ function Agenda() {
     }
   }
 
-  const handleBloquearAgenda = () => {
-    toast.success('Agenda bloqueada com sucesso!')
-    // Aqui seria implementada a lógica de bloqueio
+  const handleBloquearAgenda = (bloqueio: any) => {
+    if (bloqueioParaEditar) {
+      // Editar bloqueio existente
+      const payload: BloquearAgendaPutReq = {
+        dataInicio: bloqueio.data_inicio,
+        dataFim: bloqueio.data_fim,
+        motivo: bloqueio.motivo,
+        tipoBloqueio: bloqueio.tipo_bloqueio,
+      }
+      mutationEditarBloqueio.mutate({ 
+        idBloqueio: bloqueioParaEditar.id_bloqueio, 
+        data: payload 
+      })
+    }
+    // A criação de novo bloqueio já é tratada no componente BloquearAgenda
   }
 
   const editarHorario = (horario: HorarioAtendimento) => {
@@ -127,8 +178,19 @@ function Agenda() {
   }
 
   const removerBloqueio = (bloqueio: BloqueioAgenda) => {
-    // TODO: Implementar modal de confirmação e chamada da API de exclusão
-    toast.info(`Remover bloqueio ${bloqueio.id_bloqueio} - Implementar API de exclusão`)
+    setBloqueioParaRemover(bloqueio)
+    setModalConfirmarExclusao(true)
+  }
+
+  const confirmarExclusaoBloqueio = () => {
+    if (bloqueioParaRemover) {
+      mutationDeletarBloqueio.mutate(bloqueioParaRemover.id_bloqueio)
+    }
+  }
+
+  const cancelarExclusaoBloqueio = () => {
+    setModalConfirmarExclusao(false)
+    setBloqueioParaRemover(null)
   }
 
   const fecharModalBloqueio = (aberto: boolean) => {
@@ -199,6 +261,15 @@ function Agenda() {
         onConfirmar={handleBloquearAgenda}
         bloqueioParaEditar={bloqueioParaEditar || bloqueioParaVisualizar}
         modoVisualizacao={modoVisualizacaoBloqueio}
+      />
+
+      <Confirmar
+        open={modalConfirmarExclusao}
+        onClose={cancelarExclusaoBloqueio}
+        onConfirm={confirmarExclusaoBloqueio}
+        title="Confirmar Exclusão"
+        message={`Deseja realmente remover o bloqueio do médico ${bloqueioParaRemover?.nome_medico || 'agenda'} referente a ${bloqueioParaRemover?.tipo_bloqueio || 'agenda'}?`}
+        maxWidth="sm"
       />
     </div>
   )

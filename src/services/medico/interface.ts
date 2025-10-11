@@ -59,3 +59,10 @@ export interface BloquearAgendaRes {
     nomeEspecialidade: string;
     nomeCriadoPor: string;
 }
+
+export interface BloquearAgendaPutReq {
+    dataInicio: string;
+    dataFim: string;
+    motivo: string;
+    tipoBloqueio: string;
+}

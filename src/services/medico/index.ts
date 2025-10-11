@@ -1,8 +1,9 @@
 import { AxiosResponse } from "axios";
 import api from "../../config/api";
-import { AgendaRes, BloquearAgendaReq, BloquearAgendaRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
+import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
 import { getBuscarMedicos } from "../usuario";
 import { InfoUsuarioRes } from "../usuario/interface";
+import { StatusRes } from "../interfaceGeneric";
 
 export const getInfoAgenda = async (): Promise<AxiosResponse<AgendaRes[]>> => {
     const response = await api.get<AgendaRes[]>(
@@ -57,6 +58,22 @@ export const postBloquearAgenda = async (data: BloquearAgendaReq): Promise<Axios
 export const getBloqueiosMedico = async (idMedico: number): Promise<AxiosResponse<BloquearAgendaRes[]>> => {
     const response = await api.get<BloquearAgendaRes[]>(
       `/medicos/bloqueios-agenda/medico/${idMedico}`
+    );
+    
+    return Promise.resolve(response);
+};
+
+export const putBloqueiosMedico = async (idBloqueio: number, data: BloquearAgendaPutReq): Promise<AxiosResponse<BloquearAgendaRes[]>> => {
+    const response = await api.put<BloquearAgendaRes[]>(
+      `/medicos/bloqueio-agenda/${idBloqueio}`, data
+    );
+    
+    return Promise.resolve(response);
+};
+
+export const deleteBloqueiosMedico = async (idBloqueio: number): Promise<AxiosResponse<StatusRes>> => {
+    const response = await api.delete<StatusRes>(
+      `/medicos/bloqueio-agenda/${idBloqueio}`
     );
     
     return Promise.resolve(response);

@@ -123,7 +123,7 @@ export function BloquearAgenda({
           setModal(false)
         }
       } else {
-        // Edição - mantém comportamento local por enquanto
+        // Edição - passa os dados para o componente pai processar via API
         const bloqueioCompleto = {
           ...formData,
           data_inicio: new Date(formData.data_inicio).toISOString(),
@@ -135,7 +135,6 @@ export function BloquearAgenda({
         onConfirmar(bloqueioCompleto)
         setFormData(initialBloqueioForm)
         setModal(false)
-        toast.success('Bloqueio atualizado com sucesso!')
       }
     } catch (error: any) {
       console.error('Erro ao bloquear agenda:', error)
