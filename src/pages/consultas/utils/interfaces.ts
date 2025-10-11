@@ -1,3 +1,5 @@
+import { ConsultaRes } from "../../../services/consultas/interface"
+
 // Interface para dados de paciente (para seleção)
 export interface PacienteData {
   id_paciente: number
@@ -44,6 +46,7 @@ export interface ConsultaForm {
   id_paciente: number
   id_medico: number
   data_hora: string
+  motivo: string
   observacoes: string
   valor_consulta: string
 }
@@ -65,4 +68,13 @@ export interface ColunasConsultasProps {
   onEditar: (row: ConsultaData) => void
   onVisualizar: (row: ConsultaData) => void
   onRemover: (row: ConsultaData) => void
+}
+
+export interface ConsultaCalendario {
+  id: number;
+  paciente: string;
+  medico: string;
+  horario: string;
+  status: string;
+  dataCompleta: ConsultaRes;
 }

@@ -10,20 +10,11 @@ import { Button } from '@mantine/core';
 import { getStatusColor, getStatusIcon, getTimeSlots, getWeekDays } from './utils/constants';
 import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
 import { toast } from 'react-toastify';
-import { ConsultaData } from './utils/interfaces';
+import { ConsultaCalendario, ConsultaData } from './utils/interfaces';
 import { filtroMedico } from './utils/filtro';
 import { useAuth } from '../../contexts/AuthContext';
 import { postBuscarConsultas } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
-
-interface ConsultaCalendario {
-  id: number;
-  paciente: string;
-  medico: string;
-  horario: string;
-  status: string;
-  dataCompleta: ConsultaRes;
-}
 
 const ConsultasPage = () => {
   const { user } = useAuth();
@@ -60,9 +51,7 @@ const ConsultasPage = () => {
       } else if (filtroMedicoSelecionado) {
         idMedicoParam = parseInt(filtroMedicoSelecionado);
       }
-      
-      console.log('Buscando consultas de', dataInicio, 'até', dataFim);
-      console.log('ID Perfil:', user?.idPerfil, '| ID Médico:', idMedicoParam);
+  
       
       const response = await postBuscarConsultas({
         dataInicio,
@@ -70,7 +59,6 @@ const ConsultasPage = () => {
         idMedico: idMedicoParam,
       });
       
-      console.log('Consultas retornadas:', response.data);
       setConsultas(response.data);
     } catch (error) {
       console.error('Erro ao buscar consultas:', error);
@@ -128,7 +116,6 @@ const ConsultasPage = () => {
     return consultasFiltradas.map(converterParaCalendario);
   };
 
-  // Função para calcular altura de um horário específico
   const calcularAlturaHorario = (time: string) => {
     let maxConsultas = 0;
     weekDays.forEach((_, dayIndex) => {
@@ -455,7 +442,7 @@ const ConsultasPage = () => {
                                   whiteSpace: 'nowrap',
                                   width: '100%'
                                 }}>
-                                  {consulta.paciente}
+                                  Paciente: {consulta.paciente}
                                 </Typography>
                                 <Typography variant="caption" sx={{ 
                                   color: '#64748b',
@@ -467,7 +454,7 @@ const ConsultasPage = () => {
                                   whiteSpace: 'nowrap',
                                   width: '100%'
                                 }}>
-                                  {consulta.medico}
+                                  Médico: {consulta.medico}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
                                   {getStatusIcon(consulta.status)}

@@ -42,3 +42,14 @@ export interface ConsultaRes {
   paciente: PacienteConsulta;
 }
 
+export interface AgendarConsultaReq {
+  idPaciente: number;
+  idMedico: number;
+  dataConsulta: string;      
+  horarioConsulta: string;    
+  motivo: string;
+  observacoes: string;
+  valorConsulta: number;
+  confirmada: boolean;
+  prazoConfirmacao: string;
+}

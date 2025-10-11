@@ -10,6 +10,7 @@ import { getEspecialidades, postEspecialidadesMedico, postHorariosDisponiveis } 
 import { EspecialidadeRes, EspecialidadeMedicoRes, HorariosMedicoRes } from '../../../../services/medico/interface'
 import { getBuscarPacientes } from '../../../../services/usuario'
 import { InfoUsuarioRes } from '../../../../services/usuario/interface'
+import { postAgendarConsulta } from '../../../../services/consultas'
 
 export function CadastrarConsulta({
   modal,
@@ -25,6 +26,7 @@ export function CadastrarConsulta({
     id_paciente: 0,
     id_medico: 0,
     data_hora: '',
+    motivo: '',
     observacoes: '',
     valor_consulta: '',
   })
@@ -188,6 +190,7 @@ export function CadastrarConsulta({
         id_paciente: consultaParaEditar.id_paciente,
         id_medico: consultaParaEditar.id_medico,
         data_hora: consultaParaEditar.data_hora,
+        motivo: '',
         observacoes: consultaParaEditar.observacoes || '',
         valor_consulta: consultaParaEditar.valor_consulta?.toString() || '',
       })
@@ -196,6 +199,7 @@ export function CadastrarConsulta({
         id_paciente: 0,
         id_medico: 0,
         data_hora: '',
+        motivo: '',
         observacoes: '',
         valor_consulta: '',
       })
@@ -213,6 +217,7 @@ export function CadastrarConsulta({
       id_paciente: 0,
       id_medico: 0,
       data_hora: '',
+      motivo: '',
       observacoes: '',
       valor_consulta: '',
     })
@@ -220,9 +225,12 @@ export function CadastrarConsulta({
     setMedicoSelecionado(null)
     setEspecialidadeSelecionada(null)
     setMedicos([])
+    setDataSelecionada('')
+    setHoraSelecionada('')
+    setHorariosDisponiveis([])
   }
 
-  const confirmar = () => {
+  const confirmar = async () => {
     if (formData.id_paciente === 0) {
       toast.warn('Selecione um paciente!')
       return
@@ -248,40 +256,70 @@ export function CadastrarConsulta({
       return
     }
 
+    if (!formData.motivo || formData.motivo.trim() === '') {
+      toast.warn('Informe o motivo da consulta!')
+      return
+    }
+
     if (!formData.valor_consulta || parseFloat(formData.valor_consulta) <= 0) {
       toast.warn('Informe um valor válido para a consulta!')
       return
     }
 
-    // Combinar data e hora
-    const dataHoraCombinada = `${dataSelecionada}T${horaSelecionada}:00`
+    try {
+      // Combinar data e hora
+      const dataHoraConsulta = new Date(`${dataSelecionada}T${horaSelecionada}:00`)
+      
+      // Calcular prazo de confirmação (12 horas antes da consulta)
+      const prazoConfirmacaoDate = new Date(dataHoraConsulta.getTime() - (12 * 60 * 60 * 1000))
+      const prazoConfirmacao = prazoConfirmacaoDate.toISOString()
 
-    const consultaCompleta = {
-      ...formData,
-      data_hora: dataHoraCombinada,
-      ...(isEdicao && { 
-        id_consulta: consultaParaEditar!.id_consulta,
-        criado_em: consultaParaEditar!.criado_em,
-        atualizado_em: new Date().toISOString()
+      // Preparar dados para envio
+      const dadosConsulta = {
+        idPaciente: formData.id_paciente,
+        idMedico: formData.id_medico,
+        dataConsulta: dataSelecionada,
+        horarioConsulta: horaSelecionada,
+        motivo: formData.motivo,
+        observacoes: formData.observacoes || '',
+        valorConsulta: parseFloat(formData.valor_consulta),
+        confirmada: false,
+        prazoConfirmacao
+      }
+
+      console.log('Enviando dados da consulta:', dadosConsulta)
+
+      // Chamar API de agendar consulta
+      const response = await postAgendarConsulta(dadosConsulta)
+      
+      toast.success('Consulta agendada com sucesso!')
+      
+      // Limpar formulário
+      setFormData({
+        id_paciente: 0,
+        id_medico: 0,
+        data_hora: '',
+        motivo: '',
+        observacoes: '',
+        valor_consulta: '',
       })
+      setPacienteSelecionado(null)
+      setMedicoSelecionado(null)
+      setEspecialidadeSelecionada(null)
+      setMedicos([])
+      setDataSelecionada('')
+      setHoraSelecionada('')
+      setHorariosDisponiveis([])
+      setModal(false)
+      
+      // Chamar callback se existir
+      if (onConfirmar) {
+        onConfirmar(response.data)
+      }
+    } catch (error: any) {
+      console.error('Erro ao agendar consulta:', error)
+      toast.error(error?.response?.data?.message || 'Erro ao agendar consulta')
     }
-
-    onConfirmar(consultaCompleta)
-    setFormData({
-      id_paciente: 0,
-      id_medico: 0,
-      data_hora: '',
-      observacoes: '',
-      valor_consulta: '',
-    })
-    setPacienteSelecionado(null)
-    setMedicoSelecionado(null)
-    setEspecialidadeSelecionada(null)
-    setMedicos([])
-    setDataSelecionada('')
-    setHoraSelecionada('')
-    setHorariosDisponiveis([])
-    setModal(false)
   }
 
   const handleInputChange = (field: keyof ConsultaForm) => (
@@ -496,6 +534,17 @@ export function CadastrarConsulta({
               InputProps={{
                 startAdornment: <span className="mr-2">R$</span>
               }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Input
+              label="Motivo da Consulta *"
+              value={formData.motivo}
+              onChange={handleInputChange('motivo')}
+              fullWidth
+              disabled={isVisualizacao}
+              placeholder="Ex: Consulta de rotina, dor nas costas, etc."
             />
           </Grid>
 
