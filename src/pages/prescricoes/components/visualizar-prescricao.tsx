@@ -192,18 +192,6 @@ const VisualizarPrescricao: React.FC<VisualizarPrescricaoProps> = ({
                   Receita nº {prescricao.idConsulta.toString().padStart(8, '0')}
                 </Typography>
               </Box>
-              <Box sx={{ 
-                textAlign: 'right',
-                backgroundColor: '#fff',
-                p: 1.5,
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1'
-              }}>
-                <MdQrCode2 size={80} color="#64748b" />
-                <Typography sx={{ fontSize: '0.65rem', color: '#94a3b8', mt: 0.5 }}>
-                  Código de Verificação
-                </Typography>
-              </Box>
             </Box>
             
             <Divider sx={{ my: 2 }} />
