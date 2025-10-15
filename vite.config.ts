@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
+    plugins: [
+      react(),
+      VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
@@ -52,6 +52,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Permite acesso de qualquer IP na rede
     port: 5173, // Porta padrão do Vite
-    strictPort: true, // Falha se a porta estiver em uso
+    strictPort: false, // Permite usar uma porta diferente se 5173 estiver ocupada
+    open: false, // Não abre automaticamente o navegador
+    cors: true, // Habilita CORS para todas as origens
+    hmr: {
+      port: 5174, // Porta diferente para HMR para evitar conflitos
+    },
   },
-})
+});
