@@ -213,6 +213,7 @@ const ConsultasPage = () => {
       status: consulta.status as 'agendada' | 'confirmada' | 'concluida' | 'cancelada',
       motivo_cancelamento: consulta.motivoCancelamento,
       numero_reagendamentos: consulta.numeroReagendamentos,
+      data_confirmacao: consulta.dataConfirmacao,
       criado_em: consulta.criadoEm,
       atualizado_em: consulta.atualizadoEm,
       paciente: {

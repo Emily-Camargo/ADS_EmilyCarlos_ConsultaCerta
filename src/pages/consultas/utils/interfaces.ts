@@ -38,6 +38,7 @@ export interface ConsultaData {
   status?: 'agendada' | 'confirmada' | 'concluida' | 'cancelada'
   motivo_cancelamento?: string | null
   numero_reagendamentos?: number
+  data_confirmacao?: string | null
   criado_em: string
   atualizado_em?: string
   paciente: PacienteData

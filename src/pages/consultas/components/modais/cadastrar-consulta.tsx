@@ -10,7 +10,7 @@ import { getEspecialidades, postEspecialidadesMedico, postHorariosDisponiveis } 
 import { EspecialidadeRes, EspecialidadeMedicoRes, HorariosMedicoRes } from '../../../../services/medico/interface'
 import { getBuscarPacientes } from '../../../../services/usuario'
 import { InfoUsuarioRes } from '../../../../services/usuario/interface'
-import { postAgendarConsulta } from '../../../../services/consultas'
+import { postAgendarConsulta, confirmarConsulta } from '../../../../services/consultas'
 import { useMutation, useQuery } from 'react-query'
 
 export function CadastrarConsulta({
@@ -87,6 +87,22 @@ export function CadastrarConsulta({
     onError: (error: any) => {
       console.error('Erro ao agendar consulta:', error)
       toast.error(error?.response?.data?.message || 'Erro ao agendar consulta')
+    }
+  })
+
+  // Mutation para confirmar consulta
+  const confirmarConsultaMutation = useMutation({
+    mutationFn: confirmarConsulta,
+    onSuccess: () => {
+      toast.success('Consulta confirmada com sucesso!')
+      setModal(false)
+      if (onConfirmarConsulta) {
+        onConfirmarConsulta()
+      }
+    },
+    onError: (error: any) => {
+      console.error('Erro ao confirmar consulta:', error)
+      toast.error(error?.response?.data?.message || 'Erro ao confirmar consulta')
     }
   })
 
@@ -300,6 +316,17 @@ export function CadastrarConsulta({
     agendarConsultaMutation.mutate(dadosConsulta)
   }
 
+  const handleConfirmarConsulta = () => {
+    if (!consultaParaEditar?.id_consulta) {
+      toast.error('ID da consulta não encontrado!')
+      return
+    }
+
+    confirmarConsultaMutation.mutate({
+      id: consultaParaEditar.id_consulta
+    })
+  }
+
   const handleInputChange = (field: keyof ConsultaForm) => (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -392,6 +419,14 @@ export function CadastrarConsulta({
     return !statusBloqueados.includes(status || '')
   }
 
+  // Função para verificar se o botão confirmar deve ser exibido
+  const deveExibirBotaoConfirmar = () => {
+    if (!isVisualizacao || !consultaParaEditar) return false
+    
+    const status = consultaParaEditar.status?.toLowerCase()
+    return status !== 'confirmada'
+  }
+
   return (
     <Dialog
       maxWidth="md"
@@ -410,9 +445,15 @@ export function CadastrarConsulta({
                   <Button color="warning" onClick={onReagendarConsulta}>
                     Reagendar
                   </Button>
-                  <Button color="success" onClick={onConfirmarConsulta}>
-                    Confirmar
-                  </Button>
+                  {deveExibirBotaoConfirmar() && (
+                    <Button 
+                      color="success" 
+                      onClick={handleConfirmarConsulta}
+                      disabled={confirmarConsultaMutation.isLoading}
+                    >
+                      {confirmarConsultaMutation.isLoading ? 'Confirmando...' : 'Confirmar'}
+                    </Button>
+                  )}
                 </>
               )}
             </>
@@ -564,6 +605,24 @@ export function CadastrarConsulta({
                 value={consultaParaEditar.motivo_cancelamento}
                 multiline
                 rows={3}
+                disabled={true}
+                fullWidth
+              />
+            </Grid>
+          )}
+
+          {/* Mostrar data de confirmação apenas se status for confirmada */}
+          {isVisualizacao && consultaParaEditar?.status?.toLowerCase() === 'confirmada' && consultaParaEditar?.data_confirmacao && (
+            <Grid item xs={12} md={6}>
+              <Input
+                label="Data de Confirmação"
+                value={new Date(consultaParaEditar.data_confirmacao).toLocaleString('pt-BR', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
                 disabled={true}
                 fullWidth
               />

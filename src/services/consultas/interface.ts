@@ -65,3 +65,7 @@ export interface CancelarConsultaReq {
   id: number;
   motivoCancelamento: string;
 }
+
+export interface ConfirmarConsultaReq {
+  id: number;
+}

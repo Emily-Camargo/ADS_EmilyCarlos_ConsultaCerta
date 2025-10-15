@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '../../config/api';
-import { AgendarConsultaReq, BuscarConsultasReq, CancelarConsultaReq, ConsultaRes, ReagendarConsultaReq } from './interface';
+import { AgendarConsultaReq, BuscarConsultasReq, CancelarConsultaReq, ConfirmarConsultaReq, ConsultaRes, ReagendarConsultaReq } from './interface';
 import { StatusRes } from '../interfaceGeneric';
 
 export const postBuscarConsultas = async (
@@ -46,6 +46,15 @@ export const reagendarConsulta = async (data: ReagendarConsultaReq): Promise<Axi
 export const cancelarConsulta = async (data: CancelarConsultaReq): Promise<AxiosResponse<StatusRes>> => {
   const response = await api.put<StatusRes>(
     '/consultas/cancelar',
+    data
+  );
+
+  return Promise.resolve(response);
+};
+
+export const confirmarConsulta = async (data: ConfirmarConsultaReq): Promise<AxiosResponse<StatusRes>> => {
+  const response = await api.put<StatusRes>(
+    '/consultas/confirmar',
     data
   );
 
