@@ -209,9 +209,12 @@ const ConsultasPage = () => {
       id_paciente: consulta.idPaciente,
       id_medico: consulta.idMedico,
       data_hora: consulta.dataHora,
+      motivo: consulta.motivo,
       observacoes: consulta.observacoes,
       valor_consulta: consulta.valorConsulta,
       status: consulta.status as 'agendada' | 'confirmada' | 'concluida' | 'cancelada',
+      motivo_cancelamento: consulta.motivoCancelamento,
+      numero_reagendamentos: consulta.numeroReagendamentos,
       criado_em: consulta.criadoEm,
       atualizado_em: consulta.atualizadoEm,
       paciente: {

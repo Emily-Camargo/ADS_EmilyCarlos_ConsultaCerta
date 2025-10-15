@@ -205,7 +205,7 @@ export function CadastrarConsulta({
         id_paciente: consultaParaEditar.id_paciente,
         id_medico: consultaParaEditar.id_medico,
         data_hora: consultaParaEditar.data_hora,
-        motivo: '',
+        motivo: consultaParaEditar.motivo || '',
         observacoes: consultaParaEditar.observacoes || '',
         valor_consulta: consultaParaEditar.valor_consulta?.toString() || '',
       })
@@ -392,6 +392,15 @@ export function CadastrarConsulta({
     return 'Cadastrar'
   }
 
+  const deveExibirBotoesAcao = () => {
+    if (!isVisualizacao || !consultaParaEditar) return false
+    
+    const status = consultaParaEditar.status?.toLowerCase()
+    const statusBloqueados = ['finalizada', 'em andamento', 'cancelada', 'concluida']
+    
+    return !statusBloqueados.includes(status || '')
+  }
+
   return (
     <Dialog
       maxWidth="md"
@@ -402,15 +411,19 @@ export function CadastrarConsulta({
         <>
           {isVisualizacao ? (
             <>
-              <Button color="error" onClick={onCancelarConsulta}>
-                Cancelar Consulta
-              </Button>
-              <Button color="warning" onClick={onReagendarConsulta}>
-                Reagendar
-              </Button>
-              <Button color="success" onClick={onConfirmarConsulta}>
-                Confirmar
-              </Button>
+              {deveExibirBotoesAcao() && (
+                <>
+                  <Button color="error" onClick={onCancelarConsulta}>
+                    Cancelar Consulta
+                  </Button>
+                  <Button color="warning" onClick={onReagendarConsulta}>
+                    Reagendar
+                  </Button>
+                  <Button color="success" onClick={onConfirmarConsulta}>
+                    Confirmar
+                  </Button>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -536,17 +549,35 @@ export function CadastrarConsulta({
             />
           </Grid>
 
-          <Grid item xs={12}>
-            <Input
-              label="Observações"
-              value={formData.observacoes}
-              onChange={handleInputChange('observacoes')}
-              multiline
-              rows={3}
-              disabled={isVisualizacao}
-              fullWidth
-            />
-          </Grid>
+         
+          {isVisualizacao && consultaParaEditar?.numero_reagendamentos !== undefined && consultaParaEditar.numero_reagendamentos > 0 && (
+            <Grid item xs={12}>
+              <Input
+                label="Observações de Reagendamento"
+                value={formData.observacoes}
+                onChange={handleInputChange('observacoes')}
+                multiline
+                rows={3}
+                disabled={true}
+                fullWidth
+                helperText={`Esta consulta foi reagendada ${consultaParaEditar.numero_reagendamentos} vez(es)`}
+              />
+            </Grid>
+          )}
+
+          {/* Mostrar motivo de cancelamento apenas se status for cancelada */}
+          {isVisualizacao && consultaParaEditar?.status?.toLowerCase() === 'cancelada' && consultaParaEditar?.motivo_cancelamento && (
+            <Grid item xs={12}>
+              <Input
+                label="Motivo do Cancelamento"
+                value={consultaParaEditar.motivo_cancelamento}
+                multiline
+                rows={3}
+                disabled={true}
+                fullWidth
+              />
+            </Grid>
+          )}
         </Grid>
       </div>
     </Dialog>

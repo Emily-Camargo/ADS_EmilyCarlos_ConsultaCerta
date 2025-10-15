@@ -32,9 +32,12 @@ export interface ConsultaData {
   id_paciente: number
   id_medico: number
   data_hora: string
+  motivo?: string
   observacoes?: string
   valor_consulta: number
   status?: 'agendada' | 'confirmada' | 'concluida' | 'cancelada'
+  motivo_cancelamento?: string | null
+  numero_reagendamentos?: number
   criado_em: string
   atualizado_em?: string
   paciente: PacienteData
