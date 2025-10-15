@@ -52,6 +52,7 @@ export interface ConsultaCardProps {
   onVisualizar?: (consulta: ConsultaPaciente) => void
   onCancelar?: (consulta: ConsultaPaciente) => void
   onReagendar?: (consulta: ConsultaPaciente) => void
+  onConfirmar?: (consulta: ConsultaPaciente) => void
 }
 
 // Interface para props da modal de agendamento

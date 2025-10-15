@@ -9,7 +9,8 @@ import {
   MdCancel,
   MdSchedule,
   MdVerified,
-  MdInfo
+  MdInfo,
+  MdCheckCircle
 } from 'react-icons/md'
 import { ConsultaCardProps } from '../utils/interfaces'
 import { getStatusColor } from '../../home/utils/constants'
@@ -19,7 +20,8 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
   consulta, 
   onVisualizar, 
   onCancelar, 
-  onReagendar 
+  onReagendar,
+  onConfirmar
 }) => {
 
   const { data, hora } = formatarDataHora(consulta.data_hora)
@@ -115,6 +117,23 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
                   }}
                 >
                   <MdSchedule size={16} />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {consulta.status === 'agendada' && onConfirmar && (
+              <Tooltip title="Confirmar consulta" arrow>
+                <IconButton 
+                  size="small" 
+                  onClick={() => onConfirmar(consulta)}
+                  sx={{ 
+                    color: '#16a34a',
+                    backgroundColor: '#f0fdf4',
+                    p: 0.5,
+                    '&:hover': { backgroundColor: '#dcfce7' }
+                  }}
+                >
+                  <MdCheckCircle size={16} />
                 </IconButton>
               </Tooltip>
             )}
