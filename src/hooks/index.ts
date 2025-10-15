@@ -36,4 +36,5 @@ export function useDimension(width: number): boolean {
 
 export { usePWAInstall } from './usePWAInstall'
 export { useProximaConsulta } from './useProximaConsulta'
+export { useProximoAtendimento } from './useProximoAtendimento'
 
