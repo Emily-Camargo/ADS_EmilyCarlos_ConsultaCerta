@@ -245,7 +245,6 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
 
           <Divider sx={{ my: 1.5 }} />
 
-          {/* Informações de Sistema */}
           <Grid item xs={12}>
             <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
               Consulta criada em: {new Date(consulta.criado_em).toLocaleString('pt-BR')}

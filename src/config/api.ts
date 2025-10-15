@@ -1,7 +1,25 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-// URL base da API - você pode alterar esta constante conforme necessário
-const API_BASE_URL = 'http://localhost:3000';
+// Função para detectar automaticamente a URL base da API
+const getApiBaseUrl = (): string => {
+  // Detecta automaticamente se está rodando em localhost ou em rede
+  const hostname = window.location.hostname;
+  
+  // Se estiver rodando em localhost, usa localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3000';
+  }
+  
+  // Se estiver rodando em rede (celular), usa o IP da máquina
+  // O hostname será o IP da máquina quando acessado pelo celular
+  return `http://${hostname}:3000`;
+};
+
+// URL base da API - detectada automaticamente
+const API_BASE_URL = getApiBaseUrl();
+
+// Log para debug - você pode remover depois
+console.log('🌐 API Base URL:', API_BASE_URL);
 
 // Lista de rotas públicas que não precisam de autenticação
 const PUBLIC_ROUTES = [

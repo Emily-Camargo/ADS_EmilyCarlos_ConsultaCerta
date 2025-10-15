@@ -1,19 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import CurvedHeader from '../../../../components/curved-header';
 import { Box, Typography, Grid } from '@mui/material';
-import { useDimension } from '../../../../hooks';
+import { useDimension, useProximoAtendimento } from '../../../../hooks';
 import { getQuickActions } from '../../utils/constants';
 import QuickActionCard from '../../../../components/cards/QuickActionCard';
 const MedicoDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
   const quickActions = getQuickActions(3);
+  const { mensagem, loading, error } = useProximoAtendimento();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
       <CurvedHeader
         userRole=""
-        nextAppointment="Seu próximo atendimento é com Maria Santos às 15:00"
+        nextAppointment={loading ? 'Carregando...' : error ? 'Erro ao carregar atendimentos' : mensagem || 'Nenhum atendimento agendado'}
       />
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`} style={{ paddingTop: isMobile ? '200px' : '244px' }}>
 
