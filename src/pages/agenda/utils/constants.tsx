@@ -1,14 +1,15 @@
-import { HorarioForm, BloqueioForm, SelectOption } from './interfaces'
+import { BloquearAgendaRes } from '../../../services/medico/interface'
+import { HorarioForm, BloqueioForm, SelectOption, BloqueioAgenda } from './interfaces'
 
 // Formulário inicial para horários
 export const initialHorarioForm: HorarioForm = {
   id_medico: 0,
-  dia_semana: 1,
-  hora_inicio: '08:00',
-  hora_fim: '17:00',
-  intervalo_minutos: 30,
-  almoco_inicio: '12:00',
-  almoco_fim: '13:00',
+  dia_semana: 0,
+  hora_inicio: '',
+  hora_fim: '',
+  intervalo_minutos: 0,
+  almoco_inicio: '',
+  almoco_fim: '',
   data_vigencia_inicio: '',
   data_vigencia_fim: '',
   ativo: true,
@@ -88,4 +89,19 @@ export const formatarData = (data: string): string => {
 export const formatarDataHora = (dataHora: string): string => {
   if (!dataHora) return '--'
   return new Date(dataHora).toLocaleString('pt-BR')
+}
+
+export const mapearBloqueioRes = (bloqueioRes: BloquearAgendaRes): BloqueioAgenda => {
+  return {
+    id_bloqueio: bloqueioRes.idBloqueio,
+    id_medico: bloqueioRes.idMedico,
+    data_inicio: bloqueioRes.dataInicio,
+    data_fim: bloqueioRes.dataFim,
+    motivo: bloqueioRes.motivo,
+    tipo_bloqueio: bloqueioRes.tipoBloqueio,
+    criado_por: bloqueioRes.criadoPor,
+    criado_em: bloqueioRes.criadoEm,
+    nome_medico: bloqueioRes.nomeMedico,
+    nome_criado_por: bloqueioRes.nomeCriadoPor,
+  }
 }

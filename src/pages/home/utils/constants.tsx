@@ -72,13 +72,6 @@ export const USER_ROLES = {
             colorClass: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
           },
           {
-            title: 'Exames',
-            description: 'Solicite e acompanhe resultados de exames.',
-            icon: MdAssignment,
-            path: '/exames',
-            colorClass: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
-          },
-          {
             title: 'Relatórios',
             description: 'Visualize dashboards e análises de desempenho.',
             icon: MdDashboard,

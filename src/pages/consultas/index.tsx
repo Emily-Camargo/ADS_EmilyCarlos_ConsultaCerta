@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { 
   MdCalendarToday,
@@ -8,68 +8,176 @@ import {
 import Filtro from '../../components/filtro';
 import { Button } from '@mantine/core';
 import { getStatusColor, getStatusIcon, getTimeSlots, getWeekDays } from './utils/constants';
-import { getConsultasForDay } from './mocks/mocks';
 import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
+import { CancelarConsulta } from './components/modais/cancelar-consulta';
+import { ReagendarConsulta } from './components/modais/reagendar-consulta';
 import { toast } from 'react-toastify';
-import { ConsultaData } from './utils/interfaces';
+import { ConsultaCalendario, ConsultaData } from './utils/interfaces';
 import { filtroMedico } from './utils/filtro';
 import { useAuth } from '../../contexts/AuthContext';
+import { postBuscarConsultas, buscarConsultaEspecifica } from '../../services/consultas';
+import { ConsultaRes } from '../../services/consultas/interface';
+import { useQuery } from 'react-query';
 
 const ConsultasPage = () => {
   const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [modalCadastrar, setModalCadastrar] = useState(false);
   const [modalVisualizar, setModalVisualizar] = useState(false);
+  const [modalCancelar, setModalCancelar] = useState(false);
+  const [modalReagendar, setModalReagendar] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
   const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<string>('');
+  const [consultas, setConsultas] = useState<ConsultaRes[]>([]);
+  const [loading, setLoading] = useState(false);
   const weekDays = getWeekDays(currentWeek);
   const timeSlots = getTimeSlots();
 
   const alturaMinima = 80;
   const alturaPorConsulta = 75;
 
-  // Função para calcular altura de um horário específico
+  // Query para buscar consultas específicas
+  const { refetch: refetchConsultaEspecifica } = useQuery({
+    queryKey: ['consultaEspecifica', consultaSelecionada?.id_consulta],
+    queryFn: () => buscarConsultaEspecifica(consultaSelecionada!.id_consulta),
+    enabled: false, // Só executa quando chamado manualmente
+    onSuccess: () => {
+      setModalVisualizar(true);
+    },
+    onError: (error: any) => {
+      console.error('Erro ao buscar consulta específica:', error);
+      toast.error('Erro ao carregar detalhes da consulta');
+    }
+  });
+
+  // Função para buscar consultas da API
+  useEffect(() => {
+    buscarConsultas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWeek, filtroMedicoSelecionado]);
+
+  const buscarConsultas = async () => {
+    try {
+      setLoading(true);
+      const dataInicio = weekDays[0].toISOString().split('T')[0];
+      const dataFim = weekDays[4].toISOString().split('T')[0];
+      
+      // Se o usuário for médico (idPerfil === 3), envia o idMedico dele
+      let idMedicoParam: number | undefined = undefined;
+      
+      if (user?.idPerfil === 3 && user?.medico?.idMedico) {
+        idMedicoParam = user.medico.idMedico;
+      } else if (filtroMedicoSelecionado) {
+        idMedicoParam = parseInt(filtroMedicoSelecionado);
+      }
+  
+      
+      const response = await postBuscarConsultas({
+        dataInicio,
+        dataFim,
+        idMedico: idMedicoParam,
+      });
+      
+      setConsultas(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar consultas:', error);
+      toast.error('Erro ao carregar consultas');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Função para extrair horário formatado (HH:mm) de uma data ISO
+  const extrairHorario = (dataHora: string): string => {
+    const data = new Date(dataHora);
+    const horas = data.getHours().toString().padStart(2, '0');
+    const minutos = data.getMinutes().toString().padStart(2, '0');
+    return `${horas}:${minutos}`;
+  };
+
+  // Função para converter ConsultaRes para ConsultaCalendario
+  const converterParaCalendario = (consulta: ConsultaRes): ConsultaCalendario => {
+    return {
+      id: consulta.idConsulta,
+      paciente: consulta.paciente.nome,
+      medico: consulta.medico.nome,
+      horario: extrairHorario(consulta.dataHora),
+      status: consulta.status.toLowerCase(), // Normalizar para minúsculo
+      dataCompleta: consulta,
+    };
+  };
+
+  // Função para obter consultas de um dia específico
+  const getConsultasForDay = (dayIndex: number): ConsultaCalendario[] => {
+    const dia = weekDays[dayIndex];
+    
+    const consultasFiltradas = consultas.filter(consulta => {
+      const dataConsulta = new Date(consulta.dataHora);
+      const match = (
+        dataConsulta.getDate() === dia.getDate() &&
+        dataConsulta.getMonth() === dia.getMonth() &&
+        dataConsulta.getFullYear() === dia.getFullYear()
+      );
+      
+      
+      return match;
+    });
+    
+    return consultasFiltradas.map(converterParaCalendario);
+  };
+
   const calcularAlturaHorario = (time: string) => {
     let maxConsultas = 0;
     weekDays.forEach((_, dayIndex) => {
       const consultasDoDia = getConsultasForDay(dayIndex);
-      const consultasFiltradas = filtroMedicoSelecionado 
-        ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
-        : consultasDoDia;
       
-      const consultasDoHorario = consultasFiltradas.filter(c => c?.horario === time);
+      const consultasDoHorario = consultasDoDia.filter(c => c?.horario === time);
       maxConsultas = Math.max(maxConsultas, consultasDoHorario.length);
     });
     
     return Math.max(alturaMinima, maxConsultas * alturaPorConsulta);
   };
 
-  const handleCadastrarConsulta = (consulta: any) => {
+  const handleCadastrarConsulta = () => {
     toast.success('Consulta cadastrada com sucesso!');
     setModalCadastrar(false);
+    buscarConsultas();
   };
 
   const handleVisualizarConsulta = (consulta: ConsultaData) => {
     setConsultaSelecionada(consulta);
-    setModalVisualizar(true);
+    setTimeout(() => {
+      refetchConsultaEspecifica();
+    }, 0);
   };
 
   const handleConfirmarConsulta = () => {
     toast.success('Consulta confirmada com sucesso!');
     setModalVisualizar(false);
     setConsultaSelecionada(null);
+    buscarConsultas();
   };
 
   const handleCancelarConsulta = () => {
-    toast.success('Consulta cancelada com sucesso!');
     setModalVisualizar(false);
-    setConsultaSelecionada(null);
+    setModalCancelar(true);
   };
 
   const handleReagendarConsulta = () => {
     setModalVisualizar(false);
-    // Aqui você pode implementar a lógica de reagendamento
-    toast.info('Funcionalidade de reagendamento será implementada em breve');
+    setModalReagendar(true);
+  };
+
+  const handleConfirmarCancelamento = () => {
+    setModalCancelar(false);
+    setConsultaSelecionada(null);
+    buscarConsultas();
+  };
+
+  const handleConfirmarReagendamento = () => {
+    setModalReagendar(false);
+    setConsultaSelecionada(null);
+    buscarConsultas();
   };
 
   const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -91,37 +199,43 @@ const ConsultasPage = () => {
     setFiltroMedicoSelecionado('');
   };
 
-  // Função para converter dados do mock para ConsultaData
-  const converterParaConsultaData = (consulta: any): ConsultaData => {
+  // Função para converter dados da API para ConsultaData
+  const converterParaConsultaData = (consultaCalendario: ConsultaCalendario): ConsultaData => {
+    const consulta = consultaCalendario.dataCompleta;
     return {
-      id_consulta: consulta.id,
-      id_paciente: consulta.id,
-      id_medico: consulta.id,
-      data_hora: new Date().toISOString(),
-      observacoes: '',
-      valor_consulta: 150.00,
-      status: consulta.status === 'aguardando confirmacao' ? 'agendada' : consulta.status,
-      criado_em: new Date().toISOString(),
+      id_consulta: consulta.idConsulta,
+      id_paciente: consulta.idPaciente,
+      id_medico: consulta.idMedico,
+      data_hora: consulta.dataHora,
+      motivo: consulta.motivo,
+      observacoes: consulta.observacoes,
+      valor_consulta: consulta.valorConsulta,
+      status: consulta.status as 'agendada' | 'confirmada' | 'concluida' | 'cancelada',
+      motivo_cancelamento: consulta.motivoCancelamento,
+      numero_reagendamentos: consulta.numeroReagendamentos,
+      data_confirmacao: consulta.dataConfirmacao,
+      criado_em: consulta.criadoEm,
+      atualizado_em: consulta.atualizadoEm,
       paciente: {
-        id_paciente: consulta.id,
-        nome_paciente: consulta.paciente,
-        cpf: '000.000.000-00',
-        celular: '(00) 00000-0000',
-        id_usuario: consulta.id,
-        data_nascimento: '1990-01-01',
-        genero: 'F',
-        tipo_sanguineo: 'O+',
-        convenio: 'Particular',
+        id_paciente: consulta.paciente.idPaciente,
+        nome_paciente: consulta.paciente.nome,
+        cpf: consulta.paciente.cpf,
+        celular: consulta.paciente.telefone,
+        id_usuario: consulta.criadoPor,
+        data_nascimento: '',
+        genero: '',
+        tipo_sanguineo: '',
+        convenio: '',
         numero_carteirinha: '',
         contato_emergencia_nome: '',
         contato_emergencia_telefone: '',
         observacoes: ''
       },
       medico: {
-        id_medico: consulta.id,
-        nome_medico: consulta.medico,
-        especialidade: 'Clínica Geral',
-        crm: '00000',
+        id_medico: consulta.medico.idMedico,
+        nome_medico: consulta.medico.nome,
+        especialidade: consulta.medico.especialidade,
+        crm: consulta.medico.crm,
         ativo: true
       }
     };
@@ -134,18 +248,21 @@ const ConsultasPage = () => {
       backgroundColor: '#f8fafc',
     }}>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ p: 3, pb: 0 }}>
-          <Filtro 
-            inputSelect={[{
-              ...filtroMedico,
-              onChange: handleMedicoChange
-            }]}
-            onSubmit={handleFiltroSubmit}
-            onClear={handleLimparFiltros}
-          />
-        </Box>
+        {/* Mostrar filtro apenas se NÃO for médico (idPerfil !== 3) */}
+        {user?.idPerfil !== 3 && (
+          <Box sx={{ p: 3, pb: 0 }}>
+            <Filtro 
+              inputSelect={[{
+                ...filtroMedico,
+                onChange: handleMedicoChange
+              }]}
+              onSubmit={handleFiltroSubmit}
+              onClear={handleLimparFiltros}
+            />
+          </Box>
+        )}
 
-        {user?.idPerfil === 1 && (
+        {user?.idPerfil === 2 && (
           <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-start' }}>
             <Button 
               variant="gradient" 
@@ -158,7 +275,20 @@ const ConsultasPage = () => {
           </Box>
         )}
 
-        <Box sx={{ flex: 1, px: 3, pb: 3 }}>
+        <Box sx={{ flex: 1, px: 3, pb: 3, pt: user?.idPerfil === 3 ? 3 : 0 }}>
+          {loading && (
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              py: 2
+            }}>
+              <Typography variant="body2" color="textSecondary">
+                Carregando consultas...
+              </Typography>
+            </Box>
+          )}
+          
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -252,11 +382,6 @@ const ConsultasPage = () => {
               {weekDays.map((day, dayIndex) => {
                 const consultasDoDia = getConsultasForDay(dayIndex);
                 
-                // Aplicar filtro de médico se selecionado
-                const consultasFiltradas = filtroMedicoSelecionado 
-                  ? consultasDoDia.filter(consulta => consulta.medico === filtroMedicoSelecionado)
-                  : consultasDoDia;
-                
                 return (
                   <Box key={dayIndex} sx={{ 
                     flex: 1, 
@@ -289,7 +414,7 @@ const ConsultasPage = () => {
 
                     {/* Slots de Horário - Todos os horários */}
                     {timeSlots.map((time, timeIndex) => {
-                      const consultasDoHorario = consultasFiltradas.filter(c => c?.horario === time);
+                      const consultasDoHorario = consultasDoDia.filter(c => c?.horario === time);
                       const alturaHorario = calcularAlturaHorario(time);
                       
                       return (
@@ -315,7 +440,8 @@ const ConsultasPage = () => {
                                 height: alturaPorConsulta - 8,
                                 backgroundColor: consulta.status === 'concluida' ? '#dcfce7' : 
                                              consulta.status === 'cancelada' ? '#fee2e2' : 
-                                             consulta.status === 'confirmada' ? '#dbeafe' : '#fef3c7',
+                                             consulta.status === 'confirmada' ? '#dbeafe' : 
+                                             consulta.status === 'agendada' ? '#fef3c7' : '#fef3c7',
                                 borderRadius: '6px',
                                 border: `1px solid ${getStatusColor(consulta.status)}`,
                                 display: 'flex',
@@ -327,7 +453,8 @@ const ConsultasPage = () => {
                                 '&:hover': {
                                   backgroundColor: consulta.status === 'concluida' ? '#bbf7d0' : 
                                                consulta.status === 'cancelada' ? '#fecaca' : 
-                                               consulta.status === 'confirmada' ? '#bfdbfe' : '#fde68a',
+                                               consulta.status === 'confirmada' ? '#bfdbfe' : 
+                                               consulta.status === 'agendada' ? '#fde68a' : '#fde68a',
                                 }
                               }}
                               onClick={() => handleVisualizarConsulta(converterParaConsultaData(consulta))}
@@ -342,7 +469,7 @@ const ConsultasPage = () => {
                                   whiteSpace: 'nowrap',
                                   width: '100%'
                                 }}>
-                                  {consulta.paciente}
+                                  Paciente: {consulta.paciente}
                                 </Typography>
                                 <Typography variant="caption" sx={{ 
                                   color: '#64748b',
@@ -354,7 +481,7 @@ const ConsultasPage = () => {
                                   whiteSpace: 'nowrap',
                                   width: '100%'
                                 }}>
-                                  {consulta.medico}
+                                  Médico: {consulta.medico}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
                                   {getStatusIcon(consulta.status)}
@@ -365,7 +492,8 @@ const ConsultasPage = () => {
                                   }}>
                                     {consulta.status === 'concluida' ? 'Concluída' : 
                                      consulta.status === 'cancelada' ? 'Cancelada' : 
-                                     consulta.status === 'confirmada' ? 'Confirmada' : 'Aguardando'}
+                                     consulta.status === 'confirmada' ? 'Confirmada' : 
+                                     consulta.status === 'agendada' ? 'Agendada' : 'Aguardando'}
                                   </Typography>
                                 </Box>
                               </Box>
@@ -382,7 +510,7 @@ const ConsultasPage = () => {
         </Box>
       </Box>
 
-      <CadastrarConsulta
+       <CadastrarConsulta
         modal={modalCadastrar}
         setModal={setModalCadastrar}
         onConfirmar={handleCadastrarConsulta}
@@ -398,6 +526,21 @@ const ConsultasPage = () => {
         onCancelarConsulta={handleCancelarConsulta}
         onReagendarConsulta={handleReagendarConsulta}
       />
+
+      <CancelarConsulta
+        modal={modalCancelar}
+        setModal={setModalCancelar}
+        consultaId={consultaSelecionada?.id_consulta || null}
+        onConfirmar={handleConfirmarCancelamento}
+      />
+
+      <ReagendarConsulta
+        modal={modalReagendar}
+        setModal={setModalReagendar}
+        consultaId={consultaSelecionada?.id_consulta || null}
+        medicoId={consultaSelecionada?.id_medico || null}
+        onConfirmar={handleConfirmarReagendamento}
+      /> 
     </Box>
   );
 };

@@ -1,7 +1,7 @@
 import { TableColumn } from 'react-data-table-component'
 import { ColunasHorariosProps, HorarioAtendimento } from '../../utils/interfaces'
 import { Tooltip, Zoom, Chip } from '@mui/material'
-import { Edit, Visibility, Block } from '@mui/icons-material'
+import { Edit, Visibility } from '@mui/icons-material'
 import { getNomeDiaSemana, formatarHorario, formatarData } from '../../utils/constants'
 
 export function colunasHorarios({ 
@@ -17,11 +17,6 @@ export function colunasHorarios({
     {
       name: 'Especialidade',
       selector: (row) => row.especialidade || '',
-      sortable: true,
-    },
-    {
-      name: 'CRM',
-      selector: (row) => row.crm || '',
       sortable: true,
     },
     {

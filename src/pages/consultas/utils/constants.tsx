@@ -10,6 +10,8 @@ export const getStatusIcon = (status: string) => {
       return <MdCheck style={{ color: '#10b981' }} />;
     case 'cancelada':
       return <MdCancel style={{ color: '#ef4444' }} />;
+    case 'agendada':
+      return <MdAccessTime style={{ color: '#f59e0b' }} />;
     case 'aguardando confirmacao':
       return <MdAccessTime style={{ color: '#f59e0b' }} />;
     case 'confirmada':
@@ -29,6 +31,8 @@ export const getStatusColor = (status: string) => {
       return '#10b981';
     case 'cancelada':
       return '#ef4444';
+    case 'agendada':
+      return '#f59e0b';
     case 'aguardando confirmacao':
       return '#f59e0b';
     case 'confirmada':

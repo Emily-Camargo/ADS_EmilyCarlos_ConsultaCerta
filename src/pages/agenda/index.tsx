@@ -4,22 +4,73 @@ import Filtro from "../../components/filtro"
 import { useImmer } from "use-immer"
 import { Button } from "@mantine/core"
 import { TabelaHorarios } from "./components/tabela/tabela"
-import { mockHorarios } from "./mock"
 import { CadastrarHorario } from "./components/modal/cadastrar-horario"
 import { BloquearAgenda } from "./components/modal/bloquear-agenda"
-import { HorarioAtendimento } from "./utils/interfaces"
+import { DetalhesMedico } from "./components/modal/detalhes-medico"
+import { HorarioAtendimento, BloqueioAgenda } from "./utils/interfaces"
 import { toast } from 'react-toastify'
+import { useQuery, useQueryClient, useMutation } from 'react-query'
+import { agendaKeys, fetchHorarios } from "./utils/queries"
+import { putBloqueiosMedico, deleteBloqueiosMedico } from "../../services/medico"
+import { BloquearAgendaPutReq } from "../../services/medico/interface"
+import Confirmar from "../../components/dialog/confirmar"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
   const [modalCadastro, setModalCadastro] = useState(false)
   const [modalBloqueio, setModalBloqueio] = useState(false)
-  const [horarios, setHorarios] = useState<HorarioAtendimento[]>(mockHorarios)
+  const [modalDetalhes, setModalDetalhes] = useState(false)
+  const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false)
   const [horarioParaEditar, setHorarioParaEditar] = useState<HorarioAtendimento | null>(null)
+  const [horarioParaVisualizar, setHorarioParaVisualizar] = useState<HorarioAtendimento | null>(null)
+  const [bloqueioParaEditar, setBloqueioParaEditar] = useState<BloqueioAgenda | null>(null)
+  const [bloqueioParaVisualizar, setBloqueioParaVisualizar] = useState<BloqueioAgenda | null>(null)
+  const [bloqueioParaRemover, setBloqueioParaRemover] = useState<BloqueioAgenda | null>(null)
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
+  const [modoVisualizacaoBloqueio, setModoVisualizacaoBloqueio] = useState(false)
+
+  const { data: horarios = [], isLoading, error } = useQuery({
+    queryKey: agendaKeys.horarios(),
+    queryFn: fetchHorarios,
+  })
+
+  const queryClient = useQueryClient()
+
+  const mutationEditarBloqueio = useMutation({
+    mutationFn: async ({ idBloqueio, data }: { idBloqueio: number, data: BloquearAgendaPutReq }) => {
+      const response = await putBloqueiosMedico(idBloqueio, data)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Bloqueio atualizado com sucesso!')
+      queryClient.invalidateQueries(['bloqueios-medico'])
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao atualizar bloqueio')
+    },
+  })
+
+  const mutationDeletarBloqueio = useMutation({
+    mutationFn: async (idBloqueio: number) => {
+      const response = await deleteBloqueiosMedico(idBloqueio)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Bloqueio removido com sucesso!')
+      queryClient.invalidateQueries(['bloqueios-medico'])
+      setModalConfirmarExclusao(false)
+      setBloqueioParaRemover(null)
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao remover bloqueio')
+    },
+  })
+
+  if (error) {
+    toast.error('Erro ao carregar horários de atendimento')
+  }
 
   const searchClick = () => {
-    // Aqui seria implementada a lógica de filtro
     toast.info('Filtros aplicados com sucesso!')
   }
 
@@ -28,42 +79,21 @@ function Agenda() {
     toast.info('Filtros redefinidos!')
   }
 
-  const handleCadastrarHorario = (novoHorario: any) => {
-    if (horarioParaEditar) {
-      setHorarios(prev => 
-        prev.map(h => 
-          h.id_horario === horarioParaEditar.id_horario 
-            ? { 
-                ...novoHorario,
-                id_horario: horarioParaEditar.id_horario,
-                nome_medico: getMedicoNome(novoHorario.id_medico),
-                especialidade: getMedicoEspecialidade(novoHorario.id_medico),
-                criado_em: horarioParaEditar.criado_em,
-                atualizado_em: new Date().toISOString()
-              }
-            : h
-        )
-      )
-      toast.success('Horário atualizado com sucesso!')
-      setHorarioParaEditar(null)
-    } else {
-      const horarioCompleto: HorarioAtendimento = {
-        ...novoHorario,
-        id_horario: Math.max(...horarios.map(h => h.id_horario)) + 1,
-        nome_medico: getMedicoNome(novoHorario.id_medico),
-        especialidade: getMedicoEspecialidade(novoHorario.id_medico),
-        criado_em: new Date().toISOString(),
-        atualizado_em: new Date().toISOString()
+  const handleBloquearAgenda = (bloqueio: any) => {
+    if (bloqueioParaEditar) {
+      // Editar bloqueio existente
+      const payload: BloquearAgendaPutReq = {
+        dataInicio: bloqueio.data_inicio,
+        dataFim: bloqueio.data_fim,
+        motivo: bloqueio.motivo,
+        tipoBloqueio: bloqueio.tipo_bloqueio,
       }
-      
-      setHorarios(prev => [...prev, horarioCompleto])
-      toast.success('Horário cadastrado com sucesso!')
+      mutationEditarBloqueio.mutate({ 
+        idBloqueio: bloqueioParaEditar.id_bloqueio, 
+        data: payload 
+      })
     }
-  }
-
-  const handleBloquearAgenda = (dadosBloqueio: any) => {
-    toast.success('Agenda bloqueada com sucesso!')
-    // Aqui seria implementada a lógica de bloqueio
+    // A criação de novo bloqueio já é tratada no componente BloquearAgenda
   }
 
   const editarHorario = (horario: HorarioAtendimento) => {
@@ -73,9 +103,8 @@ function Agenda() {
   }
 
   const detalhesHorario = (horario: HorarioAtendimento) => {
-    setHorarioParaEditar(horario)
-    setModoVisualizacao(true)
-    setModalCadastro(true)
+    setHorarioParaVisualizar(horario)
+    setModalDetalhes(true)
   }
 
   const bloquearHorario = (horario: HorarioAtendimento) => {
@@ -90,31 +119,49 @@ function Agenda() {
   }
 
   const abrirModalBloqueio = () => {
-    setHorarioParaEditar(null)
+    setBloqueioParaEditar(null)
+    setBloqueioParaVisualizar(null)
+    setModoVisualizacaoBloqueio(false)
     setModalBloqueio(true)
   }
 
-  // Funções auxiliares para buscar dados do médico
-  const getMedicoNome = (idMedico: number): string => {
-    const medicos = [
-      { id: 1, nome: 'Dr. João Silva', especialidade: 'Cardiologia' },
-      { id: 2, nome: 'Dra. Maria Santos', especialidade: 'Pediatria' },
-      { id: 3, nome: 'Dr. Carlos Oliveira', especialidade: 'Ortopedia' },
-      { id: 4, nome: 'Dra. Ana Costa', especialidade: 'Ginecologia' },
-      { id: 5, nome: 'Dr. Pedro Almeida', especialidade: 'Neurologia' },
-    ]
-    return medicos.find(m => m.id === idMedico)?.nome || 'Médico não encontrado'
+  const editarBloqueio = (bloqueio: BloqueioAgenda) => {
+    setBloqueioParaEditar(bloqueio)
+    setBloqueioParaVisualizar(null)
+    setModoVisualizacaoBloqueio(false)
+    setModalBloqueio(true)
   }
 
-  const getMedicoEspecialidade = (idMedico: number): string => {
-    const medicos = [
-      { id: 1, nome: 'Dr. João Silva', especialidade: 'Cardiologia' },
-      { id: 2, nome: 'Dra. Maria Santos', especialidade: 'Pediatria' },
-      { id: 3, nome: 'Dr. Carlos Oliveira', especialidade: 'Ortopedia' },
-      { id: 4, nome: 'Dra. Ana Costa', especialidade: 'Ginecologia' },
-      { id: 5, nome: 'Dr. Pedro Almeida', especialidade: 'Neurologia' },
-    ]
-    return medicos.find(m => m.id === idMedico)?.especialidade || 'Especialidade não encontrada'
+  const detalhesBloqueio = (bloqueio: BloqueioAgenda) => {
+    setBloqueioParaVisualizar(bloqueio)
+    setBloqueioParaEditar(null)
+    setModoVisualizacaoBloqueio(true)
+    setModalBloqueio(true)
+  }
+
+  const removerBloqueio = (bloqueio: BloqueioAgenda) => {
+    setBloqueioParaRemover(bloqueio)
+    setModalConfirmarExclusao(true)
+  }
+
+  const confirmarExclusaoBloqueio = () => {
+    if (bloqueioParaRemover) {
+      mutationDeletarBloqueio.mutate(bloqueioParaRemover.id_bloqueio)
+    }
+  }
+
+  const cancelarExclusaoBloqueio = () => {
+    setModalConfirmarExclusao(false)
+    setBloqueioParaRemover(null)
+  }
+
+  const fecharModalBloqueio = (aberto: boolean) => {
+    setModalBloqueio(aberto)
+    if (!aberto) {
+      setBloqueioParaEditar(null)
+      setBloqueioParaVisualizar(null)
+      setModoVisualizacaoBloqueio(false)
+    }
   }
 
   return (
@@ -147,26 +194,43 @@ function Agenda() {
 
       <TabelaHorarios 
         horarios={horarios} 
-        isLoading={false}
+        isLoading={isLoading}
         editarHorario={editarHorario}
         detalhesHorario={detalhesHorario}
         bloquearHorario={bloquearHorario}
+        editarBloqueio={editarBloqueio}
+        detalhesBloqueio={detalhesBloqueio}
+        removerBloqueio={removerBloqueio}
       />
       
       <CadastrarHorario
         modal={modalCadastro}
         setModal={setModalCadastro}
-        onConfirmar={handleCadastrarHorario}
         horarioParaEditar={horarioParaEditar}
         modoVisualizacao={modoVisualizacao}
       />
 
+      <DetalhesMedico
+        modal={modalDetalhes}
+        setModal={setModalDetalhes}
+        horario={horarioParaVisualizar}
+      />
+
       <BloquearAgenda
         modal={modalBloqueio}
-        setModal={setModalBloqueio}
+        setModal={fecharModalBloqueio}
         onConfirmar={handleBloquearAgenda}
-        bloqueioParaEditar={null}
-        modoVisualizacao={false}
+        bloqueioParaEditar={bloqueioParaEditar || bloqueioParaVisualizar}
+        modoVisualizacao={modoVisualizacaoBloqueio}
+      />
+
+      <Confirmar
+        open={modalConfirmarExclusao}
+        onClose={cancelarExclusaoBloqueio}
+        onConfirm={confirmarExclusaoBloqueio}
+        title="Confirmar Exclusão"
+        message={`Deseja realmente remover o bloqueio do médico ${bloqueioParaRemover?.nome_medico || 'agenda'} referente a ${bloqueioParaRemover?.tipo_bloqueio || 'agenda'}?`}
+        maxWidth="sm"
       />
     </div>
   )

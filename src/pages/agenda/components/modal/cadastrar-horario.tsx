@@ -5,7 +5,6 @@ import { Grid } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
 import { CadastrarHorarioProps, HorarioForm } from '../../utils/interfaces'
-import { mockMedicos } from '../../mock'
 import { 
   initialHorarioForm, 
   diasSemanaOptions, 
@@ -17,18 +16,77 @@ import {
   validarDatasVigencia 
 } from '../../utils/functions'
 import { toast } from 'react-toastify'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { postHorariosMedico, putHorariosMedico, getMedicos } from '../../../../services/medico'
+import { MedicoAgendaReq, MedicoAgendaPutReq } from '../../../../services/medico/interface'
+import { InfoUsuarioRes } from '../../../../services/usuario/interface'
+import { agendaKeys } from '../../utils/queries'
 
 export function CadastrarHorario({
   modal,
   setModal,
-  onConfirmar,
   horarioParaEditar = null,
   modoVisualizacao = false,
+  isLoadingDetalhes = false,
 }: Readonly<CadastrarHorarioProps>) {
   const [formData, setFormData] = useState<HorarioForm>(initialHorarioForm)
+  const queryClient = useQueryClient()
 
   const isEdicao = !!horarioParaEditar
   const isVisualizacao = modoVisualizacao
+
+  // Query para buscar médicos
+  const { data: medicosData, isLoading: isLoadingMedicos } = useQuery({
+    queryKey: ['medicos'],
+    queryFn: async () => {
+      const response = await getMedicos()
+      return response
+    },
+    enabled: modal, // Só busca quando o modal está aberto
+  })
+
+  // Mutation para cadastrar horário
+  const mutationCadastrar = useMutation({
+    mutationFn: async (data: MedicoAgendaReq) => {
+      const response = await postHorariosMedico(data)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Horário cadastrado com sucesso!')
+      queryClient.invalidateQueries(agendaKeys.horarios())
+      setFormData(initialHorarioForm)
+      setModal(false)
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao cadastrar horário')
+    },
+  })
+
+  // Mutation para editar horário
+  const mutationEditar = useMutation({
+    mutationFn: async ({ idHorario, data }: { idHorario: number, data: MedicoAgendaPutReq }) => {
+      const response = await putHorariosMedico(idHorario, data)
+      return response.data
+    },
+    onSuccess: () => {
+      toast.success('Horário atualizado com sucesso!')
+      queryClient.invalidateQueries(agendaKeys.horarios())
+      setFormData(initialHorarioForm)
+      setModal(false)
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Erro ao atualizar horário')
+    },
+  })
+
+  // Mapear médicos para o formato esperado
+  const medicos = medicosData?.map((usuario: InfoUsuarioRes) => ({
+    id_medico: usuario.medico?.idMedico || 0,
+    nome_medico: usuario.nome,
+    especialidade: usuario.medico?.especialidade || '',
+    crm: usuario.medico?.crm || '',
+    ativo: usuario.ativo && (usuario.medico?.ativo ?? true),
+  })) || []
 
   useEffect(() => {
     if (horarioParaEditar && modal) {
@@ -60,8 +118,23 @@ export function CadastrarHorario({
       return
     }
 
+    if (formData.dia_semana === 0) {
+      toast.warn('Selecione um dia da semana!')
+      return
+    }
+
+    if (!formData.hora_inicio || !formData.hora_fim) {
+      toast.warn('Preencha os horários de início e fim!')
+      return
+    }
+
     if (!validarHorario(formData.hora_inicio, formData.hora_fim)) {
       toast.warn('Horário de início deve ser anterior ao horário de fim!')
+      return
+    }
+
+    if (formData.intervalo_minutos === 0) {
+      toast.warn('Selecione um intervalo entre consultas!')
       return
     }
 
@@ -84,18 +157,38 @@ export function CadastrarHorario({
       }
     }
 
-    const horarioCompleto = {
-      ...formData,
-      ...(isEdicao && { 
-        id_horario: horarioParaEditar!.id_horario,
-        criado_em: horarioParaEditar!.criado_em,
-        atualizado_em: new Date().toISOString()
-      })
-    }
+    if (isEdicao && horarioParaEditar) {
+      // Modo edição - usa PUT e envia apenas os campos editáveis
+      const dataParaAPI: MedicoAgendaPutReq = {
+        horaInicio: formData.hora_inicio,
+        horaFim: formData.hora_fim,
+        intervaloMinutos: formData.intervalo_minutos,
+        almocoInicio: formData.almoco_inicio || '',
+        almocoFim: formData.almoco_fim || '',
+        ativo: formData.ativo,
+      }
 
-    onConfirmar(horarioCompleto)
-    setFormData(initialHorarioForm)
-    setModal(false)
+      mutationEditar.mutate({
+        idHorario: horarioParaEditar.id_horario,
+        data: dataParaAPI
+      })
+    } else {
+      // Modo cadastro - usa POST e envia todos os campos
+      const dataParaAPI: MedicoAgendaReq = {
+        idMedico: formData.id_medico,
+        diaSemana: formData.dia_semana,
+        horaInicio: formData.hora_inicio,
+        horaFim: formData.hora_fim,
+        intervaloMinutos: formData.intervalo_minutos,
+        almocoInicio: formData.almoco_inicio || '',
+        almocoFim: formData.almoco_fim || '',
+        dataVigenciaInicio: formData.data_vigencia_inicio || '',
+        dataVigenciaFim: formData.data_vigencia_fim || '',
+        ativo: formData.ativo,
+      }
+
+      mutationCadastrar.mutate(dataParaAPI)
+    }
   }
 
   const handleInputChange = (field: keyof HorarioForm) => (
@@ -113,7 +206,7 @@ export function CadastrarHorario({
 
   const handleMedicoSelect = (
     _event: React.SyntheticEvent,
-    value: typeof mockMedicos[0] | null
+    value: typeof medicos[0] | null
   ) => {
     setFormData(prev => ({
       ...prev,
@@ -123,21 +216,21 @@ export function CadastrarHorario({
 
   const handleDiaSemanaSelect = (
     _event: React.SyntheticEvent,
-    value: { value: number; label: string } | null
+    value: any
   ) => {
     setFormData(prev => ({
       ...prev,
-      dia_semana: value?.value || 1
+      dia_semana: (typeof value?.value === 'number' ? value.value : 0)
     }))
   }
 
   const handleIntervaloSelect = (
     _event: React.SyntheticEvent,
-    value: { value: number; label: string } | null
+    value: any
   ) => {
     setFormData(prev => ({
       ...prev,
-      intervalo_minutos: value?.value || 30
+      intervalo_minutos: (typeof value?.value === 'number' ? value.value : 0)
     }))
   }
 
@@ -152,9 +245,13 @@ export function CadastrarHorario({
     return 'Cadastrar'
   }
 
-  const medicoSelecionado = mockMedicos.find(m => m.id_medico === formData.id_medico)
+  const medicoSelecionado = medicos.find(m => m.id_medico === formData.id_medico)
   const diaSelecionado = diasSemanaOptions.find(d => d.value === formData.dia_semana)
   const intervaloSelecionado = intervalosOptions.find(i => i.value === formData.intervalo_minutos)
+
+  const isLoading = mutationCadastrar.isLoading || mutationEditar.isLoading
+  
+  const dataMinima = new Date().toISOString().split('T')[0]
 
   return (
     <Dialog
@@ -164,18 +261,26 @@ export function CadastrarHorario({
       onClose={cancelar}
       actions={
         <>
-          <Button color="error" onClick={cancelar}>
+          <Button color="error" onClick={cancelar} disabled={isLoading}>
             {isVisualizacao ? 'Fechar' : 'Cancelar'}
           </Button>
           {!isVisualizacao && (
-            <Button color="primary" onClick={confirmar}>
-              {getTextoBotao()}
+            <Button color="primary" onClick={confirmar} disabled={isLoading}>
+              {isLoading ? 'Salvando...' : getTextoBotao()}
             </Button>
           )}
         </>
       }
     >
-      <div className="text-sm">
+      {isLoadingDetalhes ? (
+        <div className="flex justify-center items-center py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-gray-600">Carregando detalhes do médico...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="text-sm">
         <p>
           {isVisualizacao 
             ? 'Visualize as informações do horário abaixo.' 
@@ -189,15 +294,15 @@ export function CadastrarHorario({
           <Grid item xs={12} md={6}>
             <InputSelect
               value={medicoSelecionado || null}
-              options={mockMedicos.filter(m => m.ativo)}
+              options={medicos.filter(m => m.ativo)}
               textFieldProps={{ 
-                label: 'Médico *', 
-                disabled: isVisualizacao 
+                label: isLoadingMedicos ? 'Carregando médicos...' : 'Médico *', 
+                disabled: isVisualizacao || isLoadingMedicos || isEdicao
               }}
               multiple={false}
               onChange={handleMedicoSelect}
               optionLabel={(v) => `${v.nome_medico} - ${v.especialidade}`}
-              disabled={isVisualizacao}
+              disabled={isVisualizacao || isLoadingMedicos || isEdicao}
             />
           </Grid>
 
@@ -207,12 +312,12 @@ export function CadastrarHorario({
               options={diasSemanaOptions}
               textFieldProps={{ 
                 label: 'Dia da Semana *', 
-                disabled: isVisualizacao 
+                disabled: isVisualizacao || isEdicao
               }}
               multiple={false}
               onChange={handleDiaSemanaSelect}
               optionLabel={(v) => v.label}
-              disabled={isVisualizacao}
+              disabled={isVisualizacao || isEdicao}
             />
           </Grid>
 
@@ -288,6 +393,7 @@ export function CadastrarHorario({
               fullWidth
               disabled={isVisualizacao}
               shrink
+              inputProps={{ min: dataMinima }}
             />
           </Grid>
 
@@ -300,6 +406,7 @@ export function CadastrarHorario({
               fullWidth
               disabled={isVisualizacao}
               shrink
+              inputProps={{ min: formData.data_vigencia_inicio || dataMinima }}
             />
           </Grid>
 
@@ -319,7 +426,8 @@ export function CadastrarHorario({
             </div>
           </Grid>
         </Grid>
-      </div>
+        </div>
+      )}
     </Dialog>
   )
 }

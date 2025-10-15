@@ -131,3 +131,5 @@ export const gerarSlotsHorario = (
   
   return slots
 }
+
+

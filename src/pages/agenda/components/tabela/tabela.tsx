@@ -1,15 +1,19 @@
 import { memo } from 'react'
 import DataTable from 'react-data-table-component'
-import { TabelaHorariosProps } from '../../utils/interfaces'
+import { TabelaHorariosProps, HorarioAtendimento, BloqueioAgenda } from '../../utils/interfaces'
 import { colunasHorarios } from './colunas'
 import { customStyles } from '../../../../styles/customTable'
 import CustomLoaders from '../../../../components/Loader'
+import { LinhaExpandida } from './linha-expandida'
 
 export const TabelaHorarios = memo(function TabelaHorarios({
   horarios,
   isLoading = false,
   editarHorario,
   detalhesHorario,
+  editarBloqueio,
+  detalhesBloqueio,
+  removerBloqueio,
 }: Readonly<TabelaHorariosProps>) {
   const colunas = colunasHorarios({
     editarHorario,
@@ -36,6 +40,16 @@ export const TabelaHorarios = memo(function TabelaHorarios({
         striped
         responsive
         customStyles={customStyles}
+        expandableRows
+        expandableRowsComponent={({ data }) => (
+          <LinhaExpandida 
+            data={data}
+            editarBloqueio={editarBloqueio}
+            removerBloqueio={removerBloqueio}
+          />
+        )}
+        expandOnRowClicked
+        expandableRowsHideExpander={false}
         noDataComponent={
           <div className="text-center py-8 text-gray-500">
             <p>Nenhum horário encontrado</p>

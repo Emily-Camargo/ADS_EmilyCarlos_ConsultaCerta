@@ -28,7 +28,12 @@ const InputSelect = <T, M extends boolean = false>({
     <Autocomplete
       multiple={multiple}
       {...rest}
-      getOptionLabel={(v) => (typeof v !== 'string' ? optionLabel(v) : '')}
+      getOptionLabel={(v) => {
+        if (typeof v === 'string') {
+          return v
+        }
+        return optionLabel ? optionLabel(v) : String(v)
+      }}
       onChange={handleChange}
       renderInput={(params) => <Input {...params} {...textFieldProps} />}
     />

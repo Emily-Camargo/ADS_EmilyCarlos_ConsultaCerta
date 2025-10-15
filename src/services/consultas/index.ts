@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import api from '../../config/api';
-import { BuscarConsultasReq, ConsultaRes } from './interface';
+import { AgendarConsultaReq, BuscarConsultasReq, CancelarConsultaReq, ConfirmarConsultaReq, ConsultaRes, ReagendarConsultaReq } from './interface';
+import { StatusRes } from '../interfaceGeneric';
 
 export const postBuscarConsultas = async (
   data: BuscarConsultasReq,
@@ -13,3 +14,49 @@ export const postBuscarConsultas = async (
   return Promise.resolve(response);
 };
 
+export const postAgendarConsulta = async (data: AgendarConsultaReq): Promise<AxiosResponse<StatusRes>> => {
+  const response = await api.post<StatusRes>(
+    '/consultas/agendar',
+    data
+  );
+
+  return Promise.resolve(response);
+};
+
+
+export const buscarConsultaEspecifica = async (idConsulta: number): Promise<AxiosResponse<ConsultaRes>> => {
+  const response = await api.post<ConsultaRes>(
+    '/consultas/buscar',
+    { idConsulta }
+  );
+
+  return Promise.resolve(response);
+};
+
+
+export const reagendarConsulta = async (data: ReagendarConsultaReq): Promise<AxiosResponse<StatusRes>> => {
+  const response = await api.put<StatusRes>(
+    '/consultas/reagendar',
+    data
+  );
+
+  return Promise.resolve(response);
+};
+
+export const cancelarConsulta = async (data: CancelarConsultaReq): Promise<AxiosResponse<StatusRes>> => {
+  const response = await api.put<StatusRes>(
+    '/consultas/cancelar',
+    data
+  );
+
+  return Promise.resolve(response);
+};
+
+export const confirmarConsulta = async (data: ConfirmarConsultaReq): Promise<AxiosResponse<StatusRes>> => {
+  const response = await api.put<StatusRes>(
+    '/consultas/confirmar',
+    data
+  );
+
+  return Promise.resolve(response);
+};
