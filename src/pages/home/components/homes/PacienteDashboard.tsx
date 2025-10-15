@@ -2,19 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import QuickActionCard from '../../../../components/cards/QuickActionCard';
 import CurvedHeader from '../../../../components/curved-header';
 import { Box, Typography, Grid } from '@mui/material';
-import { useDimension } from '../../../../hooks';
+import { useDimension, useProximaConsulta } from '../../../../hooks';
 import { getQuickActions } from '../../utils/constants';
 
 const PacienteDashboard = () => {
   const navigate = useNavigate();
   const isMobile = useDimension(800);
   const quickActions = getQuickActions(4);
+  const { mensagem, loading, error } = useProximaConsulta();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50">
       <CurvedHeader
         userRole=""
-        nextAppointment="Sua próxima consulta é com o Dr. Silva dia 22/10/2025 às 15:00"
+        nextAppointment={loading ? "Carregando..." : error ? "Erro ao carregar consultas" : mensagem || "Nenhuma consulta agendada"}
       />
       <div className={`max-w-7xl mx-auto ${isMobile ? 'px-3' : 'px-4'}`} style={{ paddingTop: isMobile ? '244px' : '264px' }}>
 
