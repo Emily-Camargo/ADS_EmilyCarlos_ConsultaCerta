@@ -49,7 +49,7 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
 
   return (
     <Dialog
-      maxWidth="md"
+      maxWidth="sm"
       title="Detalhes da Consulta"
       open={modal}
       onClose={fechar}
@@ -59,24 +59,21 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
         </Button>
       }
     >
-      <div className="text-sm">
-        <Grid container spacing={3}>
+      <div className="text-xs">
+        <Grid container spacing={2}>
           {/* Status e Informações Básicas */}
           <Grid item xs={12}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
               <Chip 
                 label={getStatusText(consulta.status)}
                 color={statusColor}
-                size="medium"
+                size="small"
                 sx={{ 
-                  fontWeight: '600', 
-                  fontSize: '0.875rem',
-                  height: '32px'
+                  fontWeight: '500', 
+                  fontSize: '0.75rem',
+                  height: '24px'
                 }}
               />
-              <Typography variant="caption" sx={{ color: '#64748b' }}>
-                ID: {consulta.id_consulta}
-              </Typography>
             </Box>
           </Grid>
 
@@ -84,30 +81,32 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
           <Grid item xs={12}>
             <Box sx={{ 
               backgroundColor: '#f8fafc',
-              borderRadius: '8px',
-              p: 2,
+              borderRadius: '6px',
+              p: 1.5,
               border: '1px solid #e2e8f0'
             }}>
-              <Typography variant="h6" sx={{ 
+              <Typography variant="subtitle2" sx={{ 
                 color: '#1e293b', 
-                mb: 1.5,
+                mb: 1,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 0.5,
+                fontSize: '0.875rem',
+                fontWeight: '600'
               }}>
-                <MdPerson size={20} color="#1e40af" />
+                <MdPerson size={16} color="#1e40af" />
                 Informações do Médico
               </Typography>
               
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Typography sx={{ fontWeight: '600', color: '#1e293b' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                <Typography sx={{ fontWeight: '500', color: '#1e293b', fontSize: '0.8rem' }}>
                   {consulta.medico.nome_medico}
                 </Typography>
-                <MdVerified size={16} color="#0284c7" />
+                <MdVerified size={14} color="#0284c7" />
               </Box>
               
-              <Typography variant="body2" sx={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <MdLocalHospital size={14} />
+              <Typography variant="caption" sx={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 0.5, fontSize: '0.75rem' }}>
+                <MdLocalHospital size={12} />
                 {consulta.medico.especialidade} • CRM {consulta.medico.crm}
               </Typography>
             </Box>
@@ -117,21 +116,23 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               backgroundColor: '#f0f9ff',
-              borderRadius: '8px',
-              p: 2,
+              borderRadius: '6px',
+              p: 1.5,
               border: '1px solid #bae6fd'
             }}>
-              <Typography variant="h6" sx={{ 
+              <Typography variant="subtitle2" sx={{ 
                 color: '#1e293b', 
-                mb: 1.5,
+                mb: 1,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 0.5,
+                fontSize: '0.875rem',
+                fontWeight: '600'
               }}>
-                <MdCalendarToday size={20} color="#0284c7" />
+                <MdCalendarToday size={16} color="#0284c7" />
                 Data da Consulta
               </Typography>
-              <Typography sx={{ fontWeight: '600', color: '#1e293b', fontSize: '1.1rem' }}>
+              <Typography sx={{ fontWeight: '500', color: '#1e293b', fontSize: '0.9rem' }}>
                 {data}
               </Typography>
             </Box>
@@ -140,21 +141,23 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               backgroundColor: '#f0f9ff',
-              borderRadius: '8px',
-              p: 2,
+              borderRadius: '6px',
+              p: 1.5,
               border: '1px solid #bae6fd'
             }}>
-              <Typography variant="h6" sx={{ 
+              <Typography variant="subtitle2" sx={{ 
                 color: '#1e293b', 
-                mb: 1.5,
+                mb: 1,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 0.5,
+                fontSize: '0.875rem',
+                fontWeight: '600'
               }}>
-                <MdAccessTime size={20} color="#0284c7" />
+                <MdAccessTime size={16} color="#0284c7" />
                 Horário da Consulta
               </Typography>
-              <Typography sx={{ fontWeight: '600', color: '#1e293b', fontSize: '1.1rem' }}>
+              <Typography sx={{ fontWeight: '500', color: '#1e293b', fontSize: '0.9rem' }}>
                 {hora}
               </Typography>
             </Box>
@@ -164,21 +167,23 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               backgroundColor: '#f0fdf4',
-              borderRadius: '8px',
-              p: 2,
+              borderRadius: '6px',
+              p: 1.5,
               border: '1px solid #bbf7d0'
             }}>
-              <Typography variant="h6" sx={{ 
+              <Typography variant="subtitle2" sx={{ 
                 color: '#1e293b', 
-                mb: 1.5,
+                mb: 1,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 0.5,
+                fontSize: '0.875rem',
+                fontWeight: '600'
               }}>
-                <MdCheckCircle size={20} color="#16a34a" />
+                <MdCheckCircle size={16} color="#16a34a" />
                 Valor da Consulta
               </Typography>
-              <Typography sx={{ fontWeight: '600', color: '#1e293b', fontSize: '1.2rem' }}>
+              <Typography sx={{ fontWeight: '500', color: '#1e293b', fontSize: '1rem' }}>
                 R$ {consulta.valor_consulta.toFixed(2).replace('.', ',')}
               </Typography>
             </Box>
@@ -188,21 +193,23 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
           <Grid item xs={12} md={6}>
             <Box sx={{ 
               backgroundColor: consulta.status === 'cancelada' ? '#fef2f2' : '#f0f9ff',
-              borderRadius: '8px',
-              p: 2,
+              borderRadius: '6px',
+              p: 1.5,
               border: consulta.status === 'cancelada' ? '1px solid #fecaca' : '1px solid #bae6fd'
             }}>
-              <Typography variant="h6" sx={{ 
+              <Typography variant="subtitle2" sx={{ 
                 color: '#1e293b', 
-                mb: 1.5,
+                mb: 1,
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1
+                gap: 0.5,
+                fontSize: '0.875rem',
+                fontWeight: '600'
               }}>
-                {consulta.status === 'cancelada' ? <MdCancel size={20} color="#dc2626" /> : <MdInfo size={20} color="#0284c7" />}
+                {consulta.status === 'cancelada' ? <MdCancel size={16} color="#dc2626" /> : <MdInfo size={16} color="#0284c7" />}
                 Status Atual
               </Typography>
-              <Typography sx={{ fontWeight: '600', color: '#1e293b' }}>
+              <Typography sx={{ fontWeight: '500', color: '#1e293b', fontSize: '0.9rem' }}>
                 {getStatusText(consulta.status)}
               </Typography>
             </Box>
@@ -213,32 +220,34 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
             <Grid item xs={12}>
               <Box sx={{ 
                 backgroundColor: '#f8fafc',
-                borderRadius: '8px',
-                p: 2,
+                borderRadius: '6px',
+                p: 1.5,
                 border: '1px solid #e2e8f0'
               }}>
-                <Typography variant="h6" sx={{ 
+                <Typography variant="subtitle2" sx={{ 
                   color: '#1e293b', 
-                  mb: 1.5,
+                  mb: 1,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1
+                  gap: 0.5,
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
                 }}>
-                  <MdInfo size={20} color="#64748b" />
+                  <MdInfo size={16} color="#64748b" />
                   Observações
                 </Typography>
-                <Typography sx={{ color: '#64748b', fontStyle: 'italic' }}>
+                <Typography sx={{ color: '#64748b', fontStyle: 'italic', fontSize: '0.8rem' }}>
                   {consulta.observacoes}
                 </Typography>
               </Box>
             </Grid>
           )}
 
-          <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 1.5 }} />
 
           {/* Informações de Sistema */}
           <Grid item xs={12}>
-            <Typography variant="caption" sx={{ color: '#94a3b8' }}>
+            <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
               Consulta criada em: {new Date(consulta.criado_em).toLocaleString('pt-BR')}
               {consulta.atualizado_em && (
                 <> • Última atualização: {new Date(consulta.atualizado_em).toLocaleString('pt-BR')}</>
