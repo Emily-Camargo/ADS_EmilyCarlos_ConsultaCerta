@@ -38,8 +38,6 @@ const MenuSidebar = ({
       navigate('/prontuarios');
     } else if (seqAplicacao === 6) {
       navigate('/prescricoes');
-    } else if (seqAplicacao === 7) {
-      navigate('/exames');
     } else if (seqAplicacao === 12) {
       navigate('/admin');
     } else if (seqAplicacao === 13) {

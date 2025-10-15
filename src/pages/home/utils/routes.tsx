@@ -67,12 +67,6 @@ export const getMenuItems = (idPerfil: number) => {
             icon: MdMedication,
             route: '/prescricoes'
           },
-          { 
-            seqAplicacao: 7, 
-            label: 'Exames', 
-            icon: MdAssignment,
-            route: '/exames'
-          },
           
         ];
       
