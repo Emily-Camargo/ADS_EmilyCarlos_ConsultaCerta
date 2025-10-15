@@ -9,18 +9,23 @@ import Filtro from '../../components/filtro';
 import { Button } from '@mantine/core';
 import { getStatusColor, getStatusIcon, getTimeSlots, getWeekDays } from './utils/constants';
 import { CadastrarConsulta } from './components/modais/cadastrar-consulta';
+import { CancelarConsulta } from './components/modais/cancelar-consulta';
+import { ReagendarConsulta } from './components/modais/reagendar-consulta';
 import { toast } from 'react-toastify';
 import { ConsultaCalendario, ConsultaData } from './utils/interfaces';
 import { filtroMedico } from './utils/filtro';
 import { useAuth } from '../../contexts/AuthContext';
-import { postBuscarConsultas } from '../../services/consultas';
+import { postBuscarConsultas, buscarConsultaEspecifica } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
+import { useQuery } from 'react-query';
 
 const ConsultasPage = () => {
   const { user } = useAuth();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [modalCadastrar, setModalCadastrar] = useState(false);
   const [modalVisualizar, setModalVisualizar] = useState(false);
+  const [modalCancelar, setModalCancelar] = useState(false);
+  const [modalReagendar, setModalReagendar] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
   const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<string>('');
   const [consultas, setConsultas] = useState<ConsultaRes[]>([]);
@@ -30,6 +35,20 @@ const ConsultasPage = () => {
 
   const alturaMinima = 80;
   const alturaPorConsulta = 75;
+
+  // Query para buscar consultas específicas
+  const { refetch: refetchConsultaEspecifica } = useQuery({
+    queryKey: ['consultaEspecifica', consultaSelecionada?.id_consulta],
+    queryFn: () => buscarConsultaEspecifica(consultaSelecionada!.id_consulta),
+    enabled: false, // Só executa quando chamado manualmente
+    onSuccess: () => {
+      setModalVisualizar(true);
+    },
+    onError: (error: any) => {
+      console.error('Erro ao buscar consulta específica:', error);
+      toast.error('Erro ao carregar detalhes da consulta');
+    }
+  });
 
   // Função para buscar consultas da API
   useEffect(() => {
@@ -100,15 +119,6 @@ const ConsultasPage = () => {
         dataConsulta.getFullYear() === dia.getFullYear()
       );
       
-      if (dayIndex === 0 && consultas.length > 0) {
-        console.log(`Comparando consulta ${consulta.idConsulta}:`, {
-          dataConsulta: dataConsulta.toISOString(),
-          dia: dia.toISOString(),
-          dataConsultaDate: dataConsulta.getDate(),
-          diaDate: dia.getDate(),
-          match
-        });
-      }
       
       return match;
     });
@@ -136,25 +146,40 @@ const ConsultasPage = () => {
 
   const handleVisualizarConsulta = (consulta: ConsultaData) => {
     console.log('Consulta selecionada:', consulta);
-    toast.info('Modal de visualização será implementado em breve');
+    setConsultaSelecionada(consulta);
+    // Aguardar o estado ser atualizado antes de buscar os detalhes
+    setTimeout(() => {
+      refetchConsultaEspecifica();
+    }, 0);
   };
 
   const handleConfirmarConsulta = () => {
     toast.success('Consulta confirmada com sucesso!');
     setModalVisualizar(false);
     setConsultaSelecionada(null);
+    buscarConsultas(); // Recarregar lista
   };
 
   const handleCancelarConsulta = () => {
-    toast.success('Consulta cancelada com sucesso!');
     setModalVisualizar(false);
-    setConsultaSelecionada(null);
+    setModalCancelar(true);
   };
 
   const handleReagendarConsulta = () => {
     setModalVisualizar(false);
-    // Aqui você pode implementar a lógica de reagendamento
-    toast.info('Funcionalidade de reagendamento será implementada em breve');
+    setModalReagendar(true);
+  };
+
+  const handleConfirmarCancelamento = () => {
+    setModalCancelar(false);
+    setConsultaSelecionada(null);
+    buscarConsultas(); // Recarregar lista
+  };
+
+  const handleConfirmarReagendamento = () => {
+    setModalReagendar(false);
+    setConsultaSelecionada(null);
+    buscarConsultas(); // Recarregar lista
   };
 
   const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -498,6 +523,21 @@ const ConsultasPage = () => {
         onConfirmarConsulta={handleConfirmarConsulta}
         onCancelarConsulta={handleCancelarConsulta}
         onReagendarConsulta={handleReagendarConsulta}
+      />
+
+      <CancelarConsulta
+        modal={modalCancelar}
+        setModal={setModalCancelar}
+        consultaId={consultaSelecionada?.id_consulta || null}
+        onConfirmar={handleConfirmarCancelamento}
+      />
+
+      <ReagendarConsulta
+        modal={modalReagendar}
+        setModal={setModalReagendar}
+        consultaId={consultaSelecionada?.id_consulta || null}
+        medicoId={consultaSelecionada?.id_medico || null}
+        onConfirmar={handleConfirmarReagendamento}
       /> 
     </Box>
   );

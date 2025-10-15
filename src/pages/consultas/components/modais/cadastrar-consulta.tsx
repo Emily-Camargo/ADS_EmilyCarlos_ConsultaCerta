@@ -11,6 +11,7 @@ import { EspecialidadeRes, EspecialidadeMedicoRes, HorariosMedicoRes } from '../
 import { getBuscarPacientes } from '../../../../services/usuario'
 import { InfoUsuarioRes } from '../../../../services/usuario/interface'
 import { postAgendarConsulta } from '../../../../services/consultas'
+import { useMutation, useQuery } from 'react-query'
 
 export function CadastrarConsulta({
   modal,
@@ -39,21 +40,73 @@ export function CadastrarConsulta({
   const [especialidades, setEspecialidades] = useState<EspecialidadeRes[]>([])
   const [especialidadeSelecionada, setEspecialidadeSelecionada] = useState<EspecialidadeRes | null>(null)
   const [medicos, setMedicos] = useState<EspecialidadeMedicoRes[]>([])
-  const [carregandoPacientes, setCarregandoPacientes] = useState(false)
-  const [carregandoEspecialidades, setCarregandoEspecialidades] = useState(false)
   const [carregandoMedicos, setCarregandoMedicos] = useState(false)
   const [carregandoHorarios, setCarregandoHorarios] = useState(false)
-
   const isEdicao = !!consultaParaEditar
   const isVisualizacao = modoVisualizacao
 
-  // Carregar dados ao abrir o modal
-  useEffect(() => {
-    if (modal) {
-      carregarPacientes()
-      carregarEspecialidades()
+  // Queries para carregar dados
+  const { isLoading: carregandoPacientes } = useQuery({
+    queryKey: ['pacientes'],
+    queryFn: getBuscarPacientes,
+    enabled: modal,
+    onSuccess: (response) => {
+      const pacientesConvertidos = converterParaPacienteData(response.data)
+      setPacientes(pacientesConvertidos)
+    },
+    onError: (error) => {
+      toast.error('Erro ao carregar pacientes')
+      console.error(error)
     }
-  }, [modal])
+  })
+
+  const { isLoading: carregandoEspecialidades } = useQuery({
+    queryKey: ['especialidades'],
+    queryFn: getEspecialidades,
+    enabled: modal,
+    onSuccess: (response) => {
+      setEspecialidades(response.data)
+    },
+    onError: (error) => {
+      toast.error('Erro ao carregar especialidades')
+      console.error(error)
+    }
+  })
+
+  // Mutation para agendar consulta
+  const agendarConsultaMutation = useMutation({
+    mutationFn: postAgendarConsulta,
+    onSuccess: (response) => {
+      toast.success('Consulta agendada com sucesso!')
+      limparFormulario()
+      setModal(false)
+      if (onConfirmar) {
+        onConfirmar(response.data)
+      }
+    },
+    onError: (error: any) => {
+      console.error('Erro ao agendar consulta:', error)
+      toast.error(error?.response?.data?.message || 'Erro ao agendar consulta')
+    }
+  })
+
+  const limparFormulario = () => {
+    setFormData({
+      id_paciente: 0,
+      id_medico: 0,
+      data_hora: '',
+      motivo: '',
+      observacoes: '',
+      valor_consulta: '',
+    })
+    setPacienteSelecionado(null)
+    setMedicoSelecionado(null)
+    setEspecialidadeSelecionada(null)
+    setMedicos([])
+    setDataSelecionada('')
+    setHoraSelecionada('')
+    setHorariosDisponiveis([])
+  }
 
   // Converter dados da API para o formato PacienteData
   const converterParaPacienteData = (usuarios: InfoUsuarioRes[]): PacienteData[] => {
@@ -76,33 +129,6 @@ export function CadastrarConsulta({
       }))
   }
 
-  const carregarPacientes = async () => {
-    try {
-      setCarregandoPacientes(true)
-      const response = await getBuscarPacientes()
-      const pacientesConvertidos = converterParaPacienteData(response.data)
-      setPacientes(pacientesConvertidos)
-    } catch (error) {
-      toast.error('Erro ao carregar pacientes')
-      console.error(error)
-    } finally {
-      setCarregandoPacientes(false)
-    }
-  }
-
-  const carregarEspecialidades = async () => {
-    try {
-      setCarregandoEspecialidades(true)
-      const response = await getEspecialidades()
-      setEspecialidades(response.data)
-    } catch (error) {
-      toast.error('Erro ao carregar especialidades')
-      console.error(error)
-    } finally {
-      setCarregandoEspecialidades(false)
-    }
-  }
-
   const carregarMedicosPorEspecialidade = async (idEspecialidade: number) => {
     try {
       setCarregandoMedicos(true)
@@ -120,30 +146,21 @@ export function CadastrarConsulta({
     try {
       setCarregandoHorarios(true)
       const response = await postHorariosDisponiveis({ dataInicio, idMedico })
+    
       
-      console.log('Resposta da API de horários:', response.data)
-      console.log('Data selecionada:', dataInicio)
-      
-      // Verificar se a resposta é um array
       if (Array.isArray(response.data)) {
-        // Filtrar apenas os horários do dia selecionado
         const horariosDoDia = response.data.find((item: HorariosMedicoRes) => {
-          console.log('Comparando:', item.data, 'com', dataInicio)
           return item.data === dataInicio
         })
         
-        console.log('Horários do dia encontrado:', horariosDoDia)
         
         if (horariosDoDia && horariosDoDia.horarios && horariosDoDia.horarios.length > 0) {
           setHorariosDisponiveis(horariosDoDia.horarios)
-          toast.success(`${horariosDoDia.horarios.length} horários disponíveis`)
         } else {
           setHorariosDisponiveis([])
           toast.info('Não há horários disponíveis para esta data')
         }
       } else {
-        // Se não for array, assumir que é um único objeto
-        console.log('Resposta não é array, processando como objeto único')
         const dadosHorario = response.data as HorariosMedicoRes
         if (dadosHorario.horarios && dadosHorario.horarios.length > 0) {
           setHorariosDisponiveis(dadosHorario.horarios)
@@ -166,7 +183,6 @@ export function CadastrarConsulta({
   useEffect(() => {
     if (consultaParaEditar && modal) {
       setPacienteSelecionado(consultaParaEditar.paciente)
-      // Converter MedicoData para EspecialidadeMedicoRes
       const medicoConvertido: EspecialidadeMedicoRes = {
         idMedico: consultaParaEditar.medico.id_medico,
         nome: consultaParaEditar.medico.nome_medico,
@@ -178,7 +194,6 @@ export function CadastrarConsulta({
       }
       setMedicoSelecionado(medicoConvertido)
       
-      // Separar data e hora
       const dataHora = new Date(consultaParaEditar.data_hora)
       const data = dataHora.toISOString().split('T')[0]
       const hora = dataHora.toTimeString().split(' ')[0].substring(0, 5)
@@ -230,7 +245,7 @@ export function CadastrarConsulta({
     setHorariosDisponiveis([])
   }
 
-  const confirmar = async () => {
+  const confirmar = () => {
     if (formData.id_paciente === 0) {
       toast.warn('Selecione um paciente!')
       return
@@ -266,60 +281,30 @@ export function CadastrarConsulta({
       return
     }
 
-    try {
-      // Combinar data e hora
-      const dataHoraConsulta = new Date(`${dataSelecionada}T${horaSelecionada}:00`)
-      
-      // Calcular prazo de confirmação (12 horas antes da consulta)
-      const prazoConfirmacaoDate = new Date(dataHoraConsulta.getTime() - (12 * 60 * 60 * 1000))
-      const prazoConfirmacao = prazoConfirmacaoDate.toISOString()
+    // Combinar data e hora
+    const dataHoraConsulta = new Date(`${dataSelecionada}T${horaSelecionada}:00`)
+    
+    // Calcular prazo de confirmação (12 horas antes da consulta)
+    const prazoConfirmacaoDate = new Date(dataHoraConsulta.getTime() - (12 * 60 * 60 * 1000))
+    const prazoConfirmacao = prazoConfirmacaoDate.toISOString()
 
-      // Preparar dados para envio
-      const dadosConsulta = {
-        idPaciente: formData.id_paciente,
-        idMedico: formData.id_medico,
-        dataConsulta: dataSelecionada,
-        horarioConsulta: horaSelecionada,
-        motivo: formData.motivo,
-        observacoes: formData.observacoes || '',
-        valorConsulta: parseFloat(formData.valor_consulta),
-        confirmada: false,
-        prazoConfirmacao
-      }
-
-      console.log('Enviando dados da consulta:', dadosConsulta)
-
-      // Chamar API de agendar consulta
-      const response = await postAgendarConsulta(dadosConsulta)
-      
-      toast.success('Consulta agendada com sucesso!')
-      
-      // Limpar formulário
-      setFormData({
-        id_paciente: 0,
-        id_medico: 0,
-        data_hora: '',
-        motivo: '',
-        observacoes: '',
-        valor_consulta: '',
-      })
-      setPacienteSelecionado(null)
-      setMedicoSelecionado(null)
-      setEspecialidadeSelecionada(null)
-      setMedicos([])
-      setDataSelecionada('')
-      setHoraSelecionada('')
-      setHorariosDisponiveis([])
-      setModal(false)
-      
-      // Chamar callback se existir
-      if (onConfirmar) {
-        onConfirmar(response.data)
-      }
-    } catch (error: any) {
-      console.error('Erro ao agendar consulta:', error)
-      toast.error(error?.response?.data?.message || 'Erro ao agendar consulta')
+    // Preparar dados para envio
+    const dadosConsulta = {
+      idPaciente: formData.id_paciente,
+      idMedico: formData.id_medico,
+      dataConsulta: dataSelecionada,
+      horarioConsulta: horaSelecionada,
+      motivo: formData.motivo,
+      observacoes: formData.observacoes || '',
+      valorConsulta: parseFloat(formData.valor_consulta),
+      confirmada: false,
+      prazoConfirmacao
     }
+
+    console.log('Enviando dados da consulta:', dadosConsulta)
+
+    // Chamar mutation de agendar consulta
+    agendarConsultaMutation.mutate(dadosConsulta)
   }
 
   const handleInputChange = (field: keyof ConsultaForm) => (
@@ -432,7 +417,10 @@ export function CadastrarConsulta({
               <Button color="error" onClick={cancelar}>
                 Cancelar
               </Button>
-              <Button color="primary" onClick={confirmar}>
+              <Button 
+                color="primary" 
+                onClick={confirmar}
+              >
                 {getTextoBotao()}
               </Button>
             </>

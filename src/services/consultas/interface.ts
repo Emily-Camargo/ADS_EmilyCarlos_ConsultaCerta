@@ -53,3 +53,15 @@ export interface AgendarConsultaReq {
   confirmada: boolean;
   prazoConfirmacao: string;
 }
+
+export interface ReagendarConsultaReq {
+  id: number;
+  novaDataConsulta: string;
+  novoHorarioConsulta: string;
+  motivoReagendamento: string;
+}
+
+export interface CancelarConsultaReq {
+  id: number;
+  motivoCancelamento: string;
+}
