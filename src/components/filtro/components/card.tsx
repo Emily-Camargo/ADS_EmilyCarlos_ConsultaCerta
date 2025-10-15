@@ -25,6 +25,7 @@ const FiltroCard = <T,>({
       '/consultas': 'Agendamentos de Consultas',
       '/minhas-consultas': 'Minhas Consultas',
       '/atendimentos': 'Meus Atendimentos',
+      '/prescricoes': 'Prescrições Médicas',
     }
     
     return routeNames[location.pathname] || 'Página'

@@ -1,12 +1,4 @@
 import { MdAssignment, MdDashboard, MdDescription, MdEventNote, MdLocalHospital, MdMedication, MdPeople, MdSchedule } from "react-icons/md";
-import { 
-  consultasDoDia,
-  consultasEmAndamento,
-  consultasConfirmada,
-  consultasConcluida,
-  consultasAguardandoConfirmacao,
-  consultasNaoCompareceu
-} from '../mocks/mocks';
 
 export const getStatusColor = (status: string) => {
     switch (status) {
@@ -159,12 +151,3 @@ export const USER_ROLES = {
         return [];
     }
   };
-  
- export const statusTabs = [
-    { label: 'Todas', data: consultasDoDia, count: consultasDoDia.length },
-    { label: 'Em Andamento', data: consultasEmAndamento, count: consultasEmAndamento.length },
-    { label: 'Confirmada', data: consultasConfirmada, count: consultasConfirmada.length },
-    { label: 'Aguardando', data: consultasAguardandoConfirmacao, count: consultasAguardandoConfirmacao.length },
-    { label: 'Concluída', data: consultasConcluida, count: consultasConcluida.length },
-    { label: 'Não Compareceu', data: consultasNaoCompareceu, count: consultasNaoCompareceu.length },
-  ];

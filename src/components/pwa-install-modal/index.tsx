@@ -149,25 +149,12 @@ const PWAInstallModal = () => {
           <CloseIcon />
         </IconButton>
 
-        <Box sx={{ mb: 3 }}>
-          <img 
-            src="/assets/logoConsulta.png" 
-            alt="ConsultaCerta" 
-            style={{ 
-              width: 180, 
-              height: 50, 
-              borderRadius: '50%',
-              marginBottom: 16
-            }}
-          />
-        </Box>
-
-        <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
+        <Typography variant="h6" component="h2" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
           Instalar ConsultaCerta
         </Typography>
 
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
-          Instale o ConsultaCerta no seu dispositivo para ter acesso rápido e uma experiência otimizada. 
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, lineHeight: 1.6 }}>
+          Instale o aplicativo ConsultaCerta no seu dispositivo para ter acesso rápido e uma experiência otimizada. 
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>

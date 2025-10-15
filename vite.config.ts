@@ -20,14 +20,14 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'assets/logo.webp',
+            src: 'assets/cruz.png',
             sizes: '192x192',
-            type: 'image/webp'
+            type: 'image/png'
           },
           {
-            src: 'assets/logo.webp',
+            src: 'assets/cruz.png',
             sizes: '512x512',
-            type: 'image/webp'
+            type: 'image/png'
           }
         ]
       },
