@@ -281,14 +281,11 @@ export function CadastrarConsulta({
       return
     }
 
-    // Combinar data e hora
     const dataHoraConsulta = new Date(`${dataSelecionada}T${horaSelecionada}:00`)
     
-    // Calcular prazo de confirmação (12 horas antes da consulta)
     const prazoConfirmacaoDate = new Date(dataHoraConsulta.getTime() - (12 * 60 * 60 * 1000))
     const prazoConfirmacao = prazoConfirmacaoDate.toISOString()
 
-    // Preparar dados para envio
     const dadosConsulta = {
       idPaciente: formData.id_paciente,
       idMedico: formData.id_medico,
@@ -300,10 +297,6 @@ export function CadastrarConsulta({
       confirmada: false,
       prazoConfirmacao
     }
-
-    console.log('Enviando dados da consulta:', dadosConsulta)
-
-    // Chamar mutation de agendar consulta
     agendarConsultaMutation.mutate(dadosConsulta)
   }
 
@@ -355,7 +348,6 @@ export function CadastrarConsulta({
       valor_consulta: value?.valorConsulta?.toString() || ''
     }))
     
-    // Se já houver uma data selecionada, carregar horários disponíveis
     if (value && dataSelecionada) {
       setHoraSelecionada('')
       setHorariosDisponiveis([])
@@ -369,7 +361,6 @@ export function CadastrarConsulta({
     setHoraSelecionada('')
     setHorariosDisponiveis([])
     
-    // Carregar horários disponíveis quando tiver data e médico selecionados
     if (novaData && formData.id_medico > 0) {
       carregarHorariosDisponiveis(novaData, formData.id_medico)
     }

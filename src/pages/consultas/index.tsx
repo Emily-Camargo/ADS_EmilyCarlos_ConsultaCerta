@@ -145,9 +145,7 @@ const ConsultasPage = () => {
   };
 
   const handleVisualizarConsulta = (consulta: ConsultaData) => {
-    console.log('Consulta selecionada:', consulta);
     setConsultaSelecionada(consulta);
-    // Aguardar o estado ser atualizado antes de buscar os detalhes
     setTimeout(() => {
       refetchConsultaEspecifica();
     }, 0);
@@ -157,7 +155,7 @@ const ConsultasPage = () => {
     toast.success('Consulta confirmada com sucesso!');
     setModalVisualizar(false);
     setConsultaSelecionada(null);
-    buscarConsultas(); // Recarregar lista
+    buscarConsultas();
   };
 
   const handleCancelarConsulta = () => {
@@ -173,13 +171,13 @@ const ConsultasPage = () => {
   const handleConfirmarCancelamento = () => {
     setModalCancelar(false);
     setConsultaSelecionada(null);
-    buscarConsultas(); // Recarregar lista
+    buscarConsultas();
   };
 
   const handleConfirmarReagendamento = () => {
     setModalReagendar(false);
     setConsultaSelecionada(null);
-    buscarConsultas(); // Recarregar lista
+    buscarConsultas();
   };
 
   const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {

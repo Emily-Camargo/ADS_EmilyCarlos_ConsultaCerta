@@ -69,7 +69,6 @@ const Acessar = () => {
         const userInfoResponse = await getInfoUsuario({ id: user.idUsuario });
         const fullUserData = userInfoResponse.data;
 
-        console.log('Dados completos do usuário:', fullUserData);
 
         const userData = {
           idUsuario: fullUserData.idUsuario,
@@ -80,8 +79,6 @@ const Acessar = () => {
           medico: fullUserData.medico, // Inclui dados do médico se existirem
           paciente: fullUserData.paciente // Inclui dados do paciente se existirem
         }
-
-        console.log('Dados do usuário a serem salvos:', userData);
 
         login(userData, access_token)
         
