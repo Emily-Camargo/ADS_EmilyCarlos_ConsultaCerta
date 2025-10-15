@@ -9,10 +9,13 @@ import { Button } from '@mantine/core'
 import { toast } from 'react-toastify'
 import ConsultaCard from './components/ConsultaCard'
 import AgendarConsulta from './components/AgendarConsulta'
+import CancelarConsulta from './components/CancelarConsulta'
+import ReagendarConsulta from './components/ReagendarConsulta'
+import VisualizarConsulta from './components/VisualizarConsulta'
 import { ConsultaPaciente, AgendamentoCompleto } from './utils/interfaces'
 import Filtro from '../../components/filtro'
 import { useDimension } from '../../hooks'
-import { postBuscarConsultas } from '../../services/consultas'
+import { postBuscarConsultas, confirmarConsulta } from '../../services/consultas'
 import { ConsultaRes } from '../../services/consultas/interface'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -25,7 +28,10 @@ interface StatusTab {
 const MinhasConsultasPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0)
   const [modalAgendar, setModalAgendar] = useState(false)
-  const [consultas, setConsultas] = useState<ConsultaPaciente[]>([])
+  const [modalCancelar, setModalCancelar] = useState(false)
+  const [modalReagendar, setModalReagendar] = useState(false)
+  const [modalVisualizar, setModalVisualizar] = useState(false)
+  const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaPaciente | null>(null)
   const [statusTabs, setStatusTabs] = useState<StatusTab[]>([
     { label: 'Próximas Consultas', data: [], count: 0 },
     { label: 'Histórico', data: [], count: 0 },
@@ -93,46 +99,80 @@ const MinhasConsultasPage: React.FC = () => {
     buscarConsultas();
   }, []);
 
-  const handleAgendarConsulta = (agendamento: AgendamentoCompleto) => {
-    const novaConsulta: ConsultaPaciente = {
-      id_consulta: Math.max(...consultas.map(c => c.id_consulta)) + 1,
-      id_paciente: 1,
-      id_medico: agendamento.medico,
-      data_hora: agendamento.data_hora,
-      observacoes: agendamento.observacoes,
-      valor_consulta: 150.00, // Valor padrão
-      status: 'agendada',
-      criado_em: new Date().toISOString(),
-      medico: {
-        id_medico: agendamento.medico,
-        nome_medico: 'Dr. Médico Selecionado',
-        especialidade: 'Especialidade Selecionada',
-        crm: '00000-SP',
-        ativo: true
+  const handleAgendarConsulta = async (_agendamento: AgendamentoCompleto) => {
+    // Recarrega as consultas da API para mostrar a nova consulta agendada
+    try {
+      setLoading(true);
+      const idPaciente = getIdPaciente();
+      
+      if (!idPaciente) {
+        console.error('ID do paciente não encontrado');
+        setLoading(false);
+        return;
       }
+
+      const response = await postBuscarConsultas({
+        idPaciente: idPaciente,
+      });
+
+      separarPorData(response.data);
+    } catch (error) {
+      console.error('Erro ao recarregar consultas:', error);
+      toast.error('Erro ao recarregar consultas');
+    } finally {
+      setLoading(false);
     }
-
-    setConsultas(prev => [novaConsulta, ...prev])
-    toast.success('Consulta agendada com sucesso!')
   }
 
-  const handleVisualizarConsulta = (_consulta: ConsultaPaciente) => {
-    toast.info('Funcionalidade de visualização será implementada em breve')
+  const handleVisualizarConsulta = (consulta: ConsultaPaciente) => {
+    setConsultaSelecionada(consulta)
+    setModalVisualizar(true)
   }
 
-  const handleCancelarConsulta = (_consulta: ConsultaPaciente) => {
-    // setConsultas(prev => 
-    //   prev.map(c => 
-    //     c.id_consulta === consulta.id_consulta 
-    //       ? { ...c, status: 'cancelada' as const, atualizado_em: new Date().toISOString() }
-    //       : c
-    //   )
-    // )
-    toast.success('Consulta cancelada com sucesso!')
+  const handleCancelarConsulta = (consulta: ConsultaPaciente) => {
+    setConsultaSelecionada(consulta)
+    setModalCancelar(true)
   }
 
-  const handleReagendarConsulta = (_consulta: ConsultaPaciente) => {
-    toast.info('Funcionalidade de reagendamento será implementada em breve')
+  const handleReagendarConsulta = (consulta: ConsultaPaciente) => {
+    setConsultaSelecionada(consulta)
+    setModalReagendar(true)
+  }
+
+  const handleConfirmarConsulta = async (consulta: ConsultaPaciente) => {
+    try {
+      await confirmarConsulta({ id: consulta.id_consulta })
+      toast.success('Consulta confirmada com sucesso!')
+      // Recarrega as consultas
+      await recarregarConsultas()
+    } catch (error: any) {
+      console.error('Erro ao confirmar consulta:', error)
+      toast.error(error?.response?.data?.message || 'Erro ao confirmar consulta')
+    }
+  }
+
+  const recarregarConsultas = async () => {
+    try {
+      setLoading(true);
+      const idPaciente = getIdPaciente();
+      
+      if (!idPaciente) {
+        console.error('ID do paciente não encontrado');
+        setLoading(false);
+        return;
+      }
+
+      const response = await postBuscarConsultas({
+        idPaciente: idPaciente,
+      });
+
+      separarPorData(response.data);
+    } catch (error) {
+      console.error('Erro ao recarregar consultas:', error);
+      toast.error('Erro ao recarregar consultas');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const renderEmptyState = (icon: React.ReactNode, title: string, description: string) => (
@@ -270,6 +310,7 @@ const MinhasConsultasPage: React.FC = () => {
                       onVisualizar={handleVisualizarConsulta}
                       onCancelar={tabValue === 0 ? handleCancelarConsulta : undefined}
                       onReagendar={tabValue === 0 ? handleReagendarConsulta : undefined}
+                      onConfirmar={tabValue === 0 ? handleConfirmarConsulta : undefined}
                     />
                   </Grid>
                 );
@@ -282,6 +323,26 @@ const MinhasConsultasPage: React.FC = () => {
         modal={modalAgendar}
         setModal={setModalAgendar}
         onConfirmar={handleAgendarConsulta}
+      />
+
+      <CancelarConsulta
+        modal={modalCancelar}
+        setModal={setModalCancelar}
+        consulta={consultaSelecionada}
+        onConfirmar={recarregarConsultas}
+      />
+
+      <ReagendarConsulta
+        modal={modalReagendar}
+        setModal={setModalReagendar}
+        consulta={consultaSelecionada}
+        onConfirmar={recarregarConsultas}
+      />
+
+      <VisualizarConsulta
+        modal={modalVisualizar}
+        setModal={setModalVisualizar}
+        consulta={consultaSelecionada}
       />
     </div>
   )
