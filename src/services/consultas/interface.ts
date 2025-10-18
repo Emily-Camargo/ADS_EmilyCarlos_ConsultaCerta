@@ -69,3 +69,57 @@ export interface CancelarConsultaReq {
 export interface ConfirmarConsultaReq {
   id: number;
 }
+
+export interface PacienteProntuario {
+  id_paciente: number;
+  nome: string;
+  data_nascimento: string;
+  alergias: string;
+  condicoes_cronicas: string;
+  medicamentos_uso_continuo: string;
+  ultima_atualizacao: string;
+}
+
+export interface Prontuario {
+  id_prontuario: number;
+  data_criacao: string;
+  descricao: string;
+}
+
+export interface MedicoProntuario {
+  nome: string;
+  crm: string;
+  especialidade: string;
+}
+
+export interface PrescricaoProntuario {
+  nome_medicamento: string;
+  dosagem: string;
+  instrucoes: string;
+  quantidade: number;
+  controlado: boolean;
+  validade: string;
+}
+
+export interface ConsultaProntuario {
+  id_consulta: number;
+  data_hora: string;
+  motivo: string;
+  status: string;
+  peso: number | null;
+  altura: number | null;
+  pressao_arterial: string | null;
+  temperatura: number | null;
+  anamnese: string;
+  exame_fisico: string;
+  hipotese_diagnostica: string;
+  conduta_medica: string;
+  medico: MedicoProntuario;
+  prescricoes: PrescricaoProntuario[];
+}
+
+export interface ProntuarioPacienteRes {
+  paciente: PacienteProntuario;
+  prontuario: Prontuario;
+  consultas: ConsultaProntuario[];
+}
