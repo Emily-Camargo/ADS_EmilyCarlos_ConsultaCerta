@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Box, Typography } from '@mui/material'
 import { MdSearch } from 'react-icons/md'
 import Filtro from '../../components/filtro'
@@ -6,14 +6,48 @@ import { useDimension } from '../../hooks'
 import PrescricaoCard from './components/prescricao-card'
 import VisualizarPrescricao from './components/visualizar-prescricao'
 import { Prescricao } from './utils/interface'
-import { prescricoesMock } from './mocks'
 import { toast } from 'react-toastify'
+import { useAuth } from '../../contexts/AuthContext'
+import { getPrescricoesByPaciente } from '../../services/prescricoes'
 
 const Prescricoes: React.FC = () => {
   const isMobile = useDimension(800)
-  const [prescricoes] = useState<Prescricao[]>(prescricoesMock)
+  const { getIdPerfil, getIdPaciente } = useAuth()
+  const [prescricoes, setPrescricoes] = useState<Prescricao[]>([])
+  const [loading, setLoading] = useState(true)
   const [modalVisualizar, setModalVisualizar] = useState(false)
   const [prescricaoSelecionada, setPrescricaoSelecionada] = useState<Prescricao | null>(null)
+
+  // Carrega prescrições baseado no perfil do usuário
+  useEffect(() => {
+    const carregarPrescricoes = async () => {
+      try {
+        setLoading(true)
+        const idPerfil = getIdPerfil()
+        
+        if (idPerfil === 4) {
+          // Se for paciente, busca prescrições da API
+          const idPaciente = getIdPaciente()
+          if (idPaciente) {
+            const response = await getPrescricoesByPaciente(idPaciente)
+            setPrescricoes(response.data)
+          }
+        } else {
+          // Para outros perfis, usa mocks por enquanto
+          setPrescricoes(prescricoes)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar prescrições:', error)
+        toast.error('Erro ao carregar prescrições')
+        // Em caso de erro, usa mocks como fallback
+        setPrescricoes(prescricoes)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    carregarPrescricoes()
+  }, [getIdPerfil, getIdPaciente])
 
   // Sem pesquisa: exibe tudo.
   const prescricoesFiltradas = prescricoes
@@ -44,8 +78,23 @@ const Prescricoes: React.FC = () => {
           <Filtro />
         </Box>
 
-        {/* Lista de Prescrições */}
-        {prescricoesFiltradas.length === 0 ? (
+        {loading ? (
+          <Box sx={{ 
+            textAlign: 'center', 
+            py: 8,
+            backgroundColor: '#ffffff',
+            borderRadius: '12px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <Typography sx={{ 
+              color: '#64748b',
+              fontSize: '1.1rem',
+              fontWeight: '500'
+            }}>
+              Carregando prescrições...
+            </Typography>
+          </Box>
+        ) : prescricoesFiltradas.length === 0 ? (
           <Box sx={{ 
             textAlign: 'center', 
             py: 8,
@@ -85,7 +134,6 @@ const Prescricoes: React.FC = () => {
           </Box>
         )}
 
-        {/* Modal de Visualização */}
         <VisualizarPrescricao
           modal={modalVisualizar}
           setModal={setModalVisualizar}

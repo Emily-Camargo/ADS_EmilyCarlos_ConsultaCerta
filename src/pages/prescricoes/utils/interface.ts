@@ -16,10 +16,10 @@ export interface Prescricao {
   idConsulta: number
   dtaConsulta: string
   medicamentos: Medicamento[]
-  nomePaciente?: string
-  nomeMedico?: string
-  especialidade?: string
-  cpf?: string
+  nomePaciente: string
+  nomeMedico: string
+  especialidade: string
+  cpf: string
 }
 
 // Interface para props do card de prescrição
