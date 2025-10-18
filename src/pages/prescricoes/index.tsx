@@ -14,6 +14,7 @@ import { inputsPrescricoes, inputsSelect } from './components/filtro'
 import { useImmer } from 'use-immer'
 import { prescricoesFil } from './utils/constants'
 import { useQuery } from 'react-query'
+import CustomLoaders from '../../components/Loader'
 
 const Prescricoes: React.FC = () => {
   const isMobile = useDimension(800)
@@ -147,37 +148,17 @@ const Prescricoes: React.FC = () => {
         </Box>
 
         {loading || loadingFiltro ? (
-          <Box sx={{ 
-            textAlign: 'center', 
-            py: 8,
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0'
-          }}>
-            <Typography sx={{ 
-              color: '#64748b',
-              fontSize: '1.1rem',
-              fontWeight: '500'
-            }}>
-              Carregando prescrições...
-            </Typography>
-          </Box>
+          <CustomLoaders 
+            open={true} 
+            animation="LoadingDots" 
+            msm="Carregando prescrições..."
+          />
         ) : error ? (
-          <Box sx={{ 
-            textAlign: 'center', 
-            py: 8,
-            backgroundColor: '#ffffff',
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0'
-          }}>
-            <Typography sx={{ 
-              color: '#ef4444',
-              fontSize: '1.1rem',
-              fontWeight: '500'
-            }}>
-              Erro ao carregar prescrições
-            </Typography>
-          </Box>
+          <CustomLoaders 
+            open={true} 
+            animation="errorPage" 
+            msm="Erro ao carregar prescrições"
+          />
         ) : prescricoesParaExibir.length === 0 ? (
           <Box sx={{ 
             textAlign: 'center', 
@@ -186,7 +167,6 @@ const Prescricoes: React.FC = () => {
             borderRadius: '12px',
             border: '1px solid #e2e8f0'
           }}>
-            <MdSearch size={64} color="#cbd5e1" />
             <Typography sx={{ 
               mt: 2, 
               color: '#64748b',

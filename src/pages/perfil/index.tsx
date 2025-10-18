@@ -183,13 +183,11 @@ const MeuPerfil = () => {
 
   if (error || !userData) {
     return (
-      <div className="p-6 max-sm:p-4">
-        <Paper p="xl" radius="md" withBorder className="text-center">
-          <Text c="red" size="lg">
-            {error || 'Erro ao carregar perfil'}
-          </Text>
-        </Paper>
-      </div>
+      <CustomLoaders 
+        open={true} 
+        animation="errorPage" 
+        msm={error || 'Erro ao carregar perfil'}
+      />
     );
   }
 

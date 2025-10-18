@@ -1,7 +1,7 @@
 import Dialog from '../../../../components/dialog'
 import Button from '../../../../components/button'
 import { useState, useEffect } from 'react'
-import { Grid, CircularProgress } from '@mui/material'
+import { Grid } from '@mui/material'
 import InputSelect from '../../../../components/input-mui/input-select'
 import Input from '../../../../components/input-mui/input'
 import { CadastrarPacienteProps, PacienteData, PacienteForm } from '../../utils/interfaces'
@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import { getBuscarPaciente, putAtualizarPaciente, getBuscarPacientes, postCadastrarPaciente } from '../../../../services/usuario'
 import { InfoUsuarioRes, AtualizarPacienteParams, CadastrarPacienteReq } from '../../../../services/usuario/interface'
 import { useMutation, useQuery } from 'react-query'
+import CustomLoaders from '../../../../components/Loader'
 
 export function CadastrarPaciente({
   modal,
@@ -287,17 +288,23 @@ export function CadastrarPaciente({
         </p>
         
         {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <CircularProgress />
-          </div>
+          <CustomLoaders 
+            open={true} 
+            animation="LoadingDots" 
+            msm="Carregando..."
+            noPadding={true}
+          />
         ) : (
           <Grid container spacing={2} className="pt-4">
             {!isEdicao && !isVisualizacao && (
               <Grid item xs={12}>
                 {isLoadingUsuarios ? (
-                  <div className="flex justify-center py-4">
-                    <CircularProgress size={24} />
-                  </div>
+                  <CustomLoaders 
+                    open={true} 
+                    animation="LoadingDots" 
+                    msm="Carregando usuários..."
+                    noPadding={true}
+                  />
                 ) : (
                   <InputSelect
                     value={usuarioSelecionado}
