@@ -19,3 +19,9 @@ export interface PrescricaoRes {
   cpf: string
   medicamentos: Medicamento[]
 }
+
+export interface BuscarPrescricoesReq {
+  idPaciente: number
+  dataIni?: string
+  dataFinal?: string
+}

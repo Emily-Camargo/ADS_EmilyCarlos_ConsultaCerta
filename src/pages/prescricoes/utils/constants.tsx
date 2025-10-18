@@ -5,6 +5,7 @@ import {
   MdAccessTime,
   MdCalendarToday
 } from 'react-icons/md'
+import { DataReq } from './interface'
 
 export const formatarDataHora = (dataHora: string) => {
   const partes = dataHora.split(' ')
@@ -63,3 +64,4 @@ export const getConsultaIcon = () => {
   return <MdCalendarToday size={18} color="#3b82f6" />
 }
 
+export const prescricoesFil: DataReq = { dtaIni: '', dtaFinal: '', pacientes: null }

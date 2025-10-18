@@ -1,12 +1,13 @@
 import { AxiosResponse } from 'axios'
 import api from '../../config/api'
-import { PrescricaoRes } from './interfaces'
+import { PrescricaoRes, BuscarPrescricoesReq } from './interfaces'
 
-export const getPrescricoesByPaciente = async (
-  idPaciente: number
+export const buscarPrescricoes = async (
+  data: BuscarPrescricoesReq
 ): Promise<AxiosResponse<PrescricaoRes[]>> => {
-  const response = await api.get<PrescricaoRes[]>(
-    `/prescricoes/paciente/${idPaciente}`
+  const response = await api.post<PrescricaoRes[]>(
+    '/prescricoes/buscar-prescricoes',
+    data
   )
 
   return Promise.resolve(response)
