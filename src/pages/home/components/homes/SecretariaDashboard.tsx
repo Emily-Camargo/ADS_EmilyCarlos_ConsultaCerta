@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import CurvedHeader from '../../../../components/curved-header';
-import { Box, Grid, Tabs, Tab, CircularProgress } from '@mui/material';
+import { Box, Grid, Tabs, Tab } from '@mui/material';
 import { useDimension } from '../../../../hooks';
 
 import ConsultaCardEnhanced from '../cards/secretaria/card-secretaria';
 import { useState, useEffect } from 'react';
 import { postBuscarConsultas } from '../../../../services/consultas';
 import { ConsultaRes } from '../../../../services/consultas/interface';
+import CustomLoaders from '../../../../components/Loader';
 
 interface StatusTab {
   label: string;
@@ -83,9 +84,11 @@ const SecretariaDashboard = () => {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-br from-medical-gray-50 to-medical-primary-50 min-h-screen flex items-center justify-center">
-        <CircularProgress size={60} sx={{ color: '#3b82f6' }} />
-      </div>
+      <CustomLoaders 
+        open={true} 
+        animation="LoadingDots" 
+        msm="Carregando consultas..."
+      />
     );
   }
 

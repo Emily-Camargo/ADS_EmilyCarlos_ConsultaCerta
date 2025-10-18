@@ -18,6 +18,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { postBuscarConsultas, buscarConsultaEspecifica } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
 import { useQuery } from 'react-query';
+import CustomLoaders from '../../components/Loader';
 
 const ConsultasPage = () => {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ const ConsultasPage = () => {
   const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<string>('');
   const [consultas, setConsultas] = useState<ConsultaRes[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const weekDays = getWeekDays(currentWeek);
   const timeSlots = getTimeSlots();
 
@@ -59,6 +61,7 @@ const ConsultasPage = () => {
   const buscarConsultas = async () => {
     try {
       setLoading(true);
+      setError(null);
       const dataInicio = weekDays[0].toISOString().split('T')[0];
       const dataFim = weekDays[4].toISOString().split('T')[0];
       
@@ -81,6 +84,7 @@ const ConsultasPage = () => {
       setConsultas(response.data);
     } catch (error) {
       console.error('Erro ao buscar consultas:', error);
+      setError('Erro ao carregar consultas');
       toast.error('Erro ao carregar consultas');
     } finally {
       setLoading(false);
@@ -240,6 +244,26 @@ const ConsultasPage = () => {
       }
     };
   };
+
+  if (loading) {
+    return (
+      <CustomLoaders 
+        open={true} 
+        animation="LoadingDots" 
+        msm="Carregando consultas..."
+      />
+    );
+  }
+
+  if (error) {
+    return (
+      <CustomLoaders 
+        open={true} 
+        animation="errorPage" 
+        msm={error}
+      />
+    );
+  }
 
   return (
     <Box sx={{ 

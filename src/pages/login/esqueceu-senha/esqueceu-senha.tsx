@@ -1,11 +1,12 @@
 import React, { useState, memo } from 'react'
-import { CircularProgress, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import { MdLock, MdPerson } from 'react-icons/md'
 import Dialog from '../../../components/dialog'
 import Button from '../../../components/button'
 import Input from '../../../components/Inputs/Input'
 import { mascaradorCPFCNPJ } from '../../../functions/mascaras'
 import { EsqueceuSenhaModalProps } from '../interfaces'
+import CustomLoaders from '../../../components/Loader'
 
 
 const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
@@ -95,7 +96,12 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
           >
             {isLoading ? (
               <div className="flex items-center space-x-2">
-                <CircularProgress size={16} color="inherit" />
+                <CustomLoaders 
+                  open={true} 
+                  animation="LoadingDots" 
+                  msm=""
+                  noPadding={true}
+                />
                 <span>Redefinindo...</span>
               </div>
             ) : (

@@ -19,6 +19,7 @@ const MinhasConsultas = lazy(() => import('./pages/minhas-consultas/index'))
 const Atendimentos = lazy(() => import('./pages/atendimentos/index'))
 const MeuPerfil = lazy(() => import('./pages/perfil/index'))
 const Prescricoes = lazy(() => import('./pages/prescricoes/index'))
+const Prontuarios = lazy(() => import('./pages/prontuarios/index'))
 
 function App() {
   const location = useLocation()
@@ -63,6 +64,10 @@ function App() {
     {
       path: '/prescricoes',
       element: <Prescricoes />,
+    },
+    {
+      path: '/prontuarios',
+      element: <Prontuarios />,
     },
   ]
 

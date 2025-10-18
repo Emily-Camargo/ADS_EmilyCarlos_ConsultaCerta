@@ -14,6 +14,7 @@ import { agendaKeys, fetchHorarios } from "./utils/queries"
 import { putBloqueiosMedico, deleteBloqueiosMedico } from "../../services/medico"
 import { BloquearAgendaPutReq } from "../../services/medico/interface"
 import Confirmar from "../../components/dialog/confirmar"
+import CustomLoaders from "../../components/Loader"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
@@ -67,7 +68,13 @@ function Agenda() {
   })
 
   if (error) {
-    toast.error('Erro ao carregar horários de atendimento')
+    return (
+      <CustomLoaders 
+        open={true} 
+        animation="errorPage" 
+        msm="Erro ao carregar horários de atendimento"
+      />
+    );
   }
 
   const searchClick = () => {

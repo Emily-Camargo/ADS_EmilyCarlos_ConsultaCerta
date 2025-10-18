@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Grid, Tabs, Tab, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, Tabs, Tab } from '@mui/material';
 import { useDimension } from '../../hooks';
 import AtendimentoCard from './components/AtendimentoCard';
 import { useState, useEffect } from 'react';
@@ -7,6 +7,7 @@ import Filtro from '../../components/filtro';
 import { postBuscarConsultas } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
 import { useAuth } from '../../contexts/AuthContext';
+import CustomLoaders from '../../components/Loader';
 
 interface StatusTab {
   label: string;
@@ -101,9 +102,11 @@ const AtendimentosPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-medical-gray-50 to-medical-primary-50 flex items-center justify-center">
-        <CircularProgress size={60} sx={{ color: '#3b82f6' }} />
-      </div>
+      <CustomLoaders 
+        open={true} 
+        animation="LoadingDots" 
+        msm="Carregando atendimentos..."
+      />
     );
   }
 
