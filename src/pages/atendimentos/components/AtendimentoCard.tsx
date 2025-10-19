@@ -30,10 +30,6 @@ const AtendimentoCard = ({
 
   const statusColor = useMemo(() => getStatusColor(status), [status]);
   const statusGradient = useMemo(() => getStatusGradient(status), [status]);
-  const statusBackground = useMemo(() => getStatusBackground(status), [status]);
-  const statusBorder = useMemo(() => getStatusBorder(status), [status]);
-  const statusTextColor = useMemo(() => getStatusTextColor(status), [status]);
-
   const pacienteInitials = useMemo(() => 
     paciente.split(' ').map(n => n[0]).join('').slice(0, 2), 
     [paciente]
