@@ -34,7 +34,7 @@ const CardActions = ({
     );
   }
 
-  if (status === 'Não Compareceu') {
+  if (status === 'Não compareceu') {
     return (
       <Box sx={{ 
         mt: 1.5, 
@@ -54,7 +54,33 @@ const CardActions = ({
           alignItems: 'center',
           gap: 0.5
         }}>
-          ✗ Paciente Não Compareceu
+        Paciente não compareceu ao atendimento
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (status === 'Em atendimento') {
+    return (
+      <Box sx={{ 
+        mt: 1.5, 
+        pt: 1.5, 
+        borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+        display: 'flex',
+        justifyContent: 'center'
+      }}>
+        <Typography variant="caption" sx={{ 
+          color: '#f59e0b',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          textAlign: 'center',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          📋 Clique para abrir o prontuário do paciente
         </Typography>
       </Box>
     );
@@ -142,26 +168,8 @@ const CardActions = ({
     );
   }
 
-  return (
-    <Box sx={{ 
-      mt: 1.5, 
-      pt: 1.5, 
-      borderTop: '1px solid rgba(255, 255, 255, 0.3)',
-      display: 'flex',
-      justifyContent: 'center'
-    }}>
-      <Typography variant="caption" sx={{ 
-        color: '#64748b',
-        fontWeight: '500',
-        fontSize: '0.7rem',
-        textAlign: 'center',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em'
-      }}>
-        Clique para detalhes
-      </Typography>
-    </Box>
-  );
+  // Para outros status, não mostra nada ou pode adicionar mensagens específicas
+  return null;
 };
 
 export default CardActions;
