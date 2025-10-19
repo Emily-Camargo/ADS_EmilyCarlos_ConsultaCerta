@@ -124,20 +124,11 @@ const AtendimentoCard = ({
             />
           )}
           
-          <InfoSection
-            icon={<MdAccessTime size={16} />}
-            label="Horário"
-            value={horario}
-            backgroundColor={statusBackground}
-            borderColor={statusBorder}
-            textColor={statusTextColor}
-          />
-          
           {formattedDate && (
             <InfoSection
               icon={<MdCalendarToday size={16} />}
-              label="Data"
-              value={formattedDate}
+              label="Data e hora"
+              value={`${formattedDate} às ${horario}`}
               backgroundColor="rgba(107, 114, 128, 0.08)"
               borderColor="rgba(107, 114, 128, 0.2)"
               textColor="#374151"
