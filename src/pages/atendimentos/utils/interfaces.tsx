@@ -20,6 +20,7 @@ export interface CardActionsProps {
   status: string;
   onIniciarAtendimento: (e: React.MouseEvent) => void;
   onNaoCompareceu: (e: React.MouseEvent) => void;
+  onAbrirProntuario?: (e: React.MouseEvent) => void;
   isLoading?: boolean;
 }
 
@@ -34,6 +35,7 @@ export interface AtendimentoCardProps {
   onClick?: () => void;
   onIniciarAtendimento?: (id: number) => void;
   onNaoCompareceu?: (id: number) => void;
+  onAbrirProntuario?: (id: number) => void;
   isLoading?: boolean;
 }
 

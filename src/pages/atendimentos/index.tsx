@@ -60,6 +60,14 @@ const AtendimentosPage = () => {
     });
   };
 
+  const handleAbrirProntuario = (id: number) => {
+    // Encontrar a consulta pelo ID para obter o ID do paciente
+    const consulta = statusTabs[tabValue].data.find(c => c.idConsulta === id);
+    if (consulta) {
+      navigate(`/prontuario-atendimento/${consulta.idPaciente}`);
+    }
+  };
+
   const separarPorStatus = (consultas: ConsultaRes[]) => {
     const consultasValidas = consultas.filter(c => c.paciente && c.medico);
     
@@ -221,6 +229,7 @@ const AtendimentosPage = () => {
                       onClick={() => navigate('/atendimentos')}
                       onIniciarAtendimento={handleIniciarAtendimento}
                       onNaoCompareceu={handleNaoCompareceu}
+                      onAbrirProntuario={handleAbrirProntuario}
                       isLoading={atualizarConsultaMutation.isLoading}
                     />
                   </Grid>
@@ -229,6 +238,7 @@ const AtendimentosPage = () => {
             </Grid>
           )}
         </Box>
+
 
       </div>
     </div>
