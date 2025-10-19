@@ -184,7 +184,7 @@ const AtendimentosPage = () => {
               fontSize: '1.125rem',
               fontWeight: '500'
             }}>
-              Nenhum atendimento encontrado para este status
+              Nenhum atendimento encontrado
             </Box>
           ) : (
             <Grid container spacing={isMobile ? 2 : 4}>
@@ -198,10 +198,11 @@ const AtendimentosPage = () => {
                     <AtendimentoCard
                       id={consulta.idConsulta}
                       paciente={consulta.paciente.nome}
-                      medico={consulta.medico.nome}
+                      motivo={consulta.motivo}
+                      observacoes={consulta.observacoes}
                       horario={horario}
                       status={status}
-                      especialidade={consulta.medico.especialidade}
+                      data={consulta.dataHora}
                       onClick={() => navigate('/atendimentos')}
                       onIniciarAtendimento={handleIniciarAtendimento}
                       onNaoCompareceu={handleNaoCompareceu}

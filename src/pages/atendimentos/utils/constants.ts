@@ -1,50 +1,52 @@
-import { 
-  atendimentosMedico,
-  atendimentosEmAndamento,
-  atendimentosConfirmada,
-  atendimentosConcluida,
-  atendimentosNaoCompareceu
-} from '../../home/mocks/mocks';
+// Removido imports de mocks - agora usando dados da API
 
 export const STATUS_COLORS = {
-  'Em Andamento': '#f59e0b',
-  'Aguardando': '#3b82f6',
-  'Confirmada': '#3b82f6',
+  'Agendada': '#3b82f6',
+  'Confirmada': '#8b5cf6',
+  'Em andamento': '#f59e0b',
   'Concluída': '#10b981',
-  'Não Compareceu': '#ef4444',
+  'Concluida': '#10b981',
+  'Cancelada': '#ef4444',
   'default': '#6b7280'
 }
 
 export const STATUS_GRADIENTS = {
-  'Em Andamento': 'linear-gradient(90deg, #f59e0b, #f97316, #ef4444)',
-  'Aguardando': 'linear-gradient(90deg, #3b82f6, #1d4ed8, #1e40af)',
-  'Confirmada': 'linear-gradient(90deg, #3b82f6, #1d4ed8, #1e40af)',
+  'Agendada': 'linear-gradient(90deg, #3b82f6, #1d4ed8, #1e40af)',
+  'Confirmada': 'linear-gradient(90deg, #8b5cf6, #7c3aed, #6d28d9)',
+  'Em andamento': 'linear-gradient(90deg, #f59e0b, #f97316, #ea580c)',
   'Concluída': 'linear-gradient(90deg, #10b981, #059669, #047857)',
-  'Não Compareceu': 'linear-gradient(90deg, #ef4444, #dc2626, #b91c1c)',
+  'Concluida': 'linear-gradient(90deg, #10b981, #059669, #047857)',
+  'Cancelada': 'linear-gradient(90deg, #ef4444, #dc2626, #b91c1c)',
   'default': 'linear-gradient(90deg, #6b7280, #4b5563, #374151)'
 }
 
 export const STATUS_BACKGROUNDS = {
-  'Em Andamento': 'rgba(245, 158, 11, 0.1)',
-  'Aguardando': 'rgba(59, 130, 246, 0.1)',
-  'Confirmada': 'rgba(59, 130, 246, 0.1)',
-  'Não Compareceu': 'rgba(239, 68, 68, 0.1)',
+  'Agendada': 'rgba(59, 130, 246, 0.1)',
+  'Confirmada': 'rgba(139, 92, 246, 0.1)',
+  'Em andamento': 'rgba(245, 158, 11, 0.1)',
+  'Concluída': 'rgba(16, 185, 129, 0.1)',
+  'Concluida': 'rgba(16, 185, 129, 0.1)',
+  'Cancelada': 'rgba(239, 68, 68, 0.1)',
   'default': 'rgba(107, 114, 128, 0.1)'
 }
 
 export const STATUS_BORDERS = {
-  'Em Andamento': 'rgba(245, 158, 11, 0.2)',
-  'Aguardando': 'rgba(59, 130, 246, 0.2)',
-  'Confirmada': 'rgba(59, 130, 246, 0.2)',
-  'Não Compareceu': 'rgba(239, 68, 68, 0.2)',
+  'Agendada': 'rgba(59, 130, 246, 0.2)',
+  'Confirmada': 'rgba(139, 92, 246, 0.2)',
+  'Em andamento': 'rgba(245, 158, 11, 0.2)',
+  'Concluída': 'rgba(16, 185, 129, 0.2)',
+  'Concluida': 'rgba(16, 185, 129, 0.2)',
+  'Cancelada': 'rgba(239, 68, 68, 0.2)',
   'default': 'rgba(107, 114, 128, 0.2)'
 }
 
 export const STATUS_TEXT_COLORS = {
-  'Em Andamento': '#d97706',
-  'Aguardando': '#1d4ed8',
-  'Confirmada': '#1d4ed8',
-  'Não Compareceu': '#dc2626',
+  'Agendada': '#1d4ed8',
+  'Confirmada': '#7c3aed',
+  'Em andamento': '#d97706',
+  'Concluída': '#047857',
+  'Concluida': '#047857',
+  'Cancelada': '#dc2626',
   'default': '#374151'
 }
 
@@ -65,10 +67,4 @@ export const getStatusBorder = (status: string): string =>
 export const getStatusTextColor = (status: string): string => 
   STATUS_TEXT_COLORS[status as StatusType] || STATUS_TEXT_COLORS.default;
 
-export const statusTabs = [
-  { label: 'Todas', data: atendimentosMedico, count: atendimentosMedico.length },
-  { label: 'Em Andamento', data: atendimentosEmAndamento, count: atendimentosEmAndamento.length },
-  { label: 'Confirmada', data: atendimentosConfirmada, count: atendimentosConfirmada.length },
-  { label: 'Concluída', data: atendimentosConcluida, count: atendimentosConcluida.length },
-  { label: 'Não Compareceu', data: atendimentosNaoCompareceu, count: atendimentosNaoCompareceu.length },
-];
+// Removido statusTabs - agora gerenciado dinamicamente na página principal

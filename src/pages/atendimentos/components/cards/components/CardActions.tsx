@@ -93,7 +93,7 @@ const CardActions = ({
               transition: 'all 0.2s ease'
             }}
           >
-            Iniciar
+            Iniciar atendimento
           </Button>
           
           <Button
@@ -123,17 +123,6 @@ const CardActions = ({
             Não Compareceu
           </Button>
         </Box>
-        
-        <Typography variant="caption" sx={{ 
-          color: '#64748b',
-          fontWeight: '500',
-          fontSize: '0.7rem',
-          textAlign: 'center',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          Clique para detalhes
-        </Typography>
       </Box>
     );
   }
