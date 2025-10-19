@@ -123,3 +123,8 @@ export interface ProntuarioPacienteRes {
   prontuario: Prontuario;
   consultas: ConsultaProntuario[];
 }
+
+export interface AtualizarConsultaReq {
+  id: number
+  status: number
+}

@@ -42,7 +42,7 @@ const Prontuarios: React.FC = () => {
         const idPaciente = getIdPaciente()
         if (idPaciente) {
           const response = await buscarProntuarioPaciente(idPaciente)
-          return [response.data] // Retorna array para manter consistência
+          return [response.data]
         }
         return []
       } else {
@@ -55,7 +55,6 @@ const Prontuarios: React.FC = () => {
     }
   })
 
-  // Determina quais prontuários exibir
   const prontuariosParaExibir = filtroAplicado ? prontuariosFiltrados : prontuarios
 
   const handleVisualizarProntuario = (prontuario: ProntuarioPacienteRes) => {
@@ -66,7 +65,6 @@ const Prontuarios: React.FC = () => {
   const enviar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
-    // Validação: se não for paciente, deve selecionar um paciente
     if (getIdPerfil() !== 4 && !data.pacientes) {
       toast.error('Paciente deve ser selecionado')
       return

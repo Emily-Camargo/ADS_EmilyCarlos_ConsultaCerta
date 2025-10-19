@@ -4,16 +4,13 @@ import { useDimension } from '../../hooks';
 import AtendimentoCard from './components/AtendimentoCard';
 import { useState, useEffect } from 'react';
 import Filtro from '../../components/filtro';
-import { postBuscarConsultas } from '../../services/consultas';
+import { postBuscarConsultas, atualizarConsulta } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
 import { useAuth } from '../../contexts/AuthContext';
 import CustomLoaders from '../../components/Loader';
-
-interface StatusTab {
-  label: string;
-  data: ConsultaRes[];
-  count: number;
-}
+import { StatusTab } from './utils/interfaces';
+import { useMutation } from 'react-query';
+import { toast } from 'react-toastify';
 
 const AtendimentosPage = () => {
   const navigate = useNavigate();
@@ -30,22 +27,40 @@ const AtendimentosPage = () => {
   ]);
   const [loading, setLoading] = useState(true);
 
+  // Mutation para atualizar status da consulta
+  const atualizarConsultaMutation = useMutation({
+    mutationKey: ['atualizar-consulta'],
+    mutationFn: atualizarConsulta,
+    onSuccess: () => {
+      toast.success('Status da consulta atualizado com sucesso!');
+      // Recarregar os dados após atualização
+      buscarConsultas();
+    },
+    onError: (error: any) => {
+      console.error('Erro ao atualizar consulta:', error);
+      toast.error('Erro ao atualizar status da consulta. Tente novamente.');
+    }
+  });
+
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
   const handleIniciarAtendimento = (id: number) => {
-    // Lógica para iniciar atendimento
-    console.log('Iniciar atendimento:', id);
+    atualizarConsultaMutation.mutate({
+      id: id,
+      status: 0
+    });
   };
 
   const handleNaoCompareceu = (id: number) => {
-    // Lógica para marcar como não compareceu
-    console.log('Não compareceu:', id);
+    atualizarConsultaMutation.mutate({
+      id: id,
+      status: 1
+    });
   };
 
   const separarPorStatus = (consultas: ConsultaRes[]) => {
-    // Filtra apenas consultas válidas com paciente e médico definidos
     const consultasValidas = consultas.filter(c => c.paciente && c.medico);
     
     const agendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'agendada');
@@ -64,38 +79,38 @@ const AtendimentosPage = () => {
     ]);
   };
 
-  useEffect(() => {
-    const buscarConsultas = async () => {
-      try {
-        setLoading(true);
-        const idMedico = getIdMedico();
-        
-        if (!idMedico) {
-          console.error('ID do médico não encontrado');
-          setLoading(false);
-          return;
-        }
-
-        const hoje = new Date();
-        const ano = hoje.getFullYear();
-        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoje.getDate()).padStart(2, '0');
-        const dataFormatada = `${ano}-${mes}-${dia}`;
-        
-        const response = await postBuscarConsultas({
-          dataInicio: dataFormatada,
-          dataFim: dataFormatada,
-          idMedico: idMedico,
-        });
-
-        separarPorStatus(response.data);
-      } catch (error) {
-        console.error('Erro ao buscar consultas:', error);
-      } finally {
+  const buscarConsultas = async () => {
+    try {
+      setLoading(true);
+      const idMedico = getIdMedico();
+      
+      if (!idMedico) {
+        console.error('ID do médico não encontrado');
         setLoading(false);
+        return;
       }
-    };
 
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      const dataFormatada = `${ano}-${mes}-${dia}`;
+      
+      const response = await postBuscarConsultas({
+        dataInicio: dataFormatada,
+        dataFim: dataFormatada,
+        idMedico: idMedico,
+      });
+
+      separarPorStatus(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar consultas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     buscarConsultas();
   }, []);
 
@@ -184,7 +199,7 @@ const AtendimentosPage = () => {
               fontSize: '1.125rem',
               fontWeight: '500'
             }}>
-              Nenhum atendimento encontrado para este status
+              Nenhum atendimento encontrado
             </Box>
           ) : (
             <Grid container spacing={isMobile ? 2 : 4}>
@@ -198,13 +213,15 @@ const AtendimentosPage = () => {
                     <AtendimentoCard
                       id={consulta.idConsulta}
                       paciente={consulta.paciente.nome}
-                      medico={consulta.medico.nome}
+                      motivo={consulta.motivo}
+                      observacoes={consulta.observacoes}
                       horario={horario}
                       status={status}
-                      especialidade={consulta.medico.especialidade}
+                      data={consulta.dataHora}
                       onClick={() => navigate('/atendimentos')}
                       onIniciarAtendimento={handleIniciarAtendimento}
                       onNaoCompareceu={handleNaoCompareceu}
+                      isLoading={atualizarConsultaMutation.isLoading}
                     />
                   </Grid>
                 );

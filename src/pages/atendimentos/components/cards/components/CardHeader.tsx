@@ -13,7 +13,9 @@ const CardHeader = ({
       display: 'flex', 
       justifyContent: 'space-between', 
       alignItems: 'flex-start', 
-      mb: 1.5 
+      mb: 1.5,
+      pb: 1,
+      borderBottom: '1px solid rgba(226, 232, 240, 0.6)'
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <Avatar sx={{ 
@@ -22,20 +24,27 @@ const CardHeader = ({
           bgcolor: statusColor,
           fontSize: '0.875rem',
           fontWeight: 'bold',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.8)'
+          boxShadow: `0 2px 8px ${statusColor}30`,
+          border: `2px solid ${statusColor}20`
         }}>
           {pacienteInitials}
         </Avatar>
         <Box>
           <Typography variant="h6" sx={{ 
-            fontWeight: 'bold', 
+            fontWeight: '700', 
             fontSize: '0.95rem',
             color: '#1e293b',
             lineHeight: 1.2,
             mb: 0.25
           }}>
             {paciente}
+          </Typography>
+          <Typography variant="body2" sx={{ 
+            fontSize: '0.7rem',
+            color: '#64748b',
+            fontWeight: '500'
+          }}>
+            Paciente
           </Typography>
         </Box>
       </Box>
@@ -46,10 +55,12 @@ const CardHeader = ({
         size="small"
         sx={{
           ...getStatusStyle(status),
+          mt: 1,
           fontWeight: '600',
           fontSize: '0.7rem',
           height: '24px',
           px: 0.75,
+          borderRadius: '12px',
           '& .MuiChip-icon': {
             fontSize: '14px'
           }

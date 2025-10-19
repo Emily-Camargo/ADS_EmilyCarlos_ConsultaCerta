@@ -1,46 +1,14 @@
 import React from 'react'
-import { Card, CardContent, Typography, Box, Chip, Button, Divider } from '@mui/material'
+import { Card, CardContent, Typography, Box, Chip, Divider } from '@mui/material'
 import { MdPerson, MdCalendarToday, MdLocalHospital, MdVisibility } from 'react-icons/md'
-import { ProntuarioPacienteRes } from '../../../services/consultas/interface'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-
-interface ProntuarioCardProps {
-  prontuario: ProntuarioPacienteRes
-  onVisualizar: (prontuario: ProntuarioPacienteRes) => void
-}
+import { calcularIdade, getStatusColor } from '../utils/constants'
+import { ProntuarioCardProps } from '../utils/interfaces'
+import { Button } from '@mantine/core'
 
 const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualizar }) => {
   const { paciente, prontuario: prontuarioData, consultas } = prontuario
-
-  const calcularIdade = (dataNascimento: string) => {
-    const hoje = new Date()
-    const nascimento = new Date(dataNascimento)
-    let idade = hoje.getFullYear() - nascimento.getFullYear()
-    const mesAtual = hoje.getMonth()
-    const mesNascimento = nascimento.getMonth()
-    
-    if (mesAtual < mesNascimento || (mesAtual === mesNascimento && hoje.getDate() < nascimento.getDate())) {
-      idade--
-    }
-    
-    return idade
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'realizada':
-        return '#10b981'
-      case 'agendada':
-        return '#3b82f6'
-      case 'cancelada':
-        return '#ef4444'
-      case 'reagendada':
-        return '#f59e0b'
-      default:
-        return '#6b7280'
-    }
-  }
 
   return (
     <Card 
@@ -57,7 +25,6 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
       }}
     >
       <CardContent sx={{ p: 3 }}>
-        {/* Header do Paciente */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <Box sx={{ 
             p: 2, 
@@ -88,28 +55,11 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
               {calcularIdade(paciente.data_nascimento)} anos
             </Typography>
           </Box>
-          <Button
-            variant="contained"
-            startIcon={<MdVisibility />}
-            onClick={() => onVisualizar(prontuario)}
-            sx={{
-              backgroundColor: '#3b82f6',
-              '&:hover': {
-                backgroundColor: '#2563eb'
-              },
-              borderRadius: '8px',
-              textTransform: 'none',
-              fontWeight: '500',
-              px: 3
-            }}
-          >
-            Visualizar
-          </Button>
+          <MdVisibility size={21} className='text-medical-primary cursor-pointer' onClick={() => onVisualizar(prontuario)}/>
         </Box>
 
         <Divider sx={{ mb: 3 }} />
 
-        {/* Informações do Prontuário */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="subtitle2" sx={{ 
             fontWeight: '600', 
@@ -126,12 +76,6 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
             color: '#6b7280',
             mb: 1
           }}>
-            <strong>ID:</strong> {prontuarioData.id_prontuario}
-          </Typography>
-          <Typography variant="body2" sx={{ 
-            color: '#6b7280',
-            mb: 1
-          }}>
             <strong>Descrição:</strong> {prontuarioData.descricao}
           </Typography>
           <Typography variant="body2" sx={{ 
@@ -141,7 +85,6 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
           </Typography>
         </Box>
 
-        {/* Informações Médicas */}
         {(paciente.alergias || paciente.condicoes_cronicas || paciente.medicamentos_uso_continuo) && (
           <Box sx={{ mb: 3 }}>
             <Typography variant="subtitle2" sx={{ 
@@ -177,7 +120,6 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
           </Box>
         )}
 
-        {/* Resumo das Consultas */}
         <Box>
           <Typography variant="subtitle2" sx={{ 
             fontWeight: '600', 

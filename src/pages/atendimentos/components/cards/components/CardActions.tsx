@@ -1,11 +1,12 @@
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { MdPlayArrow, MdCancel } from 'react-icons/md';
 import { CardActionsProps } from '../../../utils/interfaces';
 
 const CardActions = ({ 
   status, 
   onIniciarAtendimento, 
-  onNaoCompareceu 
+  onNaoCompareceu,
+  isLoading = false
 }: CardActionsProps) => {
   if (status === 'Concluída') {
     return (
@@ -33,7 +34,7 @@ const CardActions = ({
     );
   }
 
-  if (status === 'Não Compareceu') {
+  if (status === 'Não compareceu') {
     return (
       <Box sx={{ 
         mt: 1.5, 
@@ -53,7 +54,33 @@ const CardActions = ({
           alignItems: 'center',
           gap: 0.5
         }}>
-          ✗ Paciente Não Compareceu
+        Paciente não compareceu ao atendimento
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (status === 'Em atendimento') {
+    return (
+      <Box sx={{ 
+        mt: 1.5, 
+        pt: 1.5, 
+        borderTop: '1px solid rgba(255, 255, 255, 0.3)',
+        display: 'flex',
+        justifyContent: 'center'
+      }}>
+        <Typography variant="caption" sx={{ 
+          color: '#f59e0b',
+          fontWeight: '600',
+          fontSize: '0.75rem',
+          textAlign: 'center',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.5
+        }}>
+          📋 Clique para abrir o prontuário do paciente
         </Typography>
       </Box>
     );
@@ -72,8 +99,9 @@ const CardActions = ({
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             variant="contained"
-            startIcon={<MdPlayArrow size={14} />}
+            startIcon={isLoading ? <CircularProgress size={12} color="inherit" /> : <MdPlayArrow size={14} />}
             onClick={onIniciarAtendimento}
+            disabled={isLoading}
             sx={{
               flex: 1,
               backgroundColor: '#10b981',
@@ -90,16 +118,23 @@ const CardActions = ({
                 transform: 'translateY(-1px)',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
               },
+              '&:disabled': {
+                backgroundColor: '#9ca3af',
+                color: 'white',
+                transform: 'none',
+                boxShadow: 'none'
+              },
               transition: 'all 0.2s ease'
             }}
           >
-            Iniciar
+            {isLoading ? 'Atualizando...' : 'Iniciar atendimento'}
           </Button>
           
           <Button
             variant="outlined"
-            startIcon={<MdCancel size={14} />}
+            startIcon={isLoading ? <CircularProgress size={12} color="inherit" /> : <MdCancel size={14} />}
             onClick={onNaoCompareceu}
+            disabled={isLoading}
             sx={{
               flex: 1,
               color: '#ef4444',
@@ -117,47 +152,24 @@ const CardActions = ({
                 color: '#dc2626',
                 transform: 'translateY(-1px)',
               },
+              '&:disabled': {
+                backgroundColor: 'rgba(156, 163, 175, 0.1)',
+                borderColor: '#9ca3af',
+                color: '#9ca3af',
+                transform: 'none'
+              },
               transition: 'all 0.2s ease'
             }}
           >
-            Não Compareceu
+            {isLoading ? 'Atualizando...' : 'Não Compareceu'}
           </Button>
         </Box>
-        
-        <Typography variant="caption" sx={{ 
-          color: '#64748b',
-          fontWeight: '500',
-          fontSize: '0.7rem',
-          textAlign: 'center',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em'
-        }}>
-          Clique para detalhes
-        </Typography>
       </Box>
     );
   }
 
-  return (
-    <Box sx={{ 
-      mt: 1.5, 
-      pt: 1.5, 
-      borderTop: '1px solid rgba(255, 255, 255, 0.3)',
-      display: 'flex',
-      justifyContent: 'center'
-    }}>
-      <Typography variant="caption" sx={{ 
-        color: '#64748b',
-        fontWeight: '500',
-        fontSize: '0.7rem',
-        textAlign: 'center',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em'
-      }}>
-        Clique para detalhes
-      </Typography>
-    </Box>
-  );
+  // Para outros status, não mostra nada ou pode adicionar mensagens específicas
+  return null;
 };
 
 export default CardActions;

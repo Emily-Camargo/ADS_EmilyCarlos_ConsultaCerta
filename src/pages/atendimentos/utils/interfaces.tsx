@@ -1,4 +1,4 @@
-import { ConsultaCardMedicoProps } from '../../home/utils/interfaces';
+import { ConsultaRes } from "../../../services/consultas/interface";
 
 export interface CardHeaderProps {
   paciente: string;
@@ -20,7 +20,25 @@ export interface CardActionsProps {
   status: string;
   onIniciarAtendimento: (e: React.MouseEvent) => void;
   onNaoCompareceu: (e: React.MouseEvent) => void;
+  isLoading?: boolean;
 }
 
-export interface AtendimentoCardProps extends ConsultaCardMedicoProps {
+export interface AtendimentoCardProps {
+  id: number;
+  paciente: string;
+  motivo: string;
+  observacoes: string;
+  horario: string;
+  status: string;
+  data?: string;
+  onClick?: () => void;
+  onIniciarAtendimento?: (id: number) => void;
+  onNaoCompareceu?: (id: number) => void;
+  isLoading?: boolean;
+}
+
+export interface StatusTab {
+  label: string;
+  data: ConsultaRes[];
+  count: number;
 }

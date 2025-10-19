@@ -1,7 +1,6 @@
 import { Card, CardContent, Box } from '@mui/material';
-import { MdPerson, MdAccessTime, MdLocalHospital, MdCalendarToday } from 'react-icons/md';
+import { MdAccessTime, MdCalendarToday, MdDescription, MdInfo } from 'react-icons/md';
 import { useState, useMemo, useCallback } from 'react';
-import { getGradientColor } from '../../home/components/cards/medico/constants';
 import { 
   getStatusColor, 
   getStatusGradient, 
@@ -17,14 +16,15 @@ import CardActions from './cards/components/CardActions';
 const AtendimentoCard = ({ 
   id, 
   paciente, 
-  medico, 
+  motivo,
+  observacoes,
   horario, 
   status, 
-  especialidade, 
   data, 
   onClick,
   onIniciarAtendimento,
-  onNaoCompareceu
+  onNaoCompareceu,
+  isLoading = false
 }: AtendimentoCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -63,16 +63,15 @@ const AtendimentoCard = ({
       sx={{ 
         height: '100%',
         cursor: 'pointer',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        borderRadius: '20px',
-        background: getGradientColor(status),
-        border: '1px solid rgba(255, 255, 255, 0.2)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        borderRadius: '16px',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        border: `2px solid ${statusColor}20`,
         boxShadow: isHovered 
-          ? '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)' 
-          : '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          ? `0 20px 40px -12px ${statusColor}40, 0 0 0 1px ${statusColor}30` 
+          : `0 8px 16px -4px ${statusColor}20, 0 4px 8px -2px ${statusColor}10`,
         position: 'relative',
         overflow: 'hidden',
-        backdropFilter: 'blur(10px)',
         '&::before': {
           content: '""',
           position: 'absolute',
@@ -81,26 +80,12 @@ const AtendimentoCard = ({
           right: 0,
           height: '4px',
           background: statusGradient,
-          opacity: isHovered ? 1 : 0.8,
+          opacity: 0.9,
           transition: 'opacity 0.3s ease'
         },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          top: '-50%',
-          left: '-50%',
-          width: '200%',
-          height: '200%',
-          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
-          opacity: isHovered ? 1 : 0,
-          transition: 'opacity 0.4s ease',
-          pointerEvents: 'none'
-        },
         '&:hover': {
-          transform: 'translateY(-8px) scale(1.02)',
-          '&::after': {
-            opacity: 1
-          }
+          transform: 'translateY(-4px)',
+          boxShadow: `0 25px 50px -12px ${statusColor}50, 0 0 0 1px ${statusColor}40`
         }
       }}
       onClick={onClick}
@@ -110,7 +95,7 @@ const AtendimentoCard = ({
       tabIndex={0}
       aria-label={`Consulta de ${paciente} - ${status}`}
     >
-      <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
+      <CardContent sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
         <CardHeader 
           paciente={paciente}
           status={status}
@@ -118,39 +103,35 @@ const AtendimentoCard = ({
           pacienteInitials={pacienteInitials}
         />
         
-        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+        <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.75 }}>
           <InfoSection
-            icon={<MdPerson size={14} />}
-            label="Médico"
-            value={medico}
+            icon={<MdDescription size={16} />}
+            label="Motivo"
+            value={motivo}
+            backgroundColor="rgba(59, 130, 246, 0.08)"
+            borderColor="rgba(59, 130, 246, 0.2)"
+            textColor="#1e40af"
           />
           
-          {especialidade && (
+          {observacoes && (
             <InfoSection
-              icon={<MdLocalHospital size={14} />}
-              label="Especialidade"
-              value={especialidade}
-              backgroundColor="rgba(255, 255, 255, 0.4)"
-              borderColor="rgba(255, 255, 255, 0.2)"
+              icon={<MdInfo size={16} />}
+              label="Observações"
+              value={observacoes}
+              backgroundColor="rgba(16, 185, 129, 0.08)"
+              borderColor="rgba(16, 185, 129, 0.2)"
+              textColor="#047857"
             />
           )}
           
-          <InfoSection
-            icon={<MdAccessTime size={14} />}
-            label="Horário"
-            value={horario}
-            backgroundColor={statusBackground}
-            borderColor={statusBorder}
-            textColor={statusTextColor}
-          />
-          
           {formattedDate && (
             <InfoSection
-              icon={<MdCalendarToday size={14} />}
-              label="Data"
-              value={formattedDate}
-              backgroundColor="rgba(255, 255, 255, 0.4)"
-              borderColor="rgba(255, 255, 255, 0.2)"
+              icon={<MdCalendarToday size={16} />}
+              label="Data e hora"
+              value={`${formattedDate} às ${horario}`}
+              backgroundColor="rgba(107, 114, 128, 0.08)"
+              borderColor="rgba(107, 114, 128, 0.2)"
+              textColor="#374151"
             />
           )}
         </Box>
@@ -159,6 +140,7 @@ const AtendimentoCard = ({
           status={status}
           onIniciarAtendimento={handleIniciarAtendimento}
           onNaoCompareceu={handleNaoCompareceu}
+          isLoading={isLoading}
         />
       </CardContent>
     </Card>

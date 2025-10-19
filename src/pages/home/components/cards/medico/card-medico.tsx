@@ -377,7 +377,7 @@ const ConsultaCardMedico = ({
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              Clique para detalhes
+              Paciente não compareceu ao atendimento
             </Typography>
           </Box>
         ) : (
@@ -396,7 +396,7 @@ const ConsultaCardMedico = ({
               textTransform: 'uppercase',
               letterSpacing: '0.05em'
             }}>
-              Clique para detalhes
+              Clique para abrir o prontuário do paciente
             </Typography>
           </Box>
         )}
