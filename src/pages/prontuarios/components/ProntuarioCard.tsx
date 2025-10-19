@@ -126,12 +126,6 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
             color: '#6b7280',
             mb: 1
           }}>
-            <strong>ID:</strong> {prontuarioData.id_prontuario}
-          </Typography>
-          <Typography variant="body2" sx={{ 
-            color: '#6b7280',
-            mb: 1
-          }}>
             <strong>Descrição:</strong> {prontuarioData.descricao}
           </Typography>
           <Typography variant="body2" sx={{ 

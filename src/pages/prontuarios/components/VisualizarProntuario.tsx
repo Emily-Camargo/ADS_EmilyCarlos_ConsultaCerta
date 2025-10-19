@@ -1,101 +1,45 @@
 import React from 'react'
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, Box, Divider, Chip, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { MdClose, MdPerson, MdCalendarToday, MdLocalHospital, MdExpandMore, MdMedication, MdAssignment } from 'react-icons/md'
-import { ProntuarioPacienteRes } from '../../../services/consultas/interface'
+import { Typography, Box, Divider, Chip, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { MdPerson, MdCalendarToday, MdLocalHospital, MdExpandMore, MdMedication, MdPrint } from 'react-icons/md'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { VisualizarProntuarioProps } from '../utils/interfaces'
+import { calcularIdade, getStatusColor } from '../utils/constants'
+import Button from '../../../components/button'
+import Dialog from '../../../components/dialog'
 
-interface VisualizarProntuarioProps {
-  modal: boolean
-  setModal: (open: boolean) => void
-  prontuario: ProntuarioPacienteRes | null
-}
+
 
 const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setModal, prontuario }) => {
   if (!prontuario) return null
 
   const { paciente, prontuario: prontuarioData, consultas } = prontuario
 
-  const calcularIdade = (dataNascimento: string) => {
-    const hoje = new Date()
-    const nascimento = new Date(dataNascimento)
-    let idade = hoje.getFullYear() - nascimento.getFullYear()
-    const mesAtual = hoje.getMonth()
-    const mesNascimento = nascimento.getMonth()
-    
-    if (mesAtual < mesNascimento || (mesAtual === mesNascimento && hoje.getDate() < nascimento.getDate())) {
-      idade--
-    }
-    
-    return idade
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'realizada':
-        return '#10b981'
-      case 'agendada':
-        return '#3b82f6'
-      case 'cancelada':
-        return '#ef4444'
-      case 'reagendada':
-        return '#f59e0b'
-      default:
-        return '#6b7280'
-    }
-  }
 
   return (
     <Dialog
       open={modal}
       onClose={() => setModal(false)}
       maxWidth="lg"
-      fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: '12px',
-          maxHeight: '90vh'
-        }
-      }}
-    >
-      <DialogTitle sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        pb: 2,
-        borderBottom: '1px solid #e2e8f0'
-      }}>
-        <Typography variant="h6" sx={{ fontWeight: '600', color: '#1e293b' }}>
-          Prontuário Médico
-        </Typography>
-        <Button
-          onClick={() => setModal(false)}
-          sx={{ 
-            minWidth: 'auto', 
-            p: 1,
-            color: '#64748b',
-            '&:hover': {
-              backgroundColor: '#f1f5f9'
-            }
-          }}
-        >
-          <MdClose size={24} />
-        </Button>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: 0 }}>
+      title='Prontuário Médico'
+      actions={
+          <Button color="info" onClick={() => window.print()}>
+            Imprimir Prontuário
+            <MdPrint size={18} className='ml-3' />
+          </Button>
+      }
+   >
         <Box sx={{ p: 3 }}>
-          {/* Informações do Paciente */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ 
+            <Typography variant="subtitle1" sx={{ 
               fontWeight: '600', 
               color: '#1e293b',
-              mb: 3,
+              mb: 2,
               display: 'flex',
               alignItems: 'center',
               gap: 1
             }}>
-              <MdPerson size={24} />
+              <MdPerson size={20} />
               Dados do Paciente
             </Typography>
             
@@ -124,14 +68,6 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                   </Typography>
                 </Box>
                 
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 0.5 }}>
-                    ID do Paciente
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: '#1e293b' }}>
-                    #{paciente.id_paciente}
-                  </Typography>
-                </Box>
                 
                 <Box>
                   <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 0.5 }}>
@@ -143,11 +79,10 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                 </Box>
               </Box>
 
-              {/* Informações Médicas */}
               {(paciente.alergias || paciente.condicoes_cronicas || paciente.medicamentos_uso_continuo) && (
                 <>
                   <Divider sx={{ my: 3 }} />
-                  <Typography variant="h6" sx={{ 
+                  <Typography variant="subtitle2" sx={{ 
                     fontWeight: '600', 
                     color: '#1e293b',
                     mb: 2
@@ -194,17 +129,16 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
             </Box>
           </Box>
 
-          {/* Informações do Prontuário */}
           <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ 
+            <Typography variant="subtitle1" sx={{ 
               fontWeight: '600', 
               color: '#1e293b',
-              mb: 3,
+              mb: 2,
               display: 'flex',
               alignItems: 'center',
               gap: 1
             }}>
-              <MdLocalHospital size={24} />
+              <MdLocalHospital size={20} />
               Dados do Prontuário
             </Typography>
             
@@ -215,14 +149,6 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
               border: '1px solid #e2e8f0'
             }}>
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 2 }}>
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 0.5 }}>
-                    ID do Prontuário
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: '500', color: '#1e293b' }}>
-                    #{prontuarioData.id_prontuario}
-                  </Typography>
-                </Box>
                 
                 <Box>
                   <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 0.5 }}>
@@ -245,23 +171,22 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
             </Box>
           </Box>
 
-          {/* Histórico de Consultas */}
           <Box>
-            <Typography variant="h6" sx={{ 
+            <Typography variant="subtitle1" sx={{ 
               fontWeight: '600', 
               color: '#1e293b',
-              mb: 3,
+              mb: 2,
               display: 'flex',
               alignItems: 'center',
               gap: 1
             }}>
-              <MdCalendarToday size={24} />
+              <MdCalendarToday size={20} />
               Histórico de Consultas ({consultas.length})
             </Typography>
 
             {consultas.length > 0 ? (
               <Box>
-                {consultas.map((consulta, index) => (
+                {consultas.map((consulta) => (
                   <Accordion key={consulta.id_consulta} sx={{ 
                     mb: 2,
                     borderRadius: '8px !important',
@@ -283,7 +208,7 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%' }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b' }}>
-                          Consulta #{index + 1}
+                          Consulta
                         </Typography>
                         <Chip
                           label={consulta.status}
@@ -304,7 +229,7 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 3 }}>
                         {/* Informações Básicas */}
                         <Box>
-                          <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
                             Informações Básicas
                           </Typography>
                           <Box sx={{ space: 1 }}>
@@ -325,7 +250,7 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
 
                         {/* Sinais Vitais */}
                         <Box>
-                          <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
                             Sinais Vitais
                           </Typography>
                           <Box sx={{ space: 1 }}>
@@ -352,9 +277,8 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                           </Box>
                         </Box>
 
-                        {/* Anamnese */}
                         <Box sx={{ gridColumn: '1 / -1' }}>
-                          <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
                             Anamnese
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#1e293b', mb: 2 }}>
@@ -362,9 +286,8 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                           </Typography>
                         </Box>
 
-                        {/* Exame Físico */}
                         <Box sx={{ gridColumn: '1 / -1' }}>
-                          <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
                             Exame Físico
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#1e293b', mb: 2 }}>
@@ -372,9 +295,8 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                           </Typography>
                         </Box>
 
-                        {/* Hipótese Diagnóstica */}
                         <Box sx={{ gridColumn: '1 / -1' }}>
-                          <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
                             Hipótese Diagnóstica
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#1e293b', mb: 2 }}>
@@ -382,9 +304,8 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                           </Typography>
                         </Box>
 
-                        {/* Conduta Médica */}
                         <Box sx={{ gridColumn: '1 / -1' }}>
-                          <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
+                          <Typography variant="body2" sx={{ color: '#64748b', mb: 1, fontWeight: '600' }}>
                             Conduta Médica
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#1e293b', mb: 2 }}>
@@ -392,10 +313,9 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                           </Typography>
                         </Box>
 
-                        {/* Prescrições */}
                         {consulta.prescricoes.length > 0 && (
                           <Box sx={{ gridColumn: '1 / -1' }}>
-                            <Typography variant="subtitle2" sx={{ 
+                            <Typography variant="body2" sx={{ 
                               color: '#64748b', 
                               mb: 2, 
                               fontWeight: '600',
@@ -403,7 +323,7 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                               alignItems: 'center',
                               gap: 1
                             }}>
-                              <MdMedication size={18} />
+                              <MdMedication size={16} />
                               Prescrições ({consulta.prescricoes.length})
                             </Typography>
                             
@@ -415,7 +335,7 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                                   borderRadius: '8px',
                                   border: '1px solid #bae6fd'
                                 }}>
-                                  <Typography variant="subtitle2" sx={{ 
+                                  <Typography variant="body2" sx={{ 
                                     color: '#0369a1', 
                                     mb: 1, 
                                     fontWeight: '600'
@@ -476,36 +396,6 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
             )}
           </Box>
         </Box>
-      </DialogContent>
-
-      <DialogActions sx={{ p: 3, borderTop: '1px solid #e2e8f0' }}>
-        <Button
-          onClick={() => setModal(false)}
-          variant="outlined"
-          sx={{
-            borderColor: '#d1d5db',
-            color: '#374151',
-            '&:hover': {
-              borderColor: '#9ca3af',
-              backgroundColor: '#f9fafb'
-            }
-          }}
-        >
-          Fechar
-        </Button>
-        <Button
-          onClick={() => window.print()}
-          variant="contained"
-          sx={{
-            backgroundColor: '#3b82f6',
-            '&:hover': {
-              backgroundColor: '#2563eb'
-            }
-          }}
-        >
-          Imprimir Prontuário
-        </Button>
-      </DialogActions>
     </Dialog>
   )
 }
