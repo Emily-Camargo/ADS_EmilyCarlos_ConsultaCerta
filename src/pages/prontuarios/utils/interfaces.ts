@@ -19,4 +19,9 @@ export interface VisualizarProntuarioProps {
     modal: boolean
     setModal: (open: boolean) => void
     prontuario: ProntuarioPacienteRes | null
-  }
+}
+
+export interface ProntuarioCardProps {
+  prontuario: ProntuarioPacienteRes
+  onVisualizar: (prontuario: ProntuarioPacienteRes) => void
+}
