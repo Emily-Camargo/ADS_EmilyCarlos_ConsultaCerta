@@ -1,11 +1,12 @@
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import { MdPlayArrow, MdCancel } from 'react-icons/md';
 import { CardActionsProps } from '../../../utils/interfaces';
 
 const CardActions = ({ 
   status, 
   onIniciarAtendimento, 
-  onNaoCompareceu 
+  onNaoCompareceu,
+  isLoading = false
 }: CardActionsProps) => {
   if (status === 'Concluída') {
     return (
@@ -72,8 +73,9 @@ const CardActions = ({
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             variant="contained"
-            startIcon={<MdPlayArrow size={14} />}
+            startIcon={isLoading ? <CircularProgress size={12} color="inherit" /> : <MdPlayArrow size={14} />}
             onClick={onIniciarAtendimento}
+            disabled={isLoading}
             sx={{
               flex: 1,
               backgroundColor: '#10b981',
@@ -90,16 +92,23 @@ const CardActions = ({
                 transform: 'translateY(-1px)',
                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
               },
+              '&:disabled': {
+                backgroundColor: '#9ca3af',
+                color: 'white',
+                transform: 'none',
+                boxShadow: 'none'
+              },
               transition: 'all 0.2s ease'
             }}
           >
-            Iniciar atendimento
+            {isLoading ? 'Atualizando...' : 'Iniciar atendimento'}
           </Button>
           
           <Button
             variant="outlined"
-            startIcon={<MdCancel size={14} />}
+            startIcon={isLoading ? <CircularProgress size={12} color="inherit" /> : <MdCancel size={14} />}
             onClick={onNaoCompareceu}
+            disabled={isLoading}
             sx={{
               flex: 1,
               color: '#ef4444',
@@ -117,10 +126,16 @@ const CardActions = ({
                 color: '#dc2626',
                 transform: 'translateY(-1px)',
               },
+              '&:disabled': {
+                backgroundColor: 'rgba(156, 163, 175, 0.1)',
+                borderColor: '#9ca3af',
+                color: '#9ca3af',
+                transform: 'none'
+              },
               transition: 'all 0.2s ease'
             }}
           >
-            Não Compareceu
+            {isLoading ? 'Atualizando...' : 'Não Compareceu'}
           </Button>
         </Box>
       </Box>

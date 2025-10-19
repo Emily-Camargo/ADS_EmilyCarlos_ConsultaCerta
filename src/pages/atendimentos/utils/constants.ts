@@ -67,4 +67,3 @@ export const getStatusBorder = (status: string): string =>
 export const getStatusTextColor = (status: string): string => 
   STATUS_TEXT_COLORS[status as StatusType] || STATUS_TEXT_COLORS.default;
 
-// Removido statusTabs - agora gerenciado dinamicamente na página principal

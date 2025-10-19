@@ -1,3 +1,5 @@
+import { ConsultaRes } from "../../../services/consultas/interface";
+
 export interface CardHeaderProps {
   paciente: string;
   status: string;
@@ -18,6 +20,7 @@ export interface CardActionsProps {
   status: string;
   onIniciarAtendimento: (e: React.MouseEvent) => void;
   onNaoCompareceu: (e: React.MouseEvent) => void;
+  isLoading?: boolean;
 }
 
 export interface AtendimentoCardProps {
@@ -31,4 +34,11 @@ export interface AtendimentoCardProps {
   onClick?: () => void;
   onIniciarAtendimento?: (id: number) => void;
   onNaoCompareceu?: (id: number) => void;
+  isLoading?: boolean;
+}
+
+export interface StatusTab {
+  label: string;
+  data: ConsultaRes[];
+  count: number;
 }

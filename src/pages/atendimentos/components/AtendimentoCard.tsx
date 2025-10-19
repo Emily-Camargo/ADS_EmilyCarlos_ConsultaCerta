@@ -23,7 +23,8 @@ const AtendimentoCard = ({
   data, 
   onClick,
   onIniciarAtendimento,
-  onNaoCompareceu
+  onNaoCompareceu,
+  isLoading = false
 }: AtendimentoCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -148,6 +149,7 @@ const AtendimentoCard = ({
           status={status}
           onIniciarAtendimento={handleIniciarAtendimento}
           onNaoCompareceu={handleNaoCompareceu}
+          isLoading={isLoading}
         />
       </CardContent>
     </Card>
