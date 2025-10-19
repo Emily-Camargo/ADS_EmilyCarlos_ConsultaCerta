@@ -77,6 +77,8 @@ const ProntuarioAtendimento: React.FC = () => {
     tipo: 'usuario' | 'ia';
     mensagem: string;
     timestamp: Date;
+    sugestaoAceita?: boolean;
+    sugestaoNegada?: boolean;
   }>>([]);
   const [mensagemAtual, setMensagemAtual] = useState('');
   const [enviandoMensagem, setEnviandoMensagem] = useState(false);
@@ -264,6 +266,28 @@ const ProntuarioAtendimento: React.FC = () => {
       e.preventDefault();
       enviarMensagem();
     }
+  };
+
+  const aceitarSugestao = (mensagemId: string) => {
+    setMensagensChat(prev => 
+      prev.map(mensagem => 
+        mensagem.id === mensagemId 
+          ? { ...mensagem, sugestaoAceita: true, sugestaoNegada: false }
+          : mensagem
+      )
+    );
+    toast.success('Sugestão aceita!');
+  };
+
+  const negarSugestao = (mensagemId: string) => {
+    setMensagensChat(prev => 
+      prev.map(mensagem => 
+        mensagem.id === mensagemId 
+          ? { ...mensagem, sugestaoAceita: false, sugestaoNegada: true }
+          : mensagem
+      )
+    );
+    toast.info('Sugestão negada');
   };
 
   if (carregandoProntuario) {
@@ -626,8 +650,9 @@ const ProntuarioAtendimento: React.FC = () => {
                         key={mensagem.id}
                         sx={{
                           display: 'flex',
-                          justifyContent: mensagem.tipo === 'usuario' ? 'flex-end' : 'flex-start',
-                          mb: 1
+                          flexDirection: 'column',
+                          alignItems: mensagem.tipo === 'usuario' ? 'flex-end' : 'flex-start',
+                          mb: 2
                         }}
                       >
                         <Box
@@ -650,6 +675,51 @@ const ProntuarioAtendimento: React.FC = () => {
                             {format(mensagem.timestamp, 'HH:mm', { locale: ptBR })}
                           </Typography>
                         </Box>
+                        
+                        {/* Botões para mensagens da IA */}
+                        {mensagem.tipo === 'ia' && (
+                          <Box sx={{ 
+                            display: 'flex', 
+                            gap: 1, 
+                            mt: 1,
+                            opacity: mensagem.sugestaoAceita || mensagem.sugestaoNegada ? 0.5 : 1
+                          }}>
+                            <Button
+                              size="small"
+                              variant={mensagem.sugestaoAceita ? "contained" : "outlined"}
+                              color={mensagem.sugestaoAceita ? "success" : "primary"}
+                              onClick={() => aceitarSugestao(mensagem.id)}
+                              disabled={mensagem.sugestaoAceita || mensagem.sugestaoNegada}
+                              sx={{
+                                fontSize: '0.75rem',
+                                py: 0.5,
+                                px: 1.5,
+                                borderRadius: '16px',
+                                textTransform: 'none',
+                                minWidth: 'auto'
+                              }}
+                            >
+                              {mensagem.sugestaoAceita ? '✓ Aceita' : 'Aceitar Sugestão'}
+                            </Button>
+                            <Button
+                              size="small"
+                              variant={mensagem.sugestaoNegada ? "contained" : "outlined"}
+                              color={mensagem.sugestaoNegada ? "error" : "primary"}
+                              onClick={() => negarSugestao(mensagem.id)}
+                              disabled={mensagem.sugestaoAceita || mensagem.sugestaoNegada}
+                              sx={{
+                                fontSize: '0.75rem',
+                                py: 0.5,
+                                px: 1.5,
+                                borderRadius: '16px',
+                                textTransform: 'none',
+                                minWidth: 'auto'
+                              }}
+                            >
+                              {mensagem.sugestaoNegada ? '✗ Negada' : 'Negar Sugestão'}
+                            </Button>
+                          </Box>
+                        )}
                       </Box>
                     ))}
                     {enviandoMensagem && (
@@ -693,23 +763,8 @@ const ProntuarioAtendimento: React.FC = () => {
                     }
                   }}
                 />
-                <IconButton
-                  onClick={enviarMensagem}
-                  disabled={!mensagemAtual.trim() || enviandoMensagem}
-                  sx={{
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    '&:hover': {
-                      backgroundColor: '#2563eb'
-                    },
-                    '&:disabled': {
-                      backgroundColor: '#9ca3af',
-                      color: 'white'
-                    }
-                  }}
-                >
-                  <MdSendMessage size={18} />
-                </IconButton>
+                
+                  <MdSendMessage size={24} onClick={enviarMensagem} className={'text-medical-secondary cursor-pointer mt-2'} />
               </Box>
             </CardContent>
           </Card>
