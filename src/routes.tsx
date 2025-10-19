@@ -17,6 +17,7 @@ const Agenda = lazy(() => import('./pages/agenda/index'))
 const Consultas = lazy(() => import('./pages/consultas/index'))
 const MinhasConsultas = lazy(() => import('./pages/minhas-consultas/index'))
 const Atendimentos = lazy(() => import('./pages/atendimentos/index'))
+const ProntuarioAtendimento = lazy(() => import('./pages/atendimentos/ProntuarioAtendimento'))
 const MeuPerfil = lazy(() => import('./pages/perfil/index'))
 const Prescricoes = lazy(() => import('./pages/prescricoes/index'))
 const Prontuarios = lazy(() => import('./pages/prontuarios/index'))
@@ -56,6 +57,10 @@ function App() {
     {
       path: '/atendimentos',
       element: <Atendimentos />,
+    },
+    {
+      path: '/prontuario-atendimento/:idPaciente',
+      element: <ProntuarioAtendimento />,
     },
     {
       path: '/perfil',

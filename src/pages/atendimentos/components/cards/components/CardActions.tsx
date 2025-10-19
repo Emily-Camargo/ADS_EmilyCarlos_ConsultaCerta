@@ -1,11 +1,12 @@
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
-import { MdPlayArrow, MdCancel } from 'react-icons/md';
+import { MdPlayArrow, MdCancel, MdDescription } from 'react-icons/md';
 import { CardActionsProps } from '../../../utils/interfaces';
 
 const CardActions = ({ 
   status, 
   onIniciarAtendimento, 
   onNaoCompareceu,
+  onAbrirProntuario,
   isLoading = false
 }: CardActionsProps) => {
   if (status === 'Concluída') {
@@ -69,19 +70,37 @@ const CardActions = ({
         display: 'flex',
         justifyContent: 'center'
       }}>
-        <Typography variant="caption" sx={{ 
-          color: '#f59e0b',
-          fontWeight: '600',
-          fontSize: '0.75rem',
-          textAlign: 'center',
-          textTransform: 'uppercase',
-          letterSpacing: '0.05em',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 0.5
-        }}>
-          📋 Clique para abrir o prontuário do paciente
-        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<MdDescription size={14} />}
+          onClick={onAbrirProntuario}
+          disabled={isLoading}
+          sx={{
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '0.7rem',
+            py: 0.75,
+            px: 2,
+            borderRadius: '8px',
+            textTransform: 'none',
+            boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)',
+            '&:hover': {
+              backgroundColor: '#2563eb',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+            },
+            '&:disabled': {
+              backgroundColor: '#9ca3af',
+              color: 'white',
+              transform: 'none',
+              boxShadow: 'none'
+            },
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Abrir Prontuário
+        </Button>
       </Box>
     );
   }

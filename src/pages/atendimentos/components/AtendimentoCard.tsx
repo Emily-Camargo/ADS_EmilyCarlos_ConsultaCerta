@@ -1,12 +1,9 @@
 import { Card, CardContent, Box } from '@mui/material';
-import { MdAccessTime, MdCalendarToday, MdDescription, MdInfo } from 'react-icons/md';
+import { MdCalendarToday, MdDescription, MdInfo } from 'react-icons/md';
 import { useState, useMemo, useCallback } from 'react';
 import { 
   getStatusColor, 
-  getStatusGradient, 
-  getStatusBackground, 
-  getStatusBorder, 
-  getStatusTextColor 
+  getStatusGradient
 } from '../utils/constants';
 import { AtendimentoCardProps } from '../utils/interfaces';
 import CardHeader from './cards/components/CardHeader';
@@ -24,6 +21,7 @@ const AtendimentoCard = ({
   onClick,
   onIniciarAtendimento,
   onNaoCompareceu,
+  onAbrirProntuario,
   isLoading = false
 }: AtendimentoCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -50,6 +48,11 @@ const AtendimentoCard = ({
     e.stopPropagation();
     onNaoCompareceu?.(id);
   }, [onNaoCompareceu, id]);
+
+  const handleAbrirProntuario = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAbrirProntuario?.(id);
+  }, [onAbrirProntuario, id]);
 
   const handleMouseEnter = useCallback(() => setIsHovered(true), []);
   const handleMouseLeave = useCallback(() => setIsHovered(false), []);
@@ -136,6 +139,7 @@ const AtendimentoCard = ({
           status={status}
           onIniciarAtendimento={handleIniciarAtendimento}
           onNaoCompareceu={handleNaoCompareceu}
+          onAbrirProntuario={handleAbrirProntuario}
           isLoading={isLoading}
         />
       </CardContent>
