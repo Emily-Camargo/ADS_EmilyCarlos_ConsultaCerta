@@ -13,7 +13,9 @@ import {
   IconButton,
   Tooltip,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
 import { 
   MdPerson, 
@@ -34,9 +36,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { buscarProntuarioPaciente, postBuscarConsultas } from '../../services/consultas';
 import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
 
+interface Prescricao {
+  id: string;
+  nome: string;
+  dose: string;
+  frequencia: string;
+  controlado: boolean;
+}
+
 interface FormularioProntuario {
   anamnese: string;
-  exameFisico: string;
+  prescricoes: Prescricao[];
   hipoteseDiagnostica: string;
   condutaMedica: string;
   observacoes: string;
@@ -55,7 +65,7 @@ const ProntuarioAtendimento: React.FC = () => {
   
   const [formulario, setFormulario] = useState<FormularioProntuario>({
     anamnese: '',
-    exameFisico: '',
+    prescricoes: [],
     hipoteseDiagnostica: '',
     condutaMedica: '',
     observacoes: '',
@@ -128,11 +138,6 @@ const ProntuarioAtendimento: React.FC = () => {
         "Avaliar possível relação com estresse ou ansiedade",
         "Verificar se há piora dos sintomas em horários específicos"
       ],
-      exameFisico: [
-        "Avaliar sinais vitais completos",
-        "Realizar exame neurológico detalhado",
-        "Verificar reflexos e coordenação motora"
-      ],
       hipoteseDiagnostica: [
         "Considerar diagnóstico diferencial com outras condições",
         "Solicitar exames complementares para confirmação",
@@ -172,6 +177,37 @@ const ProntuarioAtendimento: React.FC = () => {
         ...prev.sinaisVitais,
         [campo]: valor
       }
+    }));
+  };
+
+  const adicionarPrescricao = () => {
+    const novaPrescricao: Prescricao = {
+      id: Date.now().toString(),
+      nome: '',
+      dose: '',
+      frequencia: '',
+      controlado: false
+    };
+    
+    setFormulario(prev => ({
+      ...prev,
+      prescricoes: [...prev.prescricoes, novaPrescricao]
+    }));
+  };
+
+  const removerPrescricao = (id: string) => {
+    setFormulario(prev => ({
+      ...prev,
+      prescricoes: prev.prescricoes.filter(prescricao => prescricao.id !== id)
+    }));
+  };
+
+  const atualizarPrescricao = (id: string, campo: keyof Prescricao, valor: string) => {
+    setFormulario(prev => ({
+      ...prev,
+      prescricoes: prev.prescricoes.map(prescricao =>
+        prescricao.id === id ? { ...prescricao, [campo]: valor } : prescricao
+      )
     }));
   };
 
@@ -531,20 +567,114 @@ const ProntuarioAtendimento: React.FC = () => {
                 />
               </Box>
 
-              {/* Exame Físico */}
+              {/* Prescrições */}
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b', mb: 2 }}>
-                  Exame Físico
-                </Typography>
-                <TextField
-                  multiline
-                  rows={4}
-                  fullWidth
-                  value={formulario.exameFisico}
-                  onChange={(e) => handleInputChange('exameFisico', e.target.value)}
-                  placeholder="Descreva os achados do exame físico..."
-                  data-campo="exameFisico"
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b' }}>
+                    Prescrições
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<span style={{ fontSize: '18px' }}>+</span>}
+                    onClick={adicionarPrescricao}
+                    sx={{
+                      borderRadius: '20px',
+                      textTransform: 'none',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Adicionar Medicamento
+                  </Button>
+                </Box>
+                
+                {formulario.prescricoes.length === 0 ? (
+                  <Box sx={{
+                    p: 3,
+                    textAlign: 'center',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '2px dashed #e2e8f0'
+                  }}>
+                    <Typography variant="body2" sx={{ color: '#9ca3af', mb: 1 }}>
+                      Nenhuma prescrição adicionada
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#9ca3af' }}>
+                      Clique em "Adicionar Medicamento" para começar
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {formulario.prescricoes.map((prescricao, index) => (
+                      <Card key={prescricao.id} sx={{ p: 2, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                          <Typography variant="subtitle2" sx={{ color: '#64748b', fontWeight: '600' }}>
+                            Medicamento {index + 1}
+                          </Typography>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={() => removerPrescricao(prescricao.id)}
+                            sx={{ minWidth: 'auto', p: 0.5 }}
+                          >
+                            ✕
+                          </Button>
+                        </Box>
+                        
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm={6}>
+                            <TextField
+                              label="Nome do Medicamento"
+                              value={prescricao.nome}
+                              onChange={(e) => atualizarPrescricao(prescricao.id, 'nome', e.target.value)}
+                              fullWidth
+                              size="small"
+                              placeholder="Ex: Paracetamol"
+                            />
+                          </Grid>
+                          <Grid item xs={6} sm={3}>
+                            <TextField
+                              label="Dose"
+                              value={prescricao.dose}
+                              onChange={(e) => atualizarPrescricao(prescricao.id, 'dose', e.target.value)}
+                              fullWidth
+                              size="small"
+                              placeholder="Ex: 500mg"
+                            />
+                          </Grid>
+                          <Grid item xs={6} sm={3}>
+                            <TextField
+                              label="Frequência"
+                              value={prescricao.frequencia}
+                              onChange={(e) => atualizarPrescricao(prescricao.id, 'frequencia', e.target.value)}
+                              fullWidth
+                              size="small"
+                              placeholder="Ex: 8/8h"
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={prescricao.controlado === true}
+                                  onChange={(e) => atualizarPrescricao(prescricao.id, 'controlado', e.target.checked ? 'true' : 'false')}
+                                  color="primary"
+                                />
+                              }
+                              label="Medicamento Controlado"
+                              sx={{ 
+                                '& .MuiFormControlLabel-label': { 
+                                  fontSize: '0.875rem',
+                                  color: '#64748b'
+                                }
+                              }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Card>
+                    ))}
+                  </Box>
+                )}
               </Box>
 
               {/* Hipótese Diagnóstica */}
