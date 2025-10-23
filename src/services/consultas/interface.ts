@@ -93,6 +93,7 @@ export interface MedicoProntuario {
 }
 
 export interface PrescricaoProntuario {
+  id_consulta: number;
   nome_medicamento: string;
   dosagem: string;
   instrucoes: string;

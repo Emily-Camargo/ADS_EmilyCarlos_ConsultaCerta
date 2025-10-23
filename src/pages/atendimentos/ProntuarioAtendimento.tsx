@@ -38,6 +38,7 @@ import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
 
 interface Prescricao {
   id: string;
+  id_consulta: number;
   nome: string;
   dose: string;
   frequencia: string;
@@ -59,9 +60,10 @@ interface FormularioProntuario {
 }
 
 const ProntuarioAtendimento: React.FC = () => {
-  const { idPaciente } = useParams<{ idPaciente: string }>();
+  const { idPaciente, idConsulta } = useParams<{ idPaciente: string; idConsulta: string }>();
   const navigate = useNavigate();
   const idPacienteNumber = idPaciente ? parseInt(idPaciente, 10) : 0;
+  const idConsultaNumber = idConsulta ? parseInt(idConsulta, 10) : 0;
   
   const [formulario, setFormulario] = useState<FormularioProntuario>({
     anamnese: '',
@@ -183,6 +185,7 @@ const ProntuarioAtendimento: React.FC = () => {
   const adicionarPrescricao = () => {
     const novaPrescricao: Prescricao = {
       id: Date.now().toString(),
+      id_consulta: idConsultaNumber,
       nome: '',
       dose: '',
       frequencia: '',
@@ -225,6 +228,28 @@ const ProntuarioAtendimento: React.FC = () => {
   const salvarProntuario = async () => {
     setSalvando(true);
     try {
+      // DTO para salvar o prontuário
+      const dtoProntuario = {
+        idPaciente: idPacienteNumber,
+        idConsulta: idConsultaNumber,
+        anamnese: formulario.anamnese,
+        prescricoes: formulario.prescricoes.map(prescricao => ({
+          id_consulta: prescricao.id_consulta,
+          nome: prescricao.nome,
+          dose: prescricao.dose,
+          frequencia: prescricao.frequencia,
+          controlado: prescricao.controlado
+        })),
+        hipoteseDiagnostica: formulario.hipoteseDiagnostica,
+        condutaMedica: formulario.condutaMedica,
+        observacoes: formulario.observacoes,
+        sinaisVitais: formulario.sinaisVitais,
+        descricao: `Prontuário da consulta do dia ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`,
+        ultimaAtualizacao: new Date().toISOString()
+      };
+      
+      console.log('DTO Prontuário:', dtoProntuario);
+      
       // Aqui você implementaria a lógica para salvar o prontuário
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Prontuário salvo com sucesso!');
@@ -238,6 +263,28 @@ const ProntuarioAtendimento: React.FC = () => {
   const finalizarConsulta = async () => {
     setSalvando(true);
     try {
+      // DTO para finalizar a consulta
+      const dtoProntuario = {
+        idPaciente: idPacienteNumber,
+        idConsulta: idConsultaNumber,
+        anamnese: formulario.anamnese,
+        prescricoes: formulario.prescricoes.map(prescricao => ({
+          id_consulta: prescricao.id_consulta,
+          nome: prescricao.nome,
+          dose: prescricao.dose,
+          frequencia: prescricao.frequencia,
+          controlado: prescricao.controlado
+        })),
+        hipoteseDiagnostica: formulario.hipoteseDiagnostica,
+        condutaMedica: formulario.condutaMedica,
+        observacoes: formulario.observacoes,
+        sinaisVitais: formulario.sinaisVitais,
+        descricao: `Prontuário da consulta do dia ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`,
+        ultimaAtualizacao: new Date().toISOString()
+      };
+      
+      console.log('DTO Finalizar Consulta:', dtoProntuario);
+      
       // Aqui você implementaria a lógica para finalizar a consulta
       await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Consulta finalizada com sucesso!');
@@ -419,7 +466,7 @@ const ProntuarioAtendimento: React.FC = () => {
                         Última Atualização
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#1e293b' }}>
-                        {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                        {format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
@@ -427,7 +474,7 @@ const ProntuarioAtendimento: React.FC = () => {
                         Descrição do Prontuário
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#1e293b' }}>
-                        {prontuario.prontuario.descricao}
+                        Prontuário da consulta do dia {format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}
                       </Typography>
                     </Grid>
                   </Grid>
