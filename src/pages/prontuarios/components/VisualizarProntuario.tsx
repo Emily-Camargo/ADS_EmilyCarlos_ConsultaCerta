@@ -67,16 +67,6 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                     {format(new Date(paciente.data_nascimento), 'dd/MM/yyyy', { locale: ptBR })} ({calcularIdade(paciente.data_nascimento)} anos)
                   </Typography>
                 </Box>
-                
-                
-                <Box>
-                  <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 0.5 }}>
-                    Última Atualização
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: '#1e293b' }}>
-                    {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                  </Typography>
-                </Box>
               </Box>
 
               {(paciente.alergias || paciente.condicoes_cronicas || paciente.medicamentos_uso_continuo) && (
@@ -87,7 +77,7 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                     color: '#1e293b',
                     mb: 2
                   }}>
-                    Informações Médicas Importantes
+                    Informações Médicas Importantes atualizadas em: {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                   </Typography>
                   
                   <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 2 }}>
@@ -156,6 +146,12 @@ const VisualizarProntuario: React.FC<VisualizarProntuarioProps> = ({ modal, setM
                   </Typography>
                   <Typography variant="body1" sx={{ color: '#1e293b' }}>
                     {format(new Date(prontuarioData.data_criacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ color: '#64748b', mb: 0.5 }}>
+                    Data de atualização
+                  </Typography>
+                  <Typography variant="body1" sx={{ color: '#1e293b' }}>
+                    {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                   </Typography>
                 </Box>
               </Box>

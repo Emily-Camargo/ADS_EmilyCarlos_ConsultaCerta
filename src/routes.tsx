@@ -59,7 +59,7 @@ function App() {
       element: <Atendimentos />,
     },
     {
-      path: '/prontuario-atendimento/:idPaciente',
+      path: '/prontuario-atendimento/:idPaciente/:idConsulta',
       element: <ProntuarioAtendimento />,
     },
     {

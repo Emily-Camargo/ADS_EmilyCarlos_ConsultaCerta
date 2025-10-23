@@ -13,14 +13,15 @@ import {
   IconButton,
   Tooltip,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material';
 import { 
   MdPerson, 
   MdSave, 
   MdSend,
   MdHistory,
-  MdAutoFixHigh,
   MdPrint,
   MdArrowBack,
   MdChat,
@@ -28,34 +29,21 @@ import {
 } from 'react-icons/md';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
-import { buscarProntuarioPaciente, postBuscarConsultas } from '../../services/consultas';
+import { buscarProntuarioPaciente, postBuscarConsultas, atualizarProntuario, atualizarConsulta } from '../../services/consultas';
+import { AtualizarProntuarioReq, AtualizarConsultaReq, PrescricaoAtualizacao } from '../../services/consultas/interface';
 import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
 
-interface FormularioProntuario {
-  anamnese: string;
-  exameFisico: string;
-  hipoteseDiagnostica: string;
-  condutaMedica: string;
-  observacoes: string;
-  sinaisVitais: {
-    peso: string;
-    altura: string;
-    pressaoArterial: string;
-    temperatura: string;
-  };
-}
-
 const ProntuarioAtendimento: React.FC = () => {
-  const { idPaciente } = useParams<{ idPaciente: string }>();
+  const { idPaciente, idConsulta } = useParams<{ idPaciente: string; idConsulta: string }>();
   const navigate = useNavigate();
   const idPacienteNumber = idPaciente ? parseInt(idPaciente, 10) : 0;
+  const idConsultaNumber = idConsulta ? parseInt(idConsulta, 10) : 0;
   
-  const [formulario, setFormulario] = useState<FormularioProntuario>({
+  const [formulario, setFormulario] = useState({
     anamnese: '',
-    exameFisico: '',
     hipoteseDiagnostica: '',
     condutaMedica: '',
     observacoes: '',
@@ -63,13 +51,23 @@ const ProntuarioAtendimento: React.FC = () => {
       peso: '',
       altura: '',
       pressaoArterial: '',
-      temperatura: ''
+      temperatura: '',
+      alergias: '',
+      condicoesCronicas: '',
+      medicamentosUsoContinuo: ''
     }
   });
 
-  const [sugestoesIA, setSugestoesIA] = useState<string[]>([]);
-  const [carregandoIA, setCarregandoIA] = useState(false);
-  const [salvando, setSalvando] = useState(false);
+  const [prescricoes, setPrescricoes] = useState<PrescricaoAtualizacao[]>([]);
+  const [formularioSalvo, setFormularioSalvo] = useState(false);
+
+  // Estados para edição dos campos médicos
+  const [editandoCamposMedicos, setEditandoCamposMedicos] = useState(false);
+  const [camposMedicosEditaveis, setCamposMedicosEditaveis] = useState({
+    alergias: '',
+    condicoes_cronicas: '',
+    medicamentos_uso_continuo: ''
+  });
   
   // Estados para o chat com IA
   const [mensagensChat, setMensagensChat] = useState<Array<{
@@ -93,6 +91,16 @@ const ProntuarioAtendimento: React.FC = () => {
     enabled: !!idPacienteNumber,
     onError: () => {
       toast.error('Erro ao carregar prontuário');
+    },
+    onSuccess: (data) => {
+      // Inicializar os campos editáveis com os dados do paciente
+      if (data?.paciente) {
+        setCamposMedicosEditaveis({
+          alergias: data.paciente.alergias || '',
+          condicoes_cronicas: data.paciente.condicoes_cronicas || '',
+          medicamentos_uso_continuo: data.paciente.medicamentos_uso_continuo || ''
+        });
+      }
     }
   });
 
@@ -109,60 +117,39 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
-  // Simular sugestões da IA baseadas no texto digitado
-  const gerarSugestoesIA = async (texto: string, campo: string) => {
-    if (!texto.trim() || texto.length < 10) {
-      setSugestoesIA([]);
-      return;
+  // Mutation para atualizar prontuário
+  const atualizarProntuarioMutation = useMutation({
+    mutationKey: ['atualizar-prontuario'],
+    mutationFn: atualizarProntuario,
+    onSuccess: () => {
+      toast.success('Prontuário atualizado com sucesso!');
+    },
+    onError: (error: any) => {
+      console.error('Erro ao atualizar prontuário:', error);
+      toast.error('Erro ao atualizar prontuário. Tente novamente.');
     }
+  });
 
-    setCarregandoIA(true);
-    
-    // Simular delay da IA
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Sugestões simuladas baseadas no campo
-    const sugestoesSimuladas = {
-      anamnese: [
-        "Considere investigar histórico familiar de doenças cardiovasculares",
-        "Avaliar possível relação com estresse ou ansiedade",
-        "Verificar se há piora dos sintomas em horários específicos"
-      ],
-      exameFisico: [
-        "Avaliar sinais vitais completos",
-        "Realizar exame neurológico detalhado",
-        "Verificar reflexos e coordenação motora"
-      ],
-      hipoteseDiagnostica: [
-        "Considerar diagnóstico diferencial com outras condições",
-        "Solicitar exames complementares para confirmação",
-        "Avaliar necessidade de encaminhamento especializado"
-      ],
-      condutaMedica: [
-        "Prescrever medicação sintomática",
-        "Orientar sobre mudanças no estilo de vida",
-        "Agendar retorno em 30 dias"
-      ]
-    };
+  // Mutation para finalizar consulta
+  const finalizarConsultaMutation = useMutation({
+    mutationKey: ['finalizar-consulta'],
+    mutationFn: atualizarConsulta,
+    onSuccess: () => {
+      toast.success('Consulta finalizada com sucesso!');
+      navigate('/atendimentos');
+    },
+    onError: (error: any) => {
+      console.error('Erro ao finalizar consulta:', error);
+      toast.error('Erro ao finalizar consulta. Tente novamente.');
+    }
+  });
 
-    setSugestoesIA(sugestoesSimuladas[campo as keyof typeof sugestoesSimuladas] || []);
-    setCarregandoIA(false);
-  };
 
   const handleInputChange = (campo: string, valor: string) => {
     setFormulario(prev => ({
       ...prev,
       [campo]: valor
     }));
-
-    // Gerar sugestões da IA após um delay
-    if (campo !== 'sinaisVitais') {
-      const timeoutId = setTimeout(() => {
-        gerarSugestoesIA(valor, campo);
-      }, 1000);
-
-      return () => clearTimeout(timeoutId);
-    }
   };
 
   const handleSinaisVitaisChange = (campo: string, valor: string) => {
@@ -175,42 +162,85 @@ const ProntuarioAtendimento: React.FC = () => {
     }));
   };
 
-  const aplicarSugestao = (sugestao: string) => {
-    const campoAtivo = document.activeElement?.getAttribute('data-campo');
-    if (campoAtivo && campoAtivo !== 'sinaisVitais') {
-      setFormulario(prev => ({
-        ...prev,
-        [campoAtivo]: prev[campoAtivo as keyof FormularioProntuario] + '\n' + sugestao
-      }));
+  const adicionarPrescricao = () => {
+    if (!prontuario) {
+      toast.error('Prontuário não carregado. Tente novamente.');
+      return;
     }
-    setSugestoesIA([]);
+
+    const novaPrescricao: PrescricaoAtualizacao = {
+      id_prontuario: prontuario.prontuario.id_prontuario,
+      id_consulta: idConsultaNumber,
+      medicamento: '',
+      dosagem: '',
+      instrucoes: '',
+      controlado: false,
+      ativo: true
+    };
+    
+    setPrescricoes(prev => [...prev, novaPrescricao]);
   };
+
+  const removerPrescricao = (index: number) => {
+    setPrescricoes(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const atualizarPrescricao = (index: number, campo: keyof PrescricaoAtualizacao, valor: string | boolean) => {
+    setPrescricoes(prev => 
+      prev.map((prescricao, i) =>
+        i === index ? { ...prescricao, [campo]: valor } : prescricao
+      )
+    );
+  };
+
 
   const salvarProntuario = async () => {
-    setSalvando(true);
-    try {
-      // Aqui você implementaria a lógica para salvar o prontuário
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Prontuário salvo com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao salvar prontuário');
-    } finally {
-      setSalvando(false);
+    if (!prontuario) {
+      toast.error('Dados do prontuário não encontrados');
+      return;
     }
+
+    const dtoProntuario: AtualizarProntuarioReq = {
+      id_prontuario: prontuario.prontuario.id_prontuario,
+      id_consulta: idConsultaNumber,
+      anamnese: formulario.anamnese || '',
+      descricao: `Prontuário da consulta do dia ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`,
+      hipoteseDiagnostica: formulario.hipoteseDiagnostica || '',
+      condutaMedica: formulario.condutaMedica || '',
+      observacoes: formulario.observacoes || '',
+      sinaisVitais: {
+        peso: formulario.sinaisVitais?.peso || '',
+        altura: formulario.sinaisVitais?.altura || '',
+        pressaoArterial: formulario.sinaisVitais?.pressaoArterial || '',
+        temperatura: formulario.sinaisVitais?.temperatura || '',
+        alergias: camposMedicosEditaveis.alergias,
+        condicoesCronicas: camposMedicosEditaveis.condicoes_cronicas,
+        medicamentosUsoContinuo: camposMedicosEditaveis.medicamentos_uso_continuo
+      },
+      prescricoes: prescricoes
+    };
+
+    atualizarProntuarioMutation.mutate(dtoProntuario, {
+      onSuccess: () => {
+        setFormularioSalvo(true);
+        // Atualizar os dados do paciente localmente
+        if (prontuario) {
+          prontuario.paciente.alergias = camposMedicosEditaveis.alergias;
+          prontuario.paciente.condicoes_cronicas = camposMedicosEditaveis.condicoes_cronicas;
+          prontuario.paciente.medicamentos_uso_continuo = camposMedicosEditaveis.medicamentos_uso_continuo;
+          prontuario.paciente.ultima_atualizacao = new Date().toISOString();
+        }
+      }
+    });
   };
 
-  const finalizarConsulta = async () => {
-    setSalvando(true);
-    try {
-      // Aqui você implementaria a lógica para finalizar a consulta
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Consulta finalizada com sucesso!');
-      navigate('/atendimentos');
-    } catch (error) {
-      toast.error('Erro ao finalizar consulta');
-    } finally {
-      setSalvando(false);
-    }
+  const finalizarConsulta = () => {
+    const dadosAtualizacao: AtualizarConsultaReq = {
+      id: idConsultaNumber,
+      status: 2
+    };
+    
+    finalizarConsultaMutation.mutate(dadosAtualizacao);
   };
 
   // Funções para o chat com IA
@@ -288,6 +318,18 @@ const ProntuarioAtendimento: React.FC = () => {
       )
     );
     toast.info('Sugestão negada');
+  };
+
+  // Funções para edição dos campos médicos
+  const iniciarEdicaoCamposMedicos = () => {
+    setEditandoCamposMedicos(true);
+  };
+
+  const handleCampoMedicoChange = (campo: keyof typeof camposMedicosEditaveis, valor: string) => {
+    setCamposMedicosEditaveis(prev => ({
+      ...prev,
+      [campo]: valor
+    }));
   };
 
   if (carregandoProntuario) {
@@ -383,7 +425,7 @@ const ProntuarioAtendimento: React.FC = () => {
                         Última Atualização
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#1e293b' }}>
-                        {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                        {format(new Date(), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
@@ -391,7 +433,7 @@ const ProntuarioAtendimento: React.FC = () => {
                         Descrição do Prontuário
                       </Typography>
                       <Typography variant="body1" sx={{ color: '#1e293b' }}>
-                        {prontuario.prontuario.descricao}
+                        Prontuário da consulta do dia {format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -400,71 +442,148 @@ const ProntuarioAtendimento: React.FC = () => {
 
               {/* Informações médicas importantes */}
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#dc2626', mb: 2 }}>
-                  ⚠️ Informações Médicas Importantes
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#dc2626' }}>
+                    ⚠️ Informações Médicas Importantes
+                  </Typography>
+                  {!editandoCamposMedicos && (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={iniciarEdicaoCamposMedicos}
+                      sx={{
+                        borderRadius: '20px',
+                        textTransform: 'none',
+                        fontWeight: '500',
+                        borderColor: '#dc2626',
+                        color: '#dc2626',
+                        '&:hover': {
+                          borderColor: '#b91c1c',
+                          backgroundColor: '#fef2f2'
+                        }
+                      }}
+                    >
+                      ✏️ Editar
+                    </Button>
+                  )}
+                </Box>
+                
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 2 }}>
+                  {/* Alergias */}
                   <Box sx={{ 
                     p: 2, 
-                    backgroundColor: paciente.alergias ? '#fef2f2' : '#f8fafc', 
+                    backgroundColor: camposMedicosEditaveis.alergias ? '#fef2f2' : '#f8fafc', 
                     borderRadius: '8px', 
-                    border: paciente.alergias ? '1px solid #fecaca' : '1px solid #e2e8f0'
+                    border: camposMedicosEditaveis.alergias ? '1px solid #fecaca' : '1px solid #e2e8f0'
                   }}>
                     <Typography variant="subtitle2" sx={{ 
-                      color: paciente.alergias ? '#dc2626' : '#64748b', 
+                      color: camposMedicosEditaveis.alergias ? '#dc2626' : '#64748b', 
                       fontWeight: '600', 
                       mb: 0.5 
                     }}>
                       Alergias
                     </Typography>
-                    <Typography variant="body2" sx={{ 
-                      color: paciente.alergias ? '#991b1b' : '#9ca3af',
-                      fontStyle: paciente.alergias ? 'normal' : 'italic'
-                    }}>
-                      {paciente.alergias || 'Nenhuma alergia registrada'}
-                    </Typography>
+                    {editandoCamposMedicos ? (
+                      <TextField
+                        multiline
+                        rows={2}
+                        fullWidth
+                        value={camposMedicosEditaveis.alergias}
+                        onChange={(e) => handleCampoMedicoChange('alergias', e.target.value)}
+                        placeholder="Digite as alergias do paciente..."
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" sx={{ 
+                        color: camposMedicosEditaveis.alergias ? '#991b1b' : '#9ca3af',
+                        fontStyle: camposMedicosEditaveis.alergias ? 'normal' : 'italic'
+                      }}>
+                        {camposMedicosEditaveis.alergias || 'Nenhuma alergia registrada'}
+                      </Typography>
+                    )}
                   </Box>
                   
+                  {/* Condições Crônicas */}
                   <Box sx={{ 
                     p: 2, 
-                    backgroundColor: paciente.condicoes_cronicas ? '#fef2f2' : '#f8fafc', 
+                    backgroundColor: camposMedicosEditaveis.condicoes_cronicas ? '#fef2f2' : '#f8fafc', 
                     borderRadius: '8px', 
-                    border: paciente.condicoes_cronicas ? '1px solid #fecaca' : '1px solid #e2e8f0'
+                    border: camposMedicosEditaveis.condicoes_cronicas ? '1px solid #fecaca' : '1px solid #e2e8f0'
                   }}>
                     <Typography variant="subtitle2" sx={{ 
-                      color: paciente.condicoes_cronicas ? '#dc2626' : '#64748b', 
+                      color: camposMedicosEditaveis.condicoes_cronicas ? '#dc2626' : '#64748b', 
                       fontWeight: '600', 
                       mb: 0.5 
                     }}>
                       Condições Crônicas
                     </Typography>
-                    <Typography variant="body2" sx={{ 
-                      color: paciente.condicoes_cronicas ? '#991b1b' : '#9ca3af',
-                      fontStyle: paciente.condicoes_cronicas ? 'normal' : 'italic'
-                    }}>
-                      {paciente.condicoes_cronicas || 'Nenhuma condição crônica registrada'}
-                    </Typography>
+                    {editandoCamposMedicos ? (
+                      <TextField
+                        multiline
+                        rows={2}
+                        fullWidth
+                        value={camposMedicosEditaveis.condicoes_cronicas}
+                        onChange={(e) => handleCampoMedicoChange('condicoes_cronicas', e.target.value)}
+                        placeholder="Digite as condições crônicas do paciente..."
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" sx={{ 
+                        color: camposMedicosEditaveis.condicoes_cronicas ? '#991b1b' : '#9ca3af',
+                        fontStyle: camposMedicosEditaveis.condicoes_cronicas ? 'normal' : 'italic'
+                      }}>
+                        {camposMedicosEditaveis.condicoes_cronicas || 'Nenhuma condição crônica registrada'}
+                      </Typography>
+                    )}
                   </Box>
                   
+                  {/* Medicamentos em Uso Contínuo */}
                   <Box sx={{ 
                     p: 2, 
-                    backgroundColor: paciente.medicamentos_uso_continuo ? '#fef2f2' : '#f8fafc', 
+                    backgroundColor: camposMedicosEditaveis.medicamentos_uso_continuo ? '#fef2f2' : '#f8fafc', 
                     borderRadius: '8px', 
-                    border: paciente.medicamentos_uso_continuo ? '1px solid #fecaca' : '1px solid #e2e8f0'
+                    border: camposMedicosEditaveis.medicamentos_uso_continuo ? '1px solid #fecaca' : '1px solid #e2e8f0'
                   }}>
                     <Typography variant="subtitle2" sx={{ 
-                      color: paciente.medicamentos_uso_continuo ? '#dc2626' : '#64748b', 
+                      color: camposMedicosEditaveis.medicamentos_uso_continuo ? '#dc2626' : '#64748b', 
                       fontWeight: '600', 
                       mb: 0.5 
                     }}>
                       Medicamentos em Uso Contínuo
                     </Typography>
-                    <Typography variant="body2" sx={{ 
-                      color: paciente.medicamentos_uso_continuo ? '#991b1b' : '#9ca3af',
-                      fontStyle: paciente.medicamentos_uso_continuo ? 'normal' : 'italic'
-                    }}>
-                      {paciente.medicamentos_uso_continuo || 'Nenhum medicamento em uso contínuo registrado'}
-                    </Typography>
+                    {editandoCamposMedicos ? (
+                      <TextField
+                        multiline
+                        rows={2}
+                        fullWidth
+                        value={camposMedicosEditaveis.medicamentos_uso_continuo}
+                        onChange={(e) => handleCampoMedicoChange('medicamentos_uso_continuo', e.target.value)}
+                        placeholder="Digite os medicamentos em uso contínuo..."
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" sx={{ 
+                        color: camposMedicosEditaveis.medicamentos_uso_continuo ? '#991b1b' : '#9ca3af',
+                        fontStyle: camposMedicosEditaveis.medicamentos_uso_continuo ? 'normal' : 'italic'
+                      }}>
+                        {camposMedicosEditaveis.medicamentos_uso_continuo || 'Nenhum medicamento em uso contínuo registrado'}
+                      </Typography>
+                    )}
                   </Box>
                 </Box>
               </Box>
@@ -478,7 +597,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Peso (kg)"
-                      value={formulario.sinaisVitais.peso}
+                      value={formulario.sinaisVitais?.peso || ''}
                       onChange={(e) => handleSinaisVitaisChange('peso', e.target.value)}
                       fullWidth
                       size="small"
@@ -487,7 +606,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Altura (cm)"
-                      value={formulario.sinaisVitais.altura}
+                      value={formulario.sinaisVitais?.altura || ''}
                       onChange={(e) => handleSinaisVitaisChange('altura', e.target.value)}
                       fullWidth
                       size="small"
@@ -496,7 +615,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Pressão Arterial"
-                      value={formulario.sinaisVitais.pressaoArterial}
+                      value={formulario.sinaisVitais?.pressaoArterial || ''}
                       onChange={(e) => handleSinaisVitaisChange('pressaoArterial', e.target.value)}
                       fullWidth
                       size="small"
@@ -506,7 +625,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Temperatura (°C)"
-                      value={formulario.sinaisVitais.temperatura}
+                      value={formulario.sinaisVitais?.temperatura || ''}
                       onChange={(e) => handleSinaisVitaisChange('temperatura', e.target.value)}
                       fullWidth
                       size="small"
@@ -531,20 +650,114 @@ const ProntuarioAtendimento: React.FC = () => {
                 />
               </Box>
 
-              {/* Exame Físico */}
+              {/* Prescrições */}
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b', mb: 2 }}>
-                  Exame Físico
-                </Typography>
-                <TextField
-                  multiline
-                  rows={4}
-                  fullWidth
-                  value={formulario.exameFisico}
-                  onChange={(e) => handleInputChange('exameFisico', e.target.value)}
-                  placeholder="Descreva os achados do exame físico..."
-                  data-campo="exameFisico"
-                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b' }}>
+                    Prescrições
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<span style={{ fontSize: '18px' }}>+</span>}
+                    onClick={adicionarPrescricao}
+                    sx={{
+                      borderRadius: '20px',
+                      textTransform: 'none',
+                      fontWeight: '500'
+                    }}
+                  >
+                    Adicionar Medicamento
+                  </Button>
+                </Box>
+                
+                {prescricoes.length === 0 ? (
+                  <Box sx={{
+                    p: 3,
+                    textAlign: 'center',
+                    backgroundColor: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '2px dashed #e2e8f0'
+                  }}>
+                    <Typography variant="body2" sx={{ color: '#9ca3af', mb: 1 }}>
+                      Nenhuma prescrição adicionada
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#9ca3af' }}>
+                      Clique em "Adicionar Medicamento" para começar
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {prescricoes.map((prescricao, index) => (
+                      <Card key={index} sx={{ p: 2, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                          <Typography variant="subtitle2" sx={{ color: '#64748b', fontWeight: '600' }}>
+                            Medicamento {index + 1}
+                          </Typography>
+                          <Button
+                            size="small"
+                            color="error"
+                            onClick={() => removerPrescricao(index)}
+                            sx={{ minWidth: 'auto', p: 0.5 }}
+                          >
+                            ✕
+                          </Button>
+                        </Box>
+                        
+                        <Grid container spacing={2}>
+                          <Grid item xs={12} sm={6}>
+                            <TextField
+                              label="Nome do Medicamento"
+                              value={prescricao.medicamento}
+                              onChange={(e) => atualizarPrescricao(index, 'medicamento', e.target.value)}
+                              fullWidth
+                              size="small"
+                              placeholder="Ex: Paracetamol"
+                            />
+                          </Grid>
+                          <Grid item xs={6} sm={3}>
+                            <TextField
+                              label="Dose"
+                              value={prescricao.dosagem}
+                              onChange={(e) => atualizarPrescricao(index, 'dosagem', e.target.value)}
+                              fullWidth
+                              size="small"
+                              placeholder="Ex: 500mg"
+                            />
+                          </Grid>
+                          <Grid item xs={6} sm={3}>
+                            <TextField
+                              label="Frequência"
+                              value={prescricao.instrucoes}
+                              onChange={(e) => atualizarPrescricao(index, 'instrucoes', e.target.value)}
+                              fullWidth
+                              size="small"
+                              placeholder="Ex: 8/8h"
+                            />
+                          </Grid>
+                          <Grid item xs={12}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={prescricao.controlado === true}
+                                  onChange={(e) => atualizarPrescricao(index, 'controlado', e.target.checked)}
+                                  color="primary"
+                                />
+                              }
+                              label="Medicamento Controlado"
+                              sx={{ 
+                                '& .MuiFormControlLabel-label': { 
+                                  fontSize: '0.875rem',
+                                  color: '#64748b'
+                                }
+                              }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Card>
+                    ))}
+                  </Box>
+                )}
               </Box>
 
               {/* Hipótese Diagnóstica */}
@@ -600,19 +813,19 @@ const ProntuarioAtendimento: React.FC = () => {
                 <Button
                   variant="outlined"
                   onClick={salvarProntuario}
-                  disabled={salvando}
+                  disabled={atualizarProntuarioMutation.isLoading}
                   startIcon={<MdSave />}
                 >
-                  {salvando ? 'Salvando...' : 'Salvar'}
+                  {atualizarProntuarioMutation.isLoading ? 'Salvando...' : 'Salvar'}
                 </Button>
                 <Button
                   variant="contained"
                   onClick={finalizarConsulta}
-                  disabled={salvando}
+                  disabled={!formularioSalvo || atualizarProntuarioMutation.isLoading || finalizarConsultaMutation.isLoading}
                   startIcon={<MdSend />}
                   sx={{ backgroundColor: '#059669', '&:hover': { backgroundColor: '#047857' } }}
                 >
-                  {salvando ? 'Finalizando...' : 'Finalizar Consulta'}
+                  {finalizarConsultaMutation.isLoading ? 'Finalizando...' : 'Finalizar Consulta'}
                 </Button>
               </Box>
             </CardContent>
@@ -769,54 +982,6 @@ const ProntuarioAtendimento: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Sugestões da IA */}
-          {(sugestoesIA.length > 0 || carregandoIA) && (
-            <Card sx={{ mb: 3, borderRadius: '12px' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <MdAutoFixHigh size={20} />
-                  Sugestões da IA
-                </Typography>
-                
-                {carregandoIA ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={16} />
-                    <Typography variant="body2" sx={{ color: '#64748b' }}>
-                      Gerando sugestões...
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sugestoesIA.map((sugestao, index) => (
-                      <Paper
-                        key={index}
-                        sx={{
-                          p: 2,
-                          backgroundColor: '#f0f9ff',
-                          border: '1px solid #bae6fd',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          '&:hover': {
-                            backgroundColor: '#e0f2fe',
-                            transform: 'translateY(-1px)'
-                          }
-                        }}
-                        onClick={() => aplicarSugestao(sugestao)}
-                      >
-                        <Typography variant="body2" sx={{ color: '#0369a1' }}>
-                          {sugestao}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#0284c7', mt: 1, display: 'block' }}>
-                          Clique para aplicar
-                        </Typography>
-                      </Paper>
-                    ))}
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Histórico de Consultas */}
           <Card sx={{ borderRadius: '12px' }}>

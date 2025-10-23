@@ -83,6 +83,12 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
           }}>
             <strong>Criado em:</strong> {format(new Date(prontuarioData.data_criacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
           </Typography>
+          <Typography variant="body2" sx={{ 
+            color: '#6b7280',
+            mt: 1
+          }}>
+            <strong>Última atualização realizada em:</strong> {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+          </Typography>
         </Box>
 
         {(paciente.alergias || paciente.condicoes_cronicas || paciente.medicamentos_uso_continuo) && (
@@ -92,12 +98,12 @@ const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualiza
               color: '#374151',
               mb: 1
             }}>
-              Informações Médicas
+              Informações Médicas atualizadas em: {format(new Date(paciente.ultima_atualizacao), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
             </Typography>
             {paciente.alergias && (
               <Typography variant="body2" sx={{ 
                 color: '#6b7280',
-                mb: 0.5
+                mb: 1
               }}>
                 <strong>Alergias:</strong> {paciente.alergias}
               </Typography>

@@ -93,6 +93,7 @@ export interface MedicoProntuario {
 }
 
 export interface PrescricaoProntuario {
+  id_consulta: number;
   nome_medicamento: string;
   dosagem: string;
   instrucoes: string;
@@ -127,4 +128,35 @@ export interface ProntuarioPacienteRes {
 export interface AtualizarConsultaReq {
   id: number
   status: number
+}
+export interface SinaisVitais {
+  peso: string;
+  altura: string;
+  pressaoArterial: string;
+  temperatura: string;
+  alergias: string;
+  condicoesCronicas: string;
+  medicamentosUsoContinuo: string;
+}
+
+export interface PrescricaoAtualizacao {
+  id_prontuario: number;
+  id_consulta: number;
+  medicamento: string;
+  dosagem: string;
+  instrucoes: string;
+  controlado: boolean;
+  ativo: boolean;
+}
+
+export interface AtualizarProntuarioReq {
+  id_prontuario: number;
+  id_consulta: number;
+  anamnese: string;
+  descricao: string;
+  hipoteseDiagnostica: string;
+  condutaMedica: string;
+  observacoes: string;
+  sinaisVitais: SinaisVitais;
+  prescricoes: PrescricaoAtualizacao[];
 }
