@@ -83,6 +83,14 @@ const ProntuarioAtendimento: React.FC = () => {
   const [carregandoIA, setCarregandoIA] = useState(false);
   const [salvando, setSalvando] = useState(false);
   
+  // Estados para edição dos campos médicos
+  const [editandoCamposMedicos, setEditandoCamposMedicos] = useState(false);
+  const [camposMedicosEditaveis, setCamposMedicosEditaveis] = useState({
+    alergias: '',
+    condicoes_cronicas: '',
+    medicamentos_uso_continuo: ''
+  });
+  
   // Estados para o chat com IA
   const [mensagensChat, setMensagensChat] = useState<Array<{
     id: string;
@@ -105,6 +113,16 @@ const ProntuarioAtendimento: React.FC = () => {
     enabled: !!idPacienteNumber,
     onError: () => {
       toast.error('Erro ao carregar prontuário');
+    },
+    onSuccess: (data) => {
+      // Inicializar os campos editáveis com os dados do paciente
+      if (data?.paciente) {
+        setCamposMedicosEditaveis({
+          alergias: data.paciente.alergias || '',
+          condicoes_cronicas: data.paciente.condicoes_cronicas || '',
+          medicamentos_uso_continuo: data.paciente.medicamentos_uso_continuo || ''
+        });
+      }
     }
   });
 
@@ -373,6 +391,51 @@ const ProntuarioAtendimento: React.FC = () => {
     toast.info('Sugestão negada');
   };
 
+  // Funções para edição dos campos médicos
+  const iniciarEdicaoCamposMedicos = () => {
+    setEditandoCamposMedicos(true);
+  };
+
+  const cancelarEdicaoCamposMedicos = () => {
+    setEditandoCamposMedicos(false);
+    // Restaurar valores originais
+    if (prontuario?.paciente) {
+      setCamposMedicosEditaveis({
+        alergias: prontuario.paciente.alergias || '',
+        condicoes_cronicas: prontuario.paciente.condicoes_cronicas || '',
+        medicamentos_uso_continuo: prontuario.paciente.medicamentos_uso_continuo || ''
+      });
+    }
+  };
+
+  const salvarCamposMedicos = async () => {
+    try {
+      // Aqui você implementaria a lógica para salvar as alterações
+      // Por enquanto, apenas simular o salvamento
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Atualizar os dados do paciente (simulação)
+      if (prontuario?.paciente) {
+        prontuario.paciente.alergias = camposMedicosEditaveis.alergias;
+        prontuario.paciente.condicoes_cronicas = camposMedicosEditaveis.condicoes_cronicas;
+        prontuario.paciente.medicamentos_uso_continuo = camposMedicosEditaveis.medicamentos_uso_continuo;
+        prontuario.paciente.ultima_atualizacao = new Date().toISOString();
+      }
+      
+      setEditandoCamposMedicos(false);
+      toast.success('Informações médicas atualizadas com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao salvar informações médicas');
+    }
+  };
+
+  const handleCampoMedicoChange = (campo: keyof typeof camposMedicosEditaveis, valor: string) => {
+    setCamposMedicosEditaveis(prev => ({
+      ...prev,
+      [campo]: valor
+    }));
+  };
+
   if (carregandoProntuario) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
@@ -483,71 +546,177 @@ const ProntuarioAtendimento: React.FC = () => {
 
               {/* Informações médicas importantes */}
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#dc2626', mb: 2 }}>
-                  ⚠️ Informações Médicas Importantes
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#dc2626' }}>
+                    ⚠️ Informações Médicas Importantes
+                  </Typography>
+                  {!editandoCamposMedicos ? (
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={iniciarEdicaoCamposMedicos}
+                      sx={{
+                        borderRadius: '20px',
+                        textTransform: 'none',
+                        fontWeight: '500',
+                        borderColor: '#dc2626',
+                        color: '#dc2626',
+                        '&:hover': {
+                          borderColor: '#b91c1c',
+                          backgroundColor: '#fef2f2'
+                        }
+                      }}
+                    >
+                      ✏️ Editar
+                    </Button>
+                  ) : (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={cancelarEdicaoCamposMedicos}
+                        sx={{
+                          borderRadius: '20px',
+                          textTransform: 'none',
+                          fontWeight: '500'
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={salvarCamposMedicos}
+                        sx={{
+                          borderRadius: '20px',
+                          textTransform: 'none',
+                          fontWeight: '500',
+                          backgroundColor: '#059669',
+                          '&:hover': { backgroundColor: '#047857' }
+                        }}
+                      >
+                        Salvar
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+                
                 <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 2 }}>
+                  {/* Alergias */}
                   <Box sx={{ 
                     p: 2, 
-                    backgroundColor: paciente.alergias ? '#fef2f2' : '#f8fafc', 
+                    backgroundColor: camposMedicosEditaveis.alergias ? '#fef2f2' : '#f8fafc', 
                     borderRadius: '8px', 
-                    border: paciente.alergias ? '1px solid #fecaca' : '1px solid #e2e8f0'
+                    border: camposMedicosEditaveis.alergias ? '1px solid #fecaca' : '1px solid #e2e8f0'
                   }}>
                     <Typography variant="subtitle2" sx={{ 
-                      color: paciente.alergias ? '#dc2626' : '#64748b', 
+                      color: camposMedicosEditaveis.alergias ? '#dc2626' : '#64748b', 
                       fontWeight: '600', 
                       mb: 0.5 
                     }}>
                       Alergias
                     </Typography>
-                    <Typography variant="body2" sx={{ 
-                      color: paciente.alergias ? '#991b1b' : '#9ca3af',
-                      fontStyle: paciente.alergias ? 'normal' : 'italic'
-                    }}>
-                      {paciente.alergias || 'Nenhuma alergia registrada'}
-                    </Typography>
+                    {editandoCamposMedicos ? (
+                      <TextField
+                        multiline
+                        rows={2}
+                        fullWidth
+                        value={camposMedicosEditaveis.alergias}
+                        onChange={(e) => handleCampoMedicoChange('alergias', e.target.value)}
+                        placeholder="Digite as alergias do paciente..."
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" sx={{ 
+                        color: camposMedicosEditaveis.alergias ? '#991b1b' : '#9ca3af',
+                        fontStyle: camposMedicosEditaveis.alergias ? 'normal' : 'italic'
+                      }}>
+                        {camposMedicosEditaveis.alergias || 'Nenhuma alergia registrada'}
+                      </Typography>
+                    )}
                   </Box>
                   
+                  {/* Condições Crônicas */}
                   <Box sx={{ 
                     p: 2, 
-                    backgroundColor: paciente.condicoes_cronicas ? '#fef2f2' : '#f8fafc', 
+                    backgroundColor: camposMedicosEditaveis.condicoes_cronicas ? '#fef2f2' : '#f8fafc', 
                     borderRadius: '8px', 
-                    border: paciente.condicoes_cronicas ? '1px solid #fecaca' : '1px solid #e2e8f0'
+                    border: camposMedicosEditaveis.condicoes_cronicas ? '1px solid #fecaca' : '1px solid #e2e8f0'
                   }}>
                     <Typography variant="subtitle2" sx={{ 
-                      color: paciente.condicoes_cronicas ? '#dc2626' : '#64748b', 
+                      color: camposMedicosEditaveis.condicoes_cronicas ? '#dc2626' : '#64748b', 
                       fontWeight: '600', 
                       mb: 0.5 
                     }}>
                       Condições Crônicas
                     </Typography>
-                    <Typography variant="body2" sx={{ 
-                      color: paciente.condicoes_cronicas ? '#991b1b' : '#9ca3af',
-                      fontStyle: paciente.condicoes_cronicas ? 'normal' : 'italic'
-                    }}>
-                      {paciente.condicoes_cronicas || 'Nenhuma condição crônica registrada'}
-                    </Typography>
+                    {editandoCamposMedicos ? (
+                      <TextField
+                        multiline
+                        rows={2}
+                        fullWidth
+                        value={camposMedicosEditaveis.condicoes_cronicas}
+                        onChange={(e) => handleCampoMedicoChange('condicoes_cronicas', e.target.value)}
+                        placeholder="Digite as condições crônicas do paciente..."
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" sx={{ 
+                        color: camposMedicosEditaveis.condicoes_cronicas ? '#991b1b' : '#9ca3af',
+                        fontStyle: camposMedicosEditaveis.condicoes_cronicas ? 'normal' : 'italic'
+                      }}>
+                        {camposMedicosEditaveis.condicoes_cronicas || 'Nenhuma condição crônica registrada'}
+                      </Typography>
+                    )}
                   </Box>
                   
+                  {/* Medicamentos em Uso Contínuo */}
                   <Box sx={{ 
                     p: 2, 
-                    backgroundColor: paciente.medicamentos_uso_continuo ? '#fef2f2' : '#f8fafc', 
+                    backgroundColor: camposMedicosEditaveis.medicamentos_uso_continuo ? '#fef2f2' : '#f8fafc', 
                     borderRadius: '8px', 
-                    border: paciente.medicamentos_uso_continuo ? '1px solid #fecaca' : '1px solid #e2e8f0'
+                    border: camposMedicosEditaveis.medicamentos_uso_continuo ? '1px solid #fecaca' : '1px solid #e2e8f0'
                   }}>
                     <Typography variant="subtitle2" sx={{ 
-                      color: paciente.medicamentos_uso_continuo ? '#dc2626' : '#64748b', 
+                      color: camposMedicosEditaveis.medicamentos_uso_continuo ? '#dc2626' : '#64748b', 
                       fontWeight: '600', 
                       mb: 0.5 
                     }}>
                       Medicamentos em Uso Contínuo
                     </Typography>
-                    <Typography variant="body2" sx={{ 
-                      color: paciente.medicamentos_uso_continuo ? '#991b1b' : '#9ca3af',
-                      fontStyle: paciente.medicamentos_uso_continuo ? 'normal' : 'italic'
-                    }}>
-                      {paciente.medicamentos_uso_continuo || 'Nenhum medicamento em uso contínuo registrado'}
-                    </Typography>
+                    {editandoCamposMedicos ? (
+                      <TextField
+                        multiline
+                        rows={2}
+                        fullWidth
+                        value={camposMedicosEditaveis.medicamentos_uso_continuo}
+                        onChange={(e) => handleCampoMedicoChange('medicamentos_uso_continuo', e.target.value)}
+                        placeholder="Digite os medicamentos em uso contínuo..."
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            backgroundColor: 'white'
+                          }
+                        }}
+                      />
+                    ) : (
+                      <Typography variant="body2" sx={{ 
+                        color: camposMedicosEditaveis.medicamentos_uso_continuo ? '#991b1b' : '#9ca3af',
+                        fontStyle: camposMedicosEditaveis.medicamentos_uso_continuo ? 'normal' : 'italic'
+                      }}>
+                        {camposMedicosEditaveis.medicamentos_uso_continuo || 'Nenhum medicamento em uso contínuo registrado'}
+                      </Typography>
+                    )}
                   </Box>
                 </Box>
               </Box>
