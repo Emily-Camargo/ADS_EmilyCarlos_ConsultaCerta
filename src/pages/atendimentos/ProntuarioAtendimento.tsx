@@ -32,19 +32,9 @@ import { ptBR } from 'date-fns/locale';
 import { useQuery, useMutation } from 'react-query';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
-import { buscarProntuarioPaciente, postBuscarConsultas, atualizarProntuario } from '../../services/consultas';
-import { AtualizarProntuarioReq } from '../../services/consultas/interface';
+import { buscarProntuarioPaciente, postBuscarConsultas, atualizarProntuario, atualizarConsulta } from '../../services/consultas';
+import { AtualizarProntuarioReq, AtualizarConsultaReq, PrescricaoAtualizacao } from '../../services/consultas/interface';
 import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
-
-interface Prescricao {
-  id: string;
-  id_consulta: number;
-  nome: string;
-  dose: string;
-  frequencia: string;
-  controlado: boolean;
-}
-
 
 const ProntuarioAtendimento: React.FC = () => {
   const { idPaciente, idConsulta } = useParams<{ idPaciente: string; idConsulta: string }>();
@@ -68,7 +58,7 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
-  const [prescricoes, setPrescricoes] = useState<Prescricao[]>([]);
+  const [prescricoes, setPrescricoes] = useState<PrescricaoAtualizacao[]>([]);
   const [formularioSalvo, setFormularioSalvo] = useState(false);
 
   // Estados para edição dos campos médicos
@@ -140,6 +130,20 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
+  // Mutation para finalizar consulta
+  const finalizarConsultaMutation = useMutation({
+    mutationKey: ['finalizar-consulta'],
+    mutationFn: atualizarConsulta,
+    onSuccess: () => {
+      toast.success('Consulta finalizada com sucesso!');
+      navigate('/atendimentos');
+    },
+    onError: (error: any) => {
+      console.error('Erro ao finalizar consulta:', error);
+      toast.error('Erro ao finalizar consulta. Tente novamente.');
+    }
+  });
+
 
   const handleInputChange = (campo: string, valor: string) => {
     setFormulario(prev => ({
@@ -159,26 +163,32 @@ const ProntuarioAtendimento: React.FC = () => {
   };
 
   const adicionarPrescricao = () => {
-    const novaPrescricao: Prescricao = {
-      id: Date.now().toString(),
+    if (!prontuario) {
+      toast.error('Prontuário não carregado. Tente novamente.');
+      return;
+    }
+
+    const novaPrescricao: PrescricaoAtualizacao = {
+      id_prontuario: prontuario.prontuario.id_prontuario,
       id_consulta: idConsultaNumber,
-      nome: '',
-      dose: '',
-      frequencia: '',
-      controlado: false
+      medicamento: '',
+      dosagem: '',
+      instrucoes: '',
+      controlado: false,
+      ativo: true
     };
     
     setPrescricoes(prev => [...prev, novaPrescricao]);
   };
 
-  const removerPrescricao = (id: string) => {
-    setPrescricoes(prev => prev.filter(prescricao => prescricao.id !== id));
+  const removerPrescricao = (index: number) => {
+    setPrescricoes(prev => prev.filter((_, i) => i !== index));
   };
 
-  const atualizarPrescricao = (id: string, campo: keyof Prescricao, valor: string | boolean) => {
+  const atualizarPrescricao = (index: number, campo: keyof PrescricaoAtualizacao, valor: string | boolean) => {
     setPrescricoes(prev => 
-      prev.map(prescricao =>
-        prescricao.id === id ? { ...prescricao, [campo]: valor } : prescricao
+      prev.map((prescricao, i) =>
+        i === index ? { ...prescricao, [campo]: valor } : prescricao
       )
     );
   };
@@ -207,15 +217,7 @@ const ProntuarioAtendimento: React.FC = () => {
         condicoesCronicas: camposMedicosEditaveis.condicoes_cronicas,
         medicamentosUsoContinuo: camposMedicosEditaveis.medicamentos_uso_continuo
       },
-      prescricoes: prescricoes.map(prescricao => ({
-        id_prontuario: prontuario.prontuario.id_prontuario,
-        id_consulta: prescricao.id_consulta,
-        medicamento: prescricao.nome,
-        dosagem: prescricao.dose,
-        instrucoes: prescricao.frequencia,
-        controlado: prescricao.controlado,
-        ativo: true
-      }))
+      prescricoes: prescricoes
     };
 
     atualizarProntuarioMutation.mutate(dtoProntuario, {
@@ -233,8 +235,12 @@ const ProntuarioAtendimento: React.FC = () => {
   };
 
   const finalizarConsulta = () => {
-    toast.success('Consulta finalizada com sucesso!');
-    navigate('/atendimentos');
+    const dadosAtualizacao: AtualizarConsultaReq = {
+      id: idConsultaNumber,
+      status: 2
+    };
+    
+    finalizarConsultaMutation.mutate(dadosAtualizacao);
   };
 
   // Funções para o chat com IA
@@ -683,7 +689,7 @@ const ProntuarioAtendimento: React.FC = () => {
                 ) : (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     {prescricoes.map((prescricao, index) => (
-                      <Card key={prescricao.id} sx={{ p: 2, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                      <Card key={index} sx={{ p: 2, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                           <Typography variant="subtitle2" sx={{ color: '#64748b', fontWeight: '600' }}>
                             Medicamento {index + 1}
@@ -691,7 +697,7 @@ const ProntuarioAtendimento: React.FC = () => {
                           <Button
                             size="small"
                             color="error"
-                            onClick={() => removerPrescricao(prescricao.id)}
+                            onClick={() => removerPrescricao(index)}
                             sx={{ minWidth: 'auto', p: 0.5 }}
                           >
                             ✕
@@ -702,8 +708,8 @@ const ProntuarioAtendimento: React.FC = () => {
                           <Grid item xs={12} sm={6}>
                             <TextField
                               label="Nome do Medicamento"
-                              value={prescricao.nome}
-                              onChange={(e) => atualizarPrescricao(prescricao.id, 'nome', e.target.value)}
+                              value={prescricao.medicamento}
+                              onChange={(e) => atualizarPrescricao(index, 'medicamento', e.target.value)}
                               fullWidth
                               size="small"
                               placeholder="Ex: Paracetamol"
@@ -712,8 +718,8 @@ const ProntuarioAtendimento: React.FC = () => {
                           <Grid item xs={6} sm={3}>
                             <TextField
                               label="Dose"
-                              value={prescricao.dose}
-                              onChange={(e) => atualizarPrescricao(prescricao.id, 'dose', e.target.value)}
+                              value={prescricao.dosagem}
+                              onChange={(e) => atualizarPrescricao(index, 'dosagem', e.target.value)}
                               fullWidth
                               size="small"
                               placeholder="Ex: 500mg"
@@ -722,8 +728,8 @@ const ProntuarioAtendimento: React.FC = () => {
                           <Grid item xs={6} sm={3}>
                             <TextField
                               label="Frequência"
-                              value={prescricao.frequencia}
-                              onChange={(e) => atualizarPrescricao(prescricao.id, 'frequencia', e.target.value)}
+                              value={prescricao.instrucoes}
+                              onChange={(e) => atualizarPrescricao(index, 'instrucoes', e.target.value)}
                               fullWidth
                               size="small"
                               placeholder="Ex: 8/8h"
@@ -734,7 +740,7 @@ const ProntuarioAtendimento: React.FC = () => {
                               control={
                                 <Checkbox
                                   checked={prescricao.controlado === true}
-                                  onChange={(e) => atualizarPrescricao(prescricao.id, 'controlado', e.target.checked ? 'true' : 'false')}
+                                  onChange={(e) => atualizarPrescricao(index, 'controlado', e.target.checked)}
                                   color="primary"
                                 />
                               }
@@ -815,11 +821,11 @@ const ProntuarioAtendimento: React.FC = () => {
                 <Button
                   variant="contained"
                   onClick={finalizarConsulta}
-                  disabled={!formularioSalvo || atualizarProntuarioMutation.isLoading}
+                  disabled={!formularioSalvo || atualizarProntuarioMutation.isLoading || finalizarConsultaMutation.isLoading}
                   startIcon={<MdSend />}
                   sx={{ backgroundColor: '#059669', '&:hover': { backgroundColor: '#047857' } }}
                 >
-                  Finalizar Consulta
+                  {finalizarConsultaMutation.isLoading ? 'Finalizando...' : 'Finalizar Consulta'}
                 </Button>
               </Box>
             </CardContent>
