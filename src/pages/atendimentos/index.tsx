@@ -64,7 +64,7 @@ const AtendimentosPage = () => {
     // Encontrar a consulta pelo ID para obter o ID do paciente
     const consulta = statusTabs[tabValue].data.find(c => c.idConsulta === id);
     if (consulta) {
-      navigate(`/prontuario-atendimento/${consulta.idPaciente}`);
+      navigate(`/prontuario-atendimento/${consulta.idPaciente}/${consulta.idConsulta}`);
     }
   };
 

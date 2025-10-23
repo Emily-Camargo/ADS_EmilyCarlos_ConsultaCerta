@@ -22,7 +22,6 @@ import {
   MdSave, 
   MdSend,
   MdHistory,
-  MdAutoFixHigh,
   MdPrint,
   MdArrowBack,
   MdChat,
@@ -30,10 +29,11 @@ import {
 } from 'react-icons/md';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation } from 'react-query';
 import { toast } from 'react-toastify';
 import { useParams, useNavigate } from 'react-router-dom';
-import { buscarProntuarioPaciente, postBuscarConsultas } from '../../services/consultas';
+import { buscarProntuarioPaciente, postBuscarConsultas, atualizarProntuario } from '../../services/consultas';
+import { AtualizarProntuarioReq } from '../../services/consultas/interface';
 import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
 
 interface Prescricao {
@@ -45,19 +45,6 @@ interface Prescricao {
   controlado: boolean;
 }
 
-interface FormularioProntuario {
-  anamnese: string;
-  prescricoes: Prescricao[];
-  hipoteseDiagnostica: string;
-  condutaMedica: string;
-  observacoes: string;
-  sinaisVitais: {
-    peso: string;
-    altura: string;
-    pressaoArterial: string;
-    temperatura: string;
-  };
-}
 
 const ProntuarioAtendimento: React.FC = () => {
   const { idPaciente, idConsulta } = useParams<{ idPaciente: string; idConsulta: string }>();
@@ -65,9 +52,8 @@ const ProntuarioAtendimento: React.FC = () => {
   const idPacienteNumber = idPaciente ? parseInt(idPaciente, 10) : 0;
   const idConsultaNumber = idConsulta ? parseInt(idConsulta, 10) : 0;
   
-  const [formulario, setFormulario] = useState<FormularioProntuario>({
+  const [formulario, setFormulario] = useState({
     anamnese: '',
-    prescricoes: [],
     hipoteseDiagnostica: '',
     condutaMedica: '',
     observacoes: '',
@@ -75,14 +61,16 @@ const ProntuarioAtendimento: React.FC = () => {
       peso: '',
       altura: '',
       pressaoArterial: '',
-      temperatura: ''
+      temperatura: '',
+      alergias: '',
+      condicoesCronicas: '',
+      medicamentosUsoContinuo: ''
     }
   });
 
-  const [sugestoesIA, setSugestoesIA] = useState<string[]>([]);
-  const [carregandoIA, setCarregandoIA] = useState(false);
-  const [salvando, setSalvando] = useState(false);
-  
+  const [prescricoes, setPrescricoes] = useState<Prescricao[]>([]);
+  const [formularioSalvo, setFormularioSalvo] = useState(false);
+
   // Estados para edição dos campos médicos
   const [editandoCamposMedicos, setEditandoCamposMedicos] = useState(false);
   const [camposMedicosEditaveis, setCamposMedicosEditaveis] = useState({
@@ -139,55 +127,25 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
-  // Simular sugestões da IA baseadas no texto digitado
-  const gerarSugestoesIA = async (texto: string, campo: string) => {
-    if (!texto.trim() || texto.length < 10) {
-      setSugestoesIA([]);
-      return;
+  // Mutation para atualizar prontuário
+  const atualizarProntuarioMutation = useMutation({
+    mutationKey: ['atualizar-prontuario'],
+    mutationFn: atualizarProntuario,
+    onSuccess: () => {
+      toast.success('Prontuário atualizado com sucesso!');
+    },
+    onError: (error: any) => {
+      console.error('Erro ao atualizar prontuário:', error);
+      toast.error('Erro ao atualizar prontuário. Tente novamente.');
     }
+  });
 
-    setCarregandoIA(true);
-    
-    // Simular delay da IA
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Sugestões simuladas baseadas no campo
-    const sugestoesSimuladas = {
-      anamnese: [
-        "Considere investigar histórico familiar de doenças cardiovasculares",
-        "Avaliar possível relação com estresse ou ansiedade",
-        "Verificar se há piora dos sintomas em horários específicos"
-      ],
-      hipoteseDiagnostica: [
-        "Considerar diagnóstico diferencial com outras condições",
-        "Solicitar exames complementares para confirmação",
-        "Avaliar necessidade de encaminhamento especializado"
-      ],
-      condutaMedica: [
-        "Prescrever medicação sintomática",
-        "Orientar sobre mudanças no estilo de vida",
-        "Agendar retorno em 30 dias"
-      ]
-    };
-
-    setSugestoesIA(sugestoesSimuladas[campo as keyof typeof sugestoesSimuladas] || []);
-    setCarregandoIA(false);
-  };
 
   const handleInputChange = (campo: string, valor: string) => {
     setFormulario(prev => ({
       ...prev,
       [campo]: valor
     }));
-
-    // Gerar sugestões da IA após um delay
-    if (campo !== 'sinaisVitais') {
-      const timeoutId = setTimeout(() => {
-        gerarSugestoesIA(valor, campo);
-      }, 1000);
-
-      return () => clearTimeout(timeoutId);
-    }
   };
 
   const handleSinaisVitaisChange = (campo: string, valor: string) => {
@@ -210,108 +168,73 @@ const ProntuarioAtendimento: React.FC = () => {
       controlado: false
     };
     
-    setFormulario(prev => ({
-      ...prev,
-      prescricoes: [...prev.prescricoes, novaPrescricao]
-    }));
+    setPrescricoes(prev => [...prev, novaPrescricao]);
   };
 
   const removerPrescricao = (id: string) => {
-    setFormulario(prev => ({
-      ...prev,
-      prescricoes: prev.prescricoes.filter(prescricao => prescricao.id !== id)
-    }));
+    setPrescricoes(prev => prev.filter(prescricao => prescricao.id !== id));
   };
 
-  const atualizarPrescricao = (id: string, campo: keyof Prescricao, valor: string) => {
-    setFormulario(prev => ({
-      ...prev,
-      prescricoes: prev.prescricoes.map(prescricao =>
+  const atualizarPrescricao = (id: string, campo: keyof Prescricao, valor: string | boolean) => {
+    setPrescricoes(prev => 
+      prev.map(prescricao =>
         prescricao.id === id ? { ...prescricao, [campo]: valor } : prescricao
       )
-    }));
+    );
   };
 
-  const aplicarSugestao = (sugestao: string) => {
-    const campoAtivo = document.activeElement?.getAttribute('data-campo');
-    if (campoAtivo && campoAtivo !== 'sinaisVitais') {
-      setFormulario(prev => ({
-        ...prev,
-        [campoAtivo]: prev[campoAtivo as keyof FormularioProntuario] + '\n' + sugestao
-      }));
-    }
-    setSugestoesIA([]);
-  };
 
   const salvarProntuario = async () => {
-    setSalvando(true);
-    try {
-      // DTO para salvar o prontuário
-      const dtoProntuario = {
-        idPaciente: idPacienteNumber,
-        idConsulta: idConsultaNumber,
-        anamnese: formulario.anamnese,
-        prescricoes: formulario.prescricoes.map(prescricao => ({
-          id_consulta: prescricao.id_consulta,
-          nome: prescricao.nome,
-          dose: prescricao.dose,
-          frequencia: prescricao.frequencia,
-          controlado: prescricao.controlado
-        })),
-        hipoteseDiagnostica: formulario.hipoteseDiagnostica,
-        condutaMedica: formulario.condutaMedica,
-        observacoes: formulario.observacoes,
-        sinaisVitais: formulario.sinaisVitais,
-        descricao: `Prontuário da consulta do dia ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`,
-        ultimaAtualizacao: new Date().toISOString()
-      };
-      
-      console.log('DTO Prontuário:', dtoProntuario);
-      
-      // Aqui você implementaria a lógica para salvar o prontuário
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Prontuário salvo com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao salvar prontuário');
-    } finally {
-      setSalvando(false);
+    if (!prontuario) {
+      toast.error('Dados do prontuário não encontrados');
+      return;
     }
+
+    const dtoProntuario: AtualizarProntuarioReq = {
+      id_prontuario: prontuario.prontuario.id_prontuario,
+      id_consulta: idConsultaNumber,
+      anamnese: formulario.anamnese || '',
+      descricao: `Prontuário da consulta do dia ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`,
+      hipoteseDiagnostica: formulario.hipoteseDiagnostica || '',
+      condutaMedica: formulario.condutaMedica || '',
+      observacoes: formulario.observacoes || '',
+      sinaisVitais: {
+        peso: formulario.sinaisVitais?.peso || '',
+        altura: formulario.sinaisVitais?.altura || '',
+        pressaoArterial: formulario.sinaisVitais?.pressaoArterial || '',
+        temperatura: formulario.sinaisVitais?.temperatura || '',
+        alergias: camposMedicosEditaveis.alergias,
+        condicoesCronicas: camposMedicosEditaveis.condicoes_cronicas,
+        medicamentosUsoContinuo: camposMedicosEditaveis.medicamentos_uso_continuo
+      },
+      prescricoes: prescricoes.map(prescricao => ({
+        id_prontuario: prontuario.prontuario.id_prontuario,
+        id_consulta: prescricao.id_consulta,
+        medicamento: prescricao.nome,
+        dosagem: prescricao.dose,
+        instrucoes: prescricao.frequencia,
+        controlado: prescricao.controlado,
+        ativo: true
+      }))
+    };
+
+    atualizarProntuarioMutation.mutate(dtoProntuario, {
+      onSuccess: () => {
+        setFormularioSalvo(true);
+        // Atualizar os dados do paciente localmente
+        if (prontuario) {
+          prontuario.paciente.alergias = camposMedicosEditaveis.alergias;
+          prontuario.paciente.condicoes_cronicas = camposMedicosEditaveis.condicoes_cronicas;
+          prontuario.paciente.medicamentos_uso_continuo = camposMedicosEditaveis.medicamentos_uso_continuo;
+          prontuario.paciente.ultima_atualizacao = new Date().toISOString();
+        }
+      }
+    });
   };
 
-  const finalizarConsulta = async () => {
-    setSalvando(true);
-    try {
-      // DTO para finalizar a consulta
-      const dtoProntuario = {
-        idPaciente: idPacienteNumber,
-        idConsulta: idConsultaNumber,
-        anamnese: formulario.anamnese,
-        prescricoes: formulario.prescricoes.map(prescricao => ({
-          id_consulta: prescricao.id_consulta,
-          nome: prescricao.nome,
-          dose: prescricao.dose,
-          frequencia: prescricao.frequencia,
-          controlado: prescricao.controlado
-        })),
-        hipoteseDiagnostica: formulario.hipoteseDiagnostica,
-        condutaMedica: formulario.condutaMedica,
-        observacoes: formulario.observacoes,
-        sinaisVitais: formulario.sinaisVitais,
-        descricao: `Prontuário da consulta do dia ${format(new Date(), 'dd/MM/yyyy', { locale: ptBR })}`,
-        ultimaAtualizacao: new Date().toISOString()
-      };
-      
-      console.log('DTO Finalizar Consulta:', dtoProntuario);
-      
-      // Aqui você implementaria a lógica para finalizar a consulta
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Consulta finalizada com sucesso!');
-      navigate('/atendimentos');
-    } catch (error) {
-      toast.error('Erro ao finalizar consulta');
-    } finally {
-      setSalvando(false);
-    }
+  const finalizarConsulta = () => {
+    toast.success('Consulta finalizada com sucesso!');
+    navigate('/atendimentos');
   };
 
   // Funções para o chat com IA
@@ -394,39 +317,6 @@ const ProntuarioAtendimento: React.FC = () => {
   // Funções para edição dos campos médicos
   const iniciarEdicaoCamposMedicos = () => {
     setEditandoCamposMedicos(true);
-  };
-
-  const cancelarEdicaoCamposMedicos = () => {
-    setEditandoCamposMedicos(false);
-    // Restaurar valores originais
-    if (prontuario?.paciente) {
-      setCamposMedicosEditaveis({
-        alergias: prontuario.paciente.alergias || '',
-        condicoes_cronicas: prontuario.paciente.condicoes_cronicas || '',
-        medicamentos_uso_continuo: prontuario.paciente.medicamentos_uso_continuo || ''
-      });
-    }
-  };
-
-  const salvarCamposMedicos = async () => {
-    try {
-      // Aqui você implementaria a lógica para salvar as alterações
-      // Por enquanto, apenas simular o salvamento
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Atualizar os dados do paciente (simulação)
-      if (prontuario?.paciente) {
-        prontuario.paciente.alergias = camposMedicosEditaveis.alergias;
-        prontuario.paciente.condicoes_cronicas = camposMedicosEditaveis.condicoes_cronicas;
-        prontuario.paciente.medicamentos_uso_continuo = camposMedicosEditaveis.medicamentos_uso_continuo;
-        prontuario.paciente.ultima_atualizacao = new Date().toISOString();
-      }
-      
-      setEditandoCamposMedicos(false);
-      toast.success('Informações médicas atualizadas com sucesso!');
-    } catch (error) {
-      toast.error('Erro ao salvar informações médicas');
-    }
   };
 
   const handleCampoMedicoChange = (campo: keyof typeof camposMedicosEditaveis, valor: string) => {
@@ -550,7 +440,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#dc2626' }}>
                     ⚠️ Informações Médicas Importantes
                   </Typography>
-                  {!editandoCamposMedicos ? (
+                  {!editandoCamposMedicos && (
                     <Button
                       variant="outlined"
                       size="small"
@@ -569,35 +459,6 @@ const ProntuarioAtendimento: React.FC = () => {
                     >
                       ✏️ Editar
                     </Button>
-                  ) : (
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={cancelarEdicaoCamposMedicos}
-                        sx={{
-                          borderRadius: '20px',
-                          textTransform: 'none',
-                          fontWeight: '500'
-                        }}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={salvarCamposMedicos}
-                        sx={{
-                          borderRadius: '20px',
-                          textTransform: 'none',
-                          fontWeight: '500',
-                          backgroundColor: '#059669',
-                          '&:hover': { backgroundColor: '#047857' }
-                        }}
-                      >
-                        Salvar
-                      </Button>
-                    </Box>
                   )}
                 </Box>
                 
@@ -730,7 +591,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Peso (kg)"
-                      value={formulario.sinaisVitais.peso}
+                      value={formulario.sinaisVitais?.peso || ''}
                       onChange={(e) => handleSinaisVitaisChange('peso', e.target.value)}
                       fullWidth
                       size="small"
@@ -739,7 +600,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Altura (cm)"
-                      value={formulario.sinaisVitais.altura}
+                      value={formulario.sinaisVitais?.altura || ''}
                       onChange={(e) => handleSinaisVitaisChange('altura', e.target.value)}
                       fullWidth
                       size="small"
@@ -748,7 +609,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Pressão Arterial"
-                      value={formulario.sinaisVitais.pressaoArterial}
+                      value={formulario.sinaisVitais?.pressaoArterial || ''}
                       onChange={(e) => handleSinaisVitaisChange('pressaoArterial', e.target.value)}
                       fullWidth
                       size="small"
@@ -758,7 +619,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   <Grid item xs={6} sm={3}>
                     <TextField
                       label="Temperatura (°C)"
-                      value={formulario.sinaisVitais.temperatura}
+                      value={formulario.sinaisVitais?.temperatura || ''}
                       onChange={(e) => handleSinaisVitaisChange('temperatura', e.target.value)}
                       fullWidth
                       size="small"
@@ -804,7 +665,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   </Button>
                 </Box>
                 
-                {formulario.prescricoes.length === 0 ? (
+                {prescricoes.length === 0 ? (
                   <Box sx={{
                     p: 3,
                     textAlign: 'center',
@@ -821,7 +682,7 @@ const ProntuarioAtendimento: React.FC = () => {
                   </Box>
                 ) : (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {formulario.prescricoes.map((prescricao, index) => (
+                    {prescricoes.map((prescricao, index) => (
                       <Card key={prescricao.id} sx={{ p: 2, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                           <Typography variant="subtitle2" sx={{ color: '#64748b', fontWeight: '600' }}>
@@ -946,19 +807,19 @@ const ProntuarioAtendimento: React.FC = () => {
                 <Button
                   variant="outlined"
                   onClick={salvarProntuario}
-                  disabled={salvando}
+                  disabled={atualizarProntuarioMutation.isLoading}
                   startIcon={<MdSave />}
                 >
-                  {salvando ? 'Salvando...' : 'Salvar'}
+                  {atualizarProntuarioMutation.isLoading ? 'Salvando...' : 'Salvar'}
                 </Button>
                 <Button
                   variant="contained"
                   onClick={finalizarConsulta}
-                  disabled={salvando}
+                  disabled={!formularioSalvo || atualizarProntuarioMutation.isLoading}
                   startIcon={<MdSend />}
                   sx={{ backgroundColor: '#059669', '&:hover': { backgroundColor: '#047857' } }}
                 >
-                  {salvando ? 'Finalizando...' : 'Finalizar Consulta'}
+                  Finalizar Consulta
                 </Button>
               </Box>
             </CardContent>
@@ -1115,54 +976,6 @@ const ProntuarioAtendimento: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Sugestões da IA */}
-          {(sugestoesIA.length > 0 || carregandoIA) && (
-            <Card sx={{ mb: 3, borderRadius: '12px' }}>
-              <CardContent sx={{ p: 3 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <MdAutoFixHigh size={20} />
-                  Sugestões da IA
-                </Typography>
-                
-                {carregandoIA ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={16} />
-                    <Typography variant="body2" sx={{ color: '#64748b' }}>
-                      Gerando sugestões...
-                    </Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                    {sugestoesIA.map((sugestao, index) => (
-                      <Paper
-                        key={index}
-                        sx={{
-                          p: 2,
-                          backgroundColor: '#f0f9ff',
-                          border: '1px solid #bae6fd',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          '&:hover': {
-                            backgroundColor: '#e0f2fe',
-                            transform: 'translateY(-1px)'
-                          }
-                        }}
-                        onClick={() => aplicarSugestao(sugestao)}
-                      >
-                        <Typography variant="body2" sx={{ color: '#0369a1' }}>
-                          {sugestao}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#0284c7', mt: 1, display: 'block' }}>
-                          Clique para aplicar
-                        </Typography>
-                      </Paper>
-                    ))}
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          )}
 
           {/* Histórico de Consultas */}
           <Card sx={{ borderRadius: '12px' }}>
