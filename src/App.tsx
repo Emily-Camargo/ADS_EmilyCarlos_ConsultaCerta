@@ -10,6 +10,7 @@ import '@mantine/core/styles.css'
 import AppRouter from './routes'
 import PWAInstallModal from './components/pwa-install-modal'
 import { AuthProvider } from './contexts/AuthContext'
+import { SessionTimeoutProvider } from './components/session-timeout/SessionTimeoutProvider'
 import ReactDOM from 'react-dom/client'
 import { TourProvider } from '@reactour/tour'
 import { ToastContainer } from 'react-toastify'
@@ -41,23 +42,25 @@ root.render(
         >
           <ThemeProvider>
             <AuthProvider>
-              <ToastContainer
-                position={window.innerWidth <= 720 ? 'top-right' : 'bottom-right'}
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                limit={3}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover={false}
-                theme="colored"
-                stacked
-                closeButton
-              />
-              <AppRouter />
-              <PWAInstallModal />
+              <SessionTimeoutProvider>
+                <ToastContainer
+                  position={window.innerWidth <= 720 ? 'top-right' : 'bottom-right'}
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  limit={3}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover={false}
+                  theme="colored"
+                  stacked
+                  closeButton
+                />
+                <AppRouter />
+                <PWAInstallModal />
+              </SessionTimeoutProvider>
             </AuthProvider>
           </ThemeProvider>
         </MantineProvider>
