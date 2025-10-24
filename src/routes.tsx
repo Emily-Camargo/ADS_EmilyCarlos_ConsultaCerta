@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import CustomLoaders from './components/Loader'
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 const Navbar = lazy(() => import('./components/navbar'))
 
@@ -36,43 +37,43 @@ function App() {
     },
     {
       path: '/home',
-      element: <Home />,
+      element: <ProtectedRoute><Home /></ProtectedRoute>,
     },
     {
       path: '/pacientes',
-      element: <Pacientes />,
+      element: <ProtectedRoute><Pacientes /></ProtectedRoute>,
     },
     {
       path: '/agenda',
-      element: <Agenda />,
+      element: <ProtectedRoute><Agenda /></ProtectedRoute>,
     },
     {
       path: '/consultas',
-      element: <Consultas />,
+      element: <ProtectedRoute><Consultas /></ProtectedRoute>,
     },
     {
       path: '/minhas-consultas',
-      element: <MinhasConsultas />,
+      element: <ProtectedRoute><MinhasConsultas /></ProtectedRoute>,
     },
     {
       path: '/atendimentos',
-      element: <Atendimentos />,
+      element: <ProtectedRoute><Atendimentos /></ProtectedRoute>,
     },
     {
       path: '/prontuario-atendimento/:idPaciente/:idConsulta',
-      element: <ProntuarioAtendimento />,
+      element: <ProtectedRoute><ProntuarioAtendimento /></ProtectedRoute>,
     },
     {
       path: '/perfil',
-      element: <MeuPerfil />,
+      element: <ProtectedRoute><MeuPerfil /></ProtectedRoute>,
     },
     {
       path: '/prescricoes',
-      element: <Prescricoes />,
+      element: <ProtectedRoute><Prescricoes /></ProtectedRoute>,
     },
     {
       path: '/prontuarios',
-      element: <Prontuarios />,
+      element: <ProtectedRoute><Prontuarios /></ProtectedRoute>,
     },
   ]
 
