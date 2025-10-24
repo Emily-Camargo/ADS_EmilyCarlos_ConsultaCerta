@@ -37,6 +37,7 @@ import { AtualizarProntuarioReq, AtualizarConsultaReq, PrescricaoAtualizacao } f
 import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
 import { useAssistente } from '../../hooks';
 import { AssistenteRequest } from '../../services/assistente/interface';
+import ModalProntuarioHistorico from './components/ModalProntuarioHistorico';
 
 const ProntuarioAtendimento: React.FC = () => {
   const { idPaciente, idConsulta } = useParams<{ idPaciente: string; idConsulta: string }>();
@@ -71,7 +72,6 @@ const ProntuarioAtendimento: React.FC = () => {
     medicamentos_uso_continuo: ''
   });
   
-  // Estados para o chat com IA
   const [mensagensChat, setMensagensChat] = useState<Array<{
     id: string;
     tipo: 'usuario' | 'ia';
@@ -83,10 +83,14 @@ const ProntuarioAtendimento: React.FC = () => {
   }>>([]);
   const [mensagemAtual, setMensagemAtual] = useState('');
   
-  // Hook da assistente Dra. Certa
+  // Estados para modal de histórico
+  const [modalHistoricoAberta, setModalHistoricoAberta] = useState(false);
+  const [consultaSelecionada, setConsultaSelecionada] = useState<any>(null);
+  const [prontuarioHistorico, setProntuarioHistorico] = useState<any>(null);
+  const [carregandoProntuarioHistorico, setCarregandoProntuarioHistorico] = useState(false);
+  
   const { sendMessage, data: respostaAssistente, isLoading: enviandoMensagem, error: erroAssistente } = useAssistente();
 
-  // Buscar dados do prontuário
   const { data: prontuario, isLoading: carregandoProntuario, error } = useQuery({
     queryKey: ['prontuario-atendimento', idPacienteNumber],
     queryFn: async () => {
@@ -98,7 +102,6 @@ const ProntuarioAtendimento: React.FC = () => {
       toast.error('Erro ao carregar prontuário');
     },
     onSuccess: (data) => {
-      // Inicializar os campos editáveis com os dados do paciente
       if (data?.paciente) {
         setCamposMedicosEditaveis({
           alergias: data.paciente.alergias || '',
@@ -109,7 +112,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
-  // Buscar histórico de consultas
   const { data: historicoConsultas = [], isLoading: carregandoHistorico } = useQuery({
     queryKey: ['historico-consultas-atendimento', idPacienteNumber],
     queryFn: async () => {
@@ -122,7 +124,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
-  // Mutation para atualizar prontuário
   const atualizarProntuarioMutation = useMutation({
     mutationKey: ['atualizar-prontuario'],
     mutationFn: atualizarProntuario,
@@ -135,7 +136,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   });
 
-  // Mutation para finalizar consulta
   const finalizarConsultaMutation = useMutation({
     mutationKey: ['finalizar-consulta'],
     mutationFn: atualizarConsulta,
@@ -426,6 +426,45 @@ const ProntuarioAtendimento: React.FC = () => {
       ...prev,
       [campo]: valor
     }));
+  };
+
+  // Função para abrir modal do histórico
+  const abrirModalHistorico = async (consulta: any) => {
+    setConsultaSelecionada(consulta);
+    setModalHistoricoAberta(true);
+    setCarregandoProntuarioHistorico(true);
+    
+    try {
+      const idConsultaNumber = parseInt(consulta.idConsulta, 10);
+      
+      // Validar se os IDs são números válidos
+      if (isNaN(idPacienteNumber) || isNaN(idConsultaNumber)) {
+        throw new Error('IDs inválidos');
+      }
+      
+      console.log('Buscando prontuário:', { 
+        idPacienteNumber, 
+        idConsultaNumber, 
+        idPacienteType: typeof idPacienteNumber,
+        idConsultaType: typeof idConsultaNumber,
+        consulta 
+      });
+      
+      const response = await buscarProntuarioPaciente(idPacienteNumber, idConsultaNumber);
+      setProntuarioHistorico(response.data);
+    } catch (error) {
+      console.error('Erro ao carregar prontuário do histórico:', error);
+      toast.error('Erro ao carregar prontuário da consulta');
+    } finally {
+      setCarregandoProntuarioHistorico(false);
+    }
+  };
+
+  // Função para fechar modal do histórico
+  const fecharModalHistorico = () => {
+    setModalHistoricoAberta(false);
+    setConsultaSelecionada(null);
+    setProntuarioHistorico(null);
   };
 
   if (carregandoProntuario) {
@@ -1195,15 +1234,18 @@ const ProntuarioAtendimento: React.FC = () => {
                   {historicoConsultas.map((consulta) => (
                     <Paper
                       key={consulta.idConsulta}
+                      onClick={() => abrirModalHistorico(consulta)}
                       sx={{
                         p: 2,
                         backgroundColor: '#f8fafc',
                         border: '1px solid #e2e8f0',
                         borderRadius: '8px',
                         transition: 'all 0.2s',
+                        cursor: 'pointer',
                         '&:hover': {
                           backgroundColor: '#f1f5f9',
-                          transform: 'translateY(-1px)'
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
                         }
                       }}
                     >
@@ -1251,6 +1293,15 @@ const ProntuarioAtendimento: React.FC = () => {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Modal do Histórico */}
+      <ModalProntuarioHistorico
+        aberta={modalHistoricoAberta}
+        onFechar={fecharModalHistorico}
+        consulta={consultaSelecionada}
+        prontuario={prontuarioHistorico}
+        carregando={carregandoProntuarioHistorico}
+      />
     </Box>
   );
 };

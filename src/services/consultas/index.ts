@@ -61,10 +61,15 @@ export const confirmarConsulta = async (data: ConfirmarConsultaReq): Promise<Axi
   return Promise.resolve(response);
 };
 
-export const buscarProntuarioPaciente = async (idPaciente: number): Promise<AxiosResponse<ProntuarioPacienteRes>> => {
-  const response = await api.get<ProntuarioPacienteRes>(
-    `/consultas/prontuario/${idPaciente}`
-  );
+export const buscarProntuarioPaciente = async (idPaciente: number, idConsulta?: number): Promise<AxiosResponse<ProntuarioPacienteRes>> => {
+  const url = `/consultas/prontuario`;
+  
+  const data = idConsulta ? { idPaciente, idConsulta } : { idPaciente };
+  
+  console.log('URL da requisição:', url);
+  console.log('Dados enviados:', data);
+    
+  const response = await api.post<ProntuarioPacienteRes>(url, data);
 
   return Promise.resolve(response);
 };
