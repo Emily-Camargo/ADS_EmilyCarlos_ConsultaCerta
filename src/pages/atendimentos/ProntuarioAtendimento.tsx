@@ -35,6 +35,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { buscarProntuarioPaciente, postBuscarConsultas, atualizarProntuario, atualizarConsulta } from '../../services/consultas';
 import { AtualizarProntuarioReq, AtualizarConsultaReq, PrescricaoAtualizacao } from '../../services/consultas/interface';
 import { calcularIdade, getStatusColor } from '../prontuarios/utils/constants';
+import { useAssistente } from '../../hooks';
+import { AssistenteRequest } from '../../services/assistente/interface';
 
 const ProntuarioAtendimento: React.FC = () => {
   const { idPaciente, idConsulta } = useParams<{ idPaciente: string; idConsulta: string }>();
@@ -77,9 +79,12 @@ const ProntuarioAtendimento: React.FC = () => {
     timestamp: Date;
     sugestaoAceita?: boolean;
     sugestaoNegada?: boolean;
+    dadosEstruturados?: any;
   }>>([]);
   const [mensagemAtual, setMensagemAtual] = useState('');
-  const [enviandoMensagem, setEnviandoMensagem] = useState(false);
+  
+  // Hook da assistente Dra. Certa
+  const { sendMessage, data: respostaAssistente, isLoading: enviandoMensagem, error: erroAssistente } = useAssistente();
 
   // Buscar dados do prontuário
   const { data: prontuario, isLoading: carregandoProntuario, error } = useQuery({
@@ -255,41 +260,42 @@ const ProntuarioAtendimento: React.FC = () => {
     };
 
     setMensagensChat(prev => [...prev, novaMensagem]);
+    const mensagemParaEnviar = mensagemAtual;
     setMensagemAtual('');
-    setEnviandoMensagem(true);
 
     try {
-      // Simular resposta da IA
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const request: AssistenteRequest = {
+        content: mensagemParaEnviar
+      };
       
-      const respostasIA = [
-        "Com base no relato do paciente, recomendo investigar possíveis causas cardiovasculares. Considere solicitar ECG e exames laboratoriais.",
-        "Sugiro solicitar exames complementares para confirmar o diagnóstico. Hemograma completo e função renal seriam importantes.",
-        "Considere a possibilidade de encaminhamento para especialista. O quadro pode necessitar de avaliação mais específica.",
-        "Avalie a necessidade de medicação sintomática. Analise contraindicações e interações medicamentosas.",
-        "Oriente o paciente sobre mudanças no estilo de vida. Dieta equilibrada e exercícios regulares podem ajudar.",
-        "Agende retorno em 30 dias para acompanhamento. Monitore a evolução dos sintomas.",
-        "Com base no histórico, recomendo investigar fatores de risco familiares. Questione sobre antecedentes familiares.",
-        "Considere a possibilidade de ansiedade ou estresse como fator contribuinte. Avalie aspectos psicossociais.",
-        "Sugiro manter um diário dos sintomas para melhor acompanhamento. Isso pode ajudar no diagnóstico."
-      ];
+      sendMessage(request);
+    } catch (error) {
+      toast.error('Erro ao enviar mensagem');
+    }
+  };
 
-      const respostaAleatoria = respostasIA[Math.floor(Math.random() * respostasIA.length)];
-      
+  // Effect para processar resposta da assistente
+  React.useEffect(() => {
+    if (respostaAssistente && respostaAssistente.content) {
+      const content = respostaAssistente.content;
       const respostaIA = {
         id: (Date.now() + 1).toString(),
         tipo: 'ia' as const,
-        mensagem: respostaAleatoria,
-        timestamp: new Date()
+        mensagem: `Diagnóstico: ${content.diagnostico || 'Não especificado'}\n\nConduta: ${content.conduta || 'Não especificada'}\n\nObservações: ${content.observacoes || 'Nenhuma observação'}`,
+        timestamp: new Date(),
+        dadosEstruturados: content
       };
 
       setMensagensChat(prev => [...prev, respostaIA]);
-    } catch (error) {
-      toast.error('Erro ao enviar mensagem');
-    } finally {
-      setEnviandoMensagem(false);
     }
-  };
+  }, [respostaAssistente]);
+
+  // Effect para tratar erros da assistente
+  React.useEffect(() => {
+    if (erroAssistente) {
+      toast.error('Erro ao processar mensagem com a assistente');
+    }
+  }, [erroAssistente]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -298,7 +304,97 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   };
 
+  // Função para formatar queixas principais em formato médico formal
+  // Exemplo: ["vermelhidão", "coceira na pele"] -> "Paciente relata vermelhidão e coceira na pele."
+  const formatarQueixasPrincipais = (queixas: string[]) => {
+    if (!queixas || queixas.length === 0) return '';
+    
+    // Apenas capitalizar primeira letra de cada queixa, mantendo as palavras originais
+    const queixasFormatadas = queixas.map(queixa => 
+      queixa.charAt(0).toUpperCase() + queixa.slice(1).toLowerCase()
+    );
+    
+    // Formatar como texto médico formal
+    if (queixasFormatadas.length === 1) {
+      return `Paciente relata ${queixasFormatadas[0]}.`;
+    } else if (queixasFormatadas.length === 2) {
+      return `Paciente relata ${queixasFormatadas[0]} e ${queixasFormatadas[1]}.`;
+    } else {
+      const ultimaQueixa = queixasFormatadas.pop();
+      return `Paciente relata ${queixasFormatadas.join(', ')} e ${ultimaQueixa}.`;
+    }
+  };
+
+  // Função para formatar conduta médica com estrutura formal
+  const formatarCondutaMedica = (conduta: string) => {
+    if (!conduta) return '';
+    
+    // Adicionar estrutura formal se não começar com verbo de recomendação
+    const condutaLower = conduta.toLowerCase().trim();
+    const verbosRecomendacao = ['recomenda-se', 'sugere-se', 'orienta-se', 'prescreve-se', 'indica-se'];
+    
+    if (verbosRecomendacao.some(verbo => condutaLower.startsWith(verbo))) {
+      return conduta.charAt(0).toUpperCase() + conduta.slice(1);
+    }
+    
+    return `Recomenda-se ${conduta.toLowerCase()}`;
+  };
+
+  // Função para formatar observações com estrutura formal
+  const formatarObservacoes = (observacoes: string) => {
+    if (!observacoes) return '';
+    
+    // Adicionar estrutura formal se não começar com verbo de observação
+    const observacoesLower = observacoes.toLowerCase().trim();
+    const verbosObservacao = ['observa-se', 'nota-se', 'verifica-se', 'constata-se', 'recomenda-se'];
+    
+    if (verbosObservacao.some(verbo => observacoesLower.startsWith(verbo))) {
+      return observacoes.charAt(0).toUpperCase() + observacoes.slice(1);
+    }
+    
+    return `Observa-se ${observacoes.toLowerCase()}`;
+  };
+
   const aceitarSugestao = (mensagemId: string) => {
+    const mensagem = mensagensChat.find(m => m.id === mensagemId);
+    
+    if (mensagem?.dadosEstruturados) {
+      const dados = mensagem.dadosEstruturados;
+      
+      // Formatar queixas principais para anamnese
+      const anamneseFormatada = formatarQueixasPrincipais(dados.queixaPrincipal || []);
+      
+      // Formatar conduta médica com estrutura formal
+      const condutaFormatada = formatarCondutaMedica(dados.conduta || '');
+      
+      // Formatar observações com estrutura formal
+      const observacoesFormatadas = formatarObservacoes(dados.observacoes || '');
+      
+      // Aplicar automaticamente os dados da assistente nos campos do prontuário
+      setFormulario(prev => ({
+        ...prev,
+        anamnese: anamneseFormatada || prev.anamnese,
+        hipoteseDiagnostica: dados.diagnostico || prev.hipoteseDiagnostica,
+        condutaMedica: condutaFormatada || prev.condutaMedica,
+        observacoes: observacoesFormatadas || prev.observacoes
+      }));
+
+      // Adicionar prescrições sugeridas
+      if (dados.prescricao && Array.isArray(dados.prescricao) && dados.prescricao.length > 0) {
+        const novasPrescricoes = dados.prescricao.map((med: any) => ({
+          id_prontuario: prontuario?.prontuario.id_prontuario || 0,
+          id_consulta: idConsultaNumber,
+          medicamento: med.nome || '',
+          dosagem: med.dose || '',
+          instrucoes: med.frequencia || '',
+          controlado: false,
+          ativo: true
+        }));
+        
+        setPrescricoes(prev => [...prev, ...novasPrescricoes]);
+      }
+    }
+
     setMensagensChat(prev => 
       prev.map(mensagem => 
         mensagem.id === mensagemId 
@@ -306,7 +402,7 @@ const ProntuarioAtendimento: React.FC = () => {
           : mensagem
       )
     );
-    toast.success('Sugestão aceita!');
+    toast.success('Sugestão aceita e aplicada automaticamente!');
   };
 
   const negarSugestao = (mensagemId: string) => {
@@ -878,9 +974,105 @@ const ProntuarioAtendimento: React.FC = () => {
                             border: mensagem.tipo === 'ia' ? '1px solid #e2e8f0' : 'none'
                           }}
                         >
-                          <Typography variant="body2" sx={{ mb: 0.5 }}>
-                            {mensagem.mensagem}
-                          </Typography>
+                          {mensagem.tipo === 'ia' && mensagem.dadosEstruturados ? (
+                            <Box>
+                              {/* Queixa Principal */}
+                              {mensagem.dadosEstruturados.queixaPrincipal && mensagem.dadosEstruturados.queixaPrincipal.length > 0 && (
+                                <Box sx={{ mb: 2 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 0.5 }}>
+                                    Queixa Principal:
+                                  </Typography>
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {mensagem.dadosEstruturados.queixaPrincipal.map((queixa: string, index: number) => (
+                                      <Chip 
+                                        key={index} 
+                                        label={queixa} 
+                                        size="small"
+                                        sx={{ 
+                                          backgroundColor: '#dbeafe', 
+                                          color: '#1e40af',
+                                          fontSize: '0.7rem'
+                                        }}
+                                      />
+                                    ))}
+                                  </Box>
+                                </Box>
+                              )}
+
+                              {/* Diagnóstico */}
+                              <Box sx={{ mb: 2 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 0.5 }}>
+                                  Diagnóstico:
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                  p: 1, 
+                                  backgroundColor: '#fef2f2', 
+                                  borderRadius: '4px',
+                                  color: '#dc2626',
+                                  fontWeight: '500'
+                                }}>
+                                  {mensagem.dadosEstruturados.diagnostico || 'Não especificado'}
+                                </Typography>
+                              </Box>
+
+                              {/* Conduta */}
+                              <Box sx={{ mb: 2 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 0.5 }}>
+                                  Conduta:
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                  p: 1, 
+                                  backgroundColor: '#f0f9ff', 
+                                  borderRadius: '4px',
+                                  color: '#0369a1'
+                                }}>
+                                  {mensagem.dadosEstruturados.conduta || 'Não especificada'}
+                                </Typography>
+                              </Box>
+
+                              {/* Prescrições */}
+                              {mensagem.dadosEstruturados.prescricao && Array.isArray(mensagem.dadosEstruturados.prescricao) && mensagem.dadosEstruturados.prescricao.length > 0 && (
+                                <Box sx={{ mb: 2 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 0.5 }}>
+                                    Prescrições Sugeridas:
+                                  </Typography>
+                                  {mensagem.dadosEstruturados.prescricao.map((med: any, index: number) => (
+                                    <Box key={index} sx={{ 
+                                      p: 1, 
+                                      backgroundColor: '#f0fdf4', 
+                                      borderRadius: '4px', 
+                                      mb: 0.5,
+                                      border: '1px solid #bbf7d0'
+                                    }}>
+                                      <Typography variant="body2" sx={{ fontWeight: '500', color: '#166534' }}>
+                                        {med.nome || 'Medicamento'} - {med.dose || 'Dose não especificada'} - {med.frequencia || 'Frequência não especificada'}
+                                      </Typography>
+                                    </Box>
+                                  ))}
+                                </Box>
+                              )}
+
+                              {/* Observações */}
+                              <Box sx={{ mb: 1 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: '600', mb: 0.5 }}>
+                                  Observações:
+                                </Typography>
+                                <Typography variant="body2" sx={{ 
+                                  p: 1, 
+                                  backgroundColor: '#fffbeb', 
+                                  borderRadius: '4px',
+                                  color: '#d97706'
+                                }}>
+                                  {mensagem.dadosEstruturados.observacoes || 'Nenhuma observação'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ) : (
+                            <Typography variant="body2" sx={{ mb: 0.5 }}>
+                              {mensagem.mensagem}
+                            </Typography>
+                          )}
+                          
                           <Typography variant="caption" sx={{ 
                             opacity: 0.7,
                             fontSize: '0.7rem'
