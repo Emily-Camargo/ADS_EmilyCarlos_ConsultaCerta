@@ -7,9 +7,9 @@ interface SessionTimeoutProviderProps {
 }
 
 export const SessionTimeoutProvider: React.FC<SessionTimeoutProviderProps> = ({ children }) => {
-  // Configura o timeout para 1 minuto e exibe notificação quando expira
+  // Configura o timeout para 15 minutos e exibe notificação quando expira
   useSessionTimeout({
-    timeoutMinutes: 1,
+    timeoutMinutes: 15,
     onTimeout: () => {
       toast.error('Sessão expirada! Faça login novamente.');
     }
