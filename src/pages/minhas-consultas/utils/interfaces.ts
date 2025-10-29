@@ -9,6 +9,9 @@ export interface ConsultaPaciente {
   status: 'agendada' | 'confirmada' | 'concluida' | 'cancelada'
   criado_em: string
   atualizado_em?: string
+  data_cancelamento?: string | null
+  motivo_cancelamento?: string | null
+  prazo_confirmacao?: string | null
   medico: {
     id_medico: number
     nome_medico: string
