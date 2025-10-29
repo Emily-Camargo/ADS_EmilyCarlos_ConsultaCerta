@@ -9,8 +9,8 @@ import {
   MdCancel,
   MdSchedule,
   MdVerified,
-  MdInfo,
-  MdCheckCircle
+  MdCheckCircle,
+  MdWarning
 } from 'react-icons/md'
 import { ConsultaCardProps } from '../utils/interfaces'
 import { getStatusColor } from '../../home/utils/constants'
@@ -26,6 +26,21 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
 
   const { data, hora } = formatarDataHora(consulta.data_hora)
   const statusColor = getStatusColor(getStatusText(consulta.status))
+
+  const calcularLimiteReagendamento = () => {
+    const dataConsulta = new Date(consulta.data_hora)
+    const limiteReagendamento = new Date(dataConsulta.getTime() - 4 * 60 * 60 * 1000) // Subtrai 4 horas
+    return limiteReagendamento
+  }
+
+  const calcularPrazoConfirmacao = () => {
+    const dataConsulta = new Date(consulta.data_hora)
+    const prazoConfirmacao = new Date(dataConsulta.getTime() - 2 * 60 * 60 * 1000) // Subtrai 2 horas
+    return prazoConfirmacao
+  }
+
+  const limiteReagendamento = consulta.status === 'agendada' ? calcularLimiteReagendamento() : null
+  const prazoConfirmacao = consulta.status === 'agendada' ? calcularPrazoConfirmacao() : null
 
   return (
     <Card 
@@ -197,22 +212,83 @@ const ConsultaCard: React.FC<ConsultaCardProps> = ({
             </Typography>
           </Box>
         </Box>
-
-        {/* Observações */}
-        {consulta.observacoes && (
-          <Box sx={{ 
-            display: 'flex',
-            gap: 0.5,
+  
+        {/* Avisos para consultas agendadas */}
+        {consulta.status === 'agendada' && (
+          <Box sx={{
+            backgroundColor: '#fef9c3',
+            border: '1px solid #fef08a',
+            borderRadius: '6px',
+            p: 1.25,
             mb: 2
           }}>
-            <MdInfo size={16} color="#64748b" style={{ marginTop: '2px' }} />
-            <Typography variant="body2" sx={{ 
-              color: '#64748b', 
-              fontSize: '0.75rem',
-              fontStyle: 'italic'
-            }}>
-              {consulta.observacoes}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1 }}>
+              <MdWarning size={16} color="#d97706" />
+              <Typography sx={{ color: '#92400e', fontWeight: 600, fontSize: '0.8rem' }}>
+                Avisos Importantes
+              </Typography>
+            </Box>
+            
+            {prazoConfirmacao && (
+              <Typography variant="body2" sx={{ color: '#78350f', fontSize: '0.75rem', mb: 0.75 }}>
+                Você tem até o dia {prazoConfirmacao.toLocaleString('pt-BR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric',
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })} para confirmar.
+              </Typography>
+            )}
+            
+            <Typography variant="body2" sx={{ color: '#78350f', fontSize: '0.75rem', mb: 0.75, fontWeight: 500 }}>
+              Caso não confirmada, sua consulta será cancelada automaticamente!
             </Typography>
+            
+            {limiteReagendamento && (
+              <Typography variant="body2" sx={{ color: '#78350f', fontSize: '0.75rem' }}>
+                Reagendamentos e cancelamentos poderão ser realizados até {limiteReagendamento.toLocaleString('pt-BR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric',
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })} (4 horas antes da consulta).
+              </Typography>
+            )}
+          </Box>
+        )}
+
+        {consulta.status === 'cancelada' && (consulta.data_cancelamento || consulta.motivo_cancelamento) && (
+          <Box sx={{
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '6px',
+            p: 1.25,
+            mb: 2
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+              <MdCancel size={16} color="#dc2626" />
+              <Typography sx={{ color: '#991b1b', fontWeight: 600, fontSize: '0.8rem' }}>
+                Consulta cancelada
+              </Typography>
+            </Box>
+            {consulta.data_cancelamento && (
+              <Typography variant="body2" sx={{ color: '#7f1d1d', fontSize: '0.75rem' }}>
+                Data do cancelamento: {new Date(consulta.data_cancelamento).toLocaleString('pt-BR', { 
+                  day: '2-digit', 
+                  month: '2-digit', 
+                  year: 'numeric',
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </Typography>
+            )}
+            {consulta.motivo_cancelamento && (
+              <Typography variant="body2" sx={{ color: '#7f1d1d', fontSize: '0.75rem' }}>
+                Motivo: {consulta.motivo_cancelamento}
+              </Typography>
+            )}
           </Box>
         )}
 

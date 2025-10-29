@@ -297,6 +297,9 @@ const MinhasConsultasPage: React.FC = () => {
                   status: consultaApi.status.toLowerCase() as any,
                   criado_em: consultaApi.criadoEm,
                   atualizado_em: consultaApi.atualizadoEm,
+                  data_cancelamento: consultaApi.dataCancelamento ?? null,
+                  motivo_cancelamento: consultaApi.motivoCancelamento ?? null,
+                  prazo_confirmacao: consultaApi.prazoConfirmacao ?? null,
                   medico: {
                     id_medico: consultaApi.medico.idMedico,
                     nome_medico: consultaApi.medico.nome,
