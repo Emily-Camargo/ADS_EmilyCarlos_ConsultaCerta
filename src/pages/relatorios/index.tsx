@@ -14,14 +14,16 @@ import {
   MdAttachMoney,
 } from 'react-icons/md'
 import { useDimension } from '../../hooks'
-import { useAuth } from '../../contexts/AuthContext'
-import { postBuscarConsultas } from '../../services/consultas'
-import { ConsultaRes } from '../../services/consultas/interface'
+import { getDashboard } from '../../services/dashboard'
+import { DashboardRes } from '../../services/dashboard/interface'
 import { toast } from 'react-toastify'
 import Filtro from '../../components/filtro'
 import { useImmer } from 'use-immer'
-import { inputsRelatorios } from './components/filtro'
+import { inputsRelatorios, selectMedicosRelatorios } from './components/filtro'
 import { relatoriosFil } from './utils/constants'
+import { getBuscarMedicos } from '../../services/usuario'
+import { InfoUsuarioRes } from '../../services/usuario/interface'
+import { useAuth } from '../../contexts/AuthContext'
 
 // Componentes
 import StatCard from './components/StatCard'
@@ -31,37 +33,44 @@ import MedicosTable from './components/MedicosTable'
 import HorariosBarChart from './components/HorariosBarChart'
 
 // Utils
-import {
-  calcularEstatisticasGerais,
-  agruparConsultasPorPeriodo,
-  calcularEstatisticasMedicos,
-  agruparConsultasPorStatus,
-  calcularOcupacaoPorHorario,
-  calcularEstatisticasPacientes,
-  formatarMoeda,
-} from './utils/functions'
+import { formatarMoeda } from './utils/functions'
 
 const Relatorios: React.FC = () => {
-  const isMobile = useDimension(800)
   const { user } = useAuth()
-  const [consultas, setConsultas] = useState<ConsultaRes[]>([])
+  const isMobile = useDimension(800)
+  const [dashboardData, setDashboardData] = useState<DashboardRes | null>(null)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useImmer(relatoriosFil)
+  const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([])
+
+  const buscarMedicos = async () => {
+    // Só busca médicos se não for médico (idPerfil !== 3)
+    if (user?.idPerfil === 3) return
+    
+    try {
+      const response = await getBuscarMedicos()
+      setMedicos(response.data)
+    } catch (error) {
+      console.error('Erro ao buscar médicos:', error)
+      toast.error('Erro ao carregar lista de médicos')
+    }
+  }
 
   const buscarDadosIniciais = async () => {
     try {
       setLoading(true)
-      // Últimos 30 dias por padrão
-      const dataFim = new Date()
-      const dataInicio = new Date()
-      dataInicio.setDate(dataInicio.getDate() - 30)
 
-      const response = await postBuscarConsultas({
-        dataInicio: dataInicio.toISOString().split('T')[0],
-        dataFim: dataFim.toISOString().split('T')[0],
+      // Se for médico (idPerfil === 3), envia o idMedico dele automaticamente
+      let idMedicoParam: number | undefined = undefined
+      if (user?.idPerfil === 3 && user?.medico?.idMedico) {
+        idMedicoParam = user.medico.idMedico
+      }
+
+      const response = await getDashboard({
+        idMedico: idMedicoParam,
       })
 
-      setConsultas(response.data)
+      setDashboardData(response.data)
     } catch (error) {
       console.error('Erro ao buscar dados:', error)
       toast.error('Erro ao carregar dados dos relatórios')
@@ -71,6 +80,7 @@ const Relatorios: React.FC = () => {
   }
 
   useEffect(() => {
+    buscarMedicos()
     buscarDadosIniciais()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -78,19 +88,24 @@ const Relatorios: React.FC = () => {
   const enviar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!data.dataInicio || !data.dataFim) {
-      toast.error('Preencha as datas inicial e final')
-      return
-    }
-
     try {
       setLoading(true)
-      const response = await postBuscarConsultas({
-        dataInicio: data.dataInicio,
-        dataFim: data.dataFim,
+      
+      // Se for médico (idPerfil === 3), envia o idMedico dele automaticamente
+      let idMedicoParam: number | undefined = undefined
+      if (user?.idPerfil === 3 && user?.medico?.idMedico) {
+        idMedicoParam = user.medico.idMedico
+      } else {
+        idMedicoParam = data.idMedico || undefined
+      }
+
+      const response = await getDashboard({
+        dataInicio: data.dataInicio || undefined,
+        dataFim: data.dataFim || undefined,
+        idMedico: idMedicoParam,
       })
 
-      setConsultas(response.data)
+      setDashboardData(response.data)
       toast.success('Relatório atualizado com sucesso')
     } catch (error) {
       console.error('Erro ao buscar dados:', error)
@@ -105,13 +120,29 @@ const Relatorios: React.FC = () => {
     buscarDadosIniciais()
   }
 
-  // Cálculo de estatísticas
-  const estatisticasGerais = calcularEstatisticasGerais(consultas)
-  const consultasPorPeriodo = agruparConsultasPorPeriodo(consultas)
-  const estatisticasMedicos = calcularEstatisticasMedicos(consultas)
-  const consultasPorStatus = agruparConsultasPorStatus(consultas)
-  const horariosOcupacao = calcularOcupacaoPorHorario(consultas)
-  const estatisticasPacientes = calcularEstatisticasPacientes(consultas)
+  // Extração dos dados do dashboard
+  const estatisticasGerais = dashboardData?.estatisticasGerais || {
+    totalConsultas: 0,
+    consultasAgendadas: 0,
+    consultasConfirmadas: 0,
+    consultasConcluidas: 0,
+    consultasCanceladas: 0,
+    taxaCancelamento: 0,
+    taxaConclusao: 0,
+    receitaTotal: 0,
+    receitaMes: 0,
+  }
+  const consultasPorPeriodo = dashboardData?.consultasPorPeriodo || []
+  const estatisticasMedicos = dashboardData?.estatisticasMedicos || []
+  const consultasPorStatus = dashboardData?.consultasPorStatus || []
+  const horariosOcupacao = dashboardData?.horariosOcupacao || []
+  const estatisticasPacientes = dashboardData?.estatisticasPacientes || {
+    totalPacientes: 0,
+    pacientesAtivos: 0,
+    novosPacientes: 0,
+    pacientesRecorrentes: 0,
+    mediaConsultasPorPaciente: 0,
+  }
 
   return (
     <Box
@@ -126,6 +157,7 @@ const Relatorios: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <Filtro
           inputs={inputsRelatorios({ data, setData })}
+          inputSelect={user?.idPerfil !== 3 ? [selectMedicosRelatorios(data, setData, medicos)] : undefined}
           onSubmit={enviar}
           onClear={limpar}
         />

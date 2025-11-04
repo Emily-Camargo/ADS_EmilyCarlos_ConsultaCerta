@@ -2,11 +2,13 @@
 export interface RelatoriosFiltro {
   dataInicio: string
   dataFim: string
+  idMedico: number | null
 }
 
 export const relatoriosFil: RelatoriosFiltro = {
   dataInicio: '',
   dataFim: '',
+  idMedico: null,
 }
 
 // Cores para os diferentes status de consultas

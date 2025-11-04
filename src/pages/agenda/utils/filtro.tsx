@@ -1,10 +1,11 @@
 import { DataReqAgenda, InputsPropsAgenda } from './interfaces'
 import { handleChange } from './functions'
 import { InputsTypeFiltro } from '../../../components/filtro/utils/interface'
+import { InputSelectProps } from '../../../components/input-mui/input-select/utils/interface'
+import { InfoUsuarioRes } from '../../../services/usuario/interface'
 
 export const agendaFil: DataReqAgenda = { 
-  nomeMedico: '', 
-  crm: '',
+  idMedico: null,
   dataInicio: '', 
   dataFim: '', 
 }
@@ -16,18 +17,6 @@ export const inputsAgenda = ({
   return [
     {
       order: 1,
-      value: data.nomeMedico,
-      label: 'Nome do médico',
-      onChange: (e) => handleChange('nomeMedico', e.target.value, setData),
-    },
-    {
-      order: 2,
-      value: data.crm,
-      label: 'CRM',
-      onChange: (e) => handleChange('crm', e.target.value, setData),
-    },
-    {
-      order: 3,
       type: 'date',
       value: data.dataInicio,
       label: 'Data início vigência',
@@ -35,7 +24,7 @@ export const inputsAgenda = ({
       onChange: (e) => handleChange('dataInicio', e.target.value, setData),
     },
     {
-      order: 4,
+      order: 2,
       type: 'date',
       value: data.dataFim,
       label: 'Data fim vigência',
@@ -44,3 +33,18 @@ export const inputsAgenda = ({
     },
   ]
 }
+
+export const selectMedicosAgenda = (
+  data: DataReqAgenda,
+  handleMedicoChange: (_event: React.SyntheticEvent, value: InfoUsuarioRes | null) => void,
+  medicos: InfoUsuarioRes[]
+): InputSelectProps<InfoUsuarioRes, false> => ({
+  options: medicos,
+  optionLabel: (medico: InfoUsuarioRes) => medico.nome,
+  placeholder: 'Selecione um médico',
+  textFieldProps: {
+    label: 'Médico',
+  },
+  value: medicos.find(m => m.medico?.idMedico === data.idMedico) || null,
+  onChange: handleMedicoChange,
+})

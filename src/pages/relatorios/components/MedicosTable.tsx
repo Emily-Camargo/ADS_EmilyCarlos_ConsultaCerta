@@ -13,7 +13,7 @@ import {
   Chip,
   LinearProgress,
 } from '@mui/material'
-import { EstatisticasMedico } from '../utils/interfaces'
+import { EstatisticasMedico } from '../../../services/dashboard/interface'
 import { formatarMoeda } from '../utils/functions'
 
 interface MedicosTableProps {

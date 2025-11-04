@@ -59,8 +59,7 @@ export interface BloqueioAgenda {
 
 // Interface para dados de filtro da agenda
 export interface DataReqAgenda {
-  nomeMedico: string
-  crm: string
+  idMedico: number | null
   dataInicio: string
   dataFim: string
 }

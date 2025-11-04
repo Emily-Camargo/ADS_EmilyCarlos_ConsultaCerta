@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Typography, Card, CardContent } from '@mui/material'
 import { ResponsiveBar } from '@nivo/bar'
-import { HorarioOcupacao } from '../utils/interfaces'
+import { HorarioOcupacao } from '../../../services/dashboard/interface'
 
 interface HorariosBarChartProps {
   data: HorarioOcupacao[]

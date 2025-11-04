@@ -13,12 +13,14 @@ import { CancelarConsulta } from './components/modais/cancelar-consulta';
 import { ReagendarConsulta } from './components/modais/reagendar-consulta';
 import { toast } from 'react-toastify';
 import { ConsultaCalendario, ConsultaData } from './utils/interfaces';
-import { filtroMedico } from './utils/filtro';
 import { useAuth } from '../../contexts/AuthContext';
 import { postBuscarConsultas, buscarConsultaEspecifica } from '../../services/consultas';
 import { ConsultaRes } from '../../services/consultas/interface';
 import { useQuery } from 'react-query';
 import CustomLoaders from '../../components/Loader';
+import { getBuscarMedicos } from '../../services/usuario';
+import { InfoUsuarioRes } from '../../services/usuario/interface';
+import { selectMedicosConsultas } from './utils/filtro';
 
 const ConsultasPage = () => {
   const { user } = useAuth();
@@ -28,8 +30,9 @@ const ConsultasPage = () => {
   const [modalCancelar, setModalCancelar] = useState(false);
   const [modalReagendar, setModalReagendar] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<ConsultaData | null>(null);
-  const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<string>('');
+  const [filtroMedicoSelecionado, setFiltroMedicoSelecionado] = useState<number | null>(null);
   const [consultas, setConsultas] = useState<ConsultaRes[]>([]);
+  const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const weekDays = getWeekDays(currentWeek);
@@ -52,6 +55,21 @@ const ConsultasPage = () => {
     }
   });
 
+  // Função para buscar médicos da API
+  useEffect(() => {
+    const buscarMedicos = async () => {
+      try {
+        const response = await getBuscarMedicos();
+        setMedicos(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar médicos:', error);
+        toast.error('Erro ao carregar lista de médicos');
+      }
+    };
+    
+    buscarMedicos();
+  }, []);
+
   // Função para buscar consultas da API
   useEffect(() => {
     buscarConsultas();
@@ -71,7 +89,7 @@ const ConsultasPage = () => {
       if (user?.idPerfil === 3 && user?.medico?.idMedico) {
         idMedicoParam = user.medico.idMedico;
       } else if (filtroMedicoSelecionado) {
-        idMedicoParam = parseInt(filtroMedicoSelecionado);
+        idMedicoParam = filtroMedicoSelecionado;
       }
   
       
@@ -186,21 +204,19 @@ const ConsultasPage = () => {
 
   const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const medico = formData.get('medico') as string;
-    setFiltroMedicoSelecionado(medico);
+    // Não precisa fazer nada aqui pois o filtro já está sendo aplicado automaticamente
   };
 
-  const handleMedicoChange = (_event: React.SyntheticEvent, value: any) => {
-    if (value && typeof value === 'object' && 'value' in value) {
-      setFiltroMedicoSelecionado(value.value);
+  const handleMedicoChange = (_event: React.SyntheticEvent, value: InfoUsuarioRes | null) => {
+    if (value && value.medico?.idMedico) {
+      setFiltroMedicoSelecionado(value.medico.idMedico);
     } else {
-      setFiltroMedicoSelecionado('');
+      setFiltroMedicoSelecionado(null);
     }
   };
 
   const handleLimparFiltros = () => {
-    setFiltroMedicoSelecionado('');
+    setFiltroMedicoSelecionado(null);
   };
 
   // Função para converter dados da API para ConsultaData
@@ -276,10 +292,7 @@ const ConsultasPage = () => {
         {user?.idPerfil !== 3 && (
           <Box sx={{ p: 3, pb: 0 }}>
             <Filtro 
-              inputSelect={[{
-                ...filtroMedico,
-                onChange: handleMedicoChange
-              }]}
+              inputSelect={[selectMedicosConsultas(filtroMedicoSelecionado, handleMedicoChange, medicos)]}
               onSubmit={handleFiltroSubmit}
               onClear={handleLimparFiltros}
             />
