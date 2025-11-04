@@ -23,6 +23,7 @@ import { inputsRelatorios, selectMedicosRelatorios } from './components/filtro'
 import { relatoriosFil } from './utils/constants'
 import { getBuscarMedicos } from '../../services/usuario'
 import { InfoUsuarioRes } from '../../services/usuario/interface'
+import { useAuth } from '../../contexts/AuthContext'
 
 // Componentes
 import StatCard from './components/StatCard'
@@ -35,6 +36,7 @@ import HorariosBarChart from './components/HorariosBarChart'
 import { formatarMoeda } from './utils/functions'
 
 const Relatorios: React.FC = () => {
+  const { user } = useAuth()
   const isMobile = useDimension(800)
   const [dashboardData, setDashboardData] = useState<DashboardRes | null>(null)
   const [loading, setLoading] = useState(true)
@@ -42,6 +44,9 @@ const Relatorios: React.FC = () => {
   const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([])
 
   const buscarMedicos = async () => {
+    // Só busca médicos se não for médico (idPerfil !== 3)
+    if (user?.idPerfil === 3) return
+    
     try {
       const response = await getBuscarMedicos()
       setMedicos(response.data)
@@ -54,14 +59,15 @@ const Relatorios: React.FC = () => {
   const buscarDadosIniciais = async () => {
     try {
       setLoading(true)
-      // Últimos 30 dias por padrão
-      const dataFim = new Date()
-      const dataInicio = new Date()
-      dataInicio.setDate(dataInicio.getDate() - 30)
+
+      // Se for médico (idPerfil === 3), envia o idMedico dele automaticamente
+      let idMedicoParam: number | undefined = undefined
+      if (user?.idPerfil === 3 && user?.medico?.idMedico) {
+        idMedicoParam = user.medico.idMedico
+      }
 
       const response = await getDashboard({
-        dataInicio: dataInicio.toISOString().split('T')[0],
-        dataFim: dataFim.toISOString().split('T')[0],
+        idMedico: idMedicoParam,
       })
 
       setDashboardData(response.data)
@@ -82,17 +88,21 @@ const Relatorios: React.FC = () => {
   const enviar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!data.dataInicio || !data.dataFim) {
-      toast.error('Preencha as datas inicial e final')
-      return
-    }
-
     try {
       setLoading(true)
+      
+      // Se for médico (idPerfil === 3), envia o idMedico dele automaticamente
+      let idMedicoParam: number | undefined = undefined
+      if (user?.idPerfil === 3 && user?.medico?.idMedico) {
+        idMedicoParam = user.medico.idMedico
+      } else {
+        idMedicoParam = data.idMedico || undefined
+      }
+
       const response = await getDashboard({
-        dataInicio: data.dataInicio,
-        dataFim: data.dataFim,
-        idMedico: data.idMedico || undefined,
+        dataInicio: data.dataInicio || undefined,
+        dataFim: data.dataFim || undefined,
+        idMedico: idMedicoParam,
       })
 
       setDashboardData(response.data)
@@ -147,7 +157,7 @@ const Relatorios: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <Filtro
           inputs={inputsRelatorios({ data, setData })}
-          inputSelect={[selectMedicosRelatorios(data, setData, medicos)]}
+          inputSelect={user?.idPerfil !== 3 ? [selectMedicosRelatorios(data, setData, medicos)] : undefined}
           onSubmit={enviar}
           onClear={limpar}
         />
