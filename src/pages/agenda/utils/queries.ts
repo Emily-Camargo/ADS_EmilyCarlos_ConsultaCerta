@@ -1,16 +1,17 @@
 import { getInfoAgenda, getHorariosMedico } from '../../../services/medico'
+import { GetInfoAgendaParams } from '../../../services/medico/interface'
 import { mapearAgendaResParaHorarioAtendimento } from './interfaces'
 
 // Query Keys
 export const agendaKeys = {
   all: ['agenda'] as const,
-  horarios: () => [...agendaKeys.all, 'horarios'] as const,
+  horarios: (params?: GetInfoAgendaParams) => [...agendaKeys.all, 'horarios', params] as const,
   horariosMedico: (idMedico: number) => [...agendaKeys.all, 'horarios', 'medico', idMedico] as const,
 }
 
 // Query Functions
-export const fetchHorarios = async () => {
-  const response = await getInfoAgenda()
+export const fetchHorarios = async (params?: GetInfoAgendaParams) => {
+  const response = await getInfoAgenda(params)
   return response.data.map(mapearAgendaResParaHorarioAtendimento)
 }
 
