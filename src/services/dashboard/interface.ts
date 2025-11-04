@@ -13,7 +13,7 @@ export interface EstatisticasGerais {
 
 // Interface para estatísticas por período
 export interface ConsultasPorPeriodo {
-  periodo: string // "2024-01", "Semana 1", etc
+  periodo: string
   total: number
   agendadas: number
   concluidas: number
@@ -30,7 +30,6 @@ export interface EstatisticasMedico {
   consultasCanceladas: number
   taxaConclusao: number
   receitaGerada: number
-  avaliacaoMedia?: number
 }
 
 // Interface para estatísticas por status
@@ -43,7 +42,7 @@ export interface ConsultasPorStatus {
 
 // Interface para horários mais ocupados
 export interface HorarioOcupacao {
-  horario: string // "08:00", "09:00", etc
+  horario: string
   quantidade: number
   percentualOcupacao: number
 }
@@ -51,37 +50,28 @@ export interface HorarioOcupacao {
 // Interface para estatísticas de pacientes
 export interface EstatisticasPacientes {
   totalPacientes: number
-  pacientesAtivos: number // Pacientes com consultas nos últimos 3 meses
-  novosPacientes: number // Pacientes cadastrados no mês
-  pacientesRecorrentes: number // Pacientes com mais de 1 consulta
+  pacientesAtivos: number
+  novosPacientes: number
+  pacientesRecorrentes: number
   mediaConsultasPorPaciente: number
 }
 
 // Interface para tempo médio
 export interface TempoMedio {
-  tempoMedioAtendimento: number // em minutos
-  tempoMedioEspera: number // em minutos
-  tempoMedioConfirmacao: number // em horas
-}
-
-// Interface para dashboard de desempenho
-export interface DashboardDesempenho {
-  periodo: string
-  metaCumprida: boolean
-  metaConsultas: number
-  consultasRealizadas: number
-  percentualMeta: number
+  tempoMedioAtendimento: number
+  tempoMedioEspera: number
+  tempoMedioConfirmacao: number
 }
 
 // Interface para tendências
 export interface Tendencia {
   mes: string
   valor: number
-  variacao: number // percentual em relação ao mês anterior
+  variacao: number
 }
 
-// Interface para dados consolidados do dashboard
-export interface DadosDashboard {
+// Interface para resposta do dashboard
+export interface DashboardRes {
   estatisticasGerais: EstatisticasGerais
   consultasPorPeriodo: ConsultasPorPeriodo[]
   estatisticasMedicos: EstatisticasMedico[]
@@ -92,8 +82,8 @@ export interface DadosDashboard {
   tendencias: Tendencia[]
 }
 
-// Interface para filtros do dashboard
-export interface FiltrosDashboard {
+// Interface para filtros do dashboard (requisição)
+export interface DashboardReq {
   dataInicio?: string
   dataFim?: string
   idMedico?: number

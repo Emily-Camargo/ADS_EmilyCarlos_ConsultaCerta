@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Typography, Card, CardContent } from '@mui/material'
 import { ResponsiveBar } from '@nivo/bar'
-import { ConsultasPorPeriodo } from '../utils/interfaces'
+import { ConsultasPorPeriodo } from '../../../services/dashboard/interface'
 import { formatarNomeMes } from '../utils/functions'
 
 interface ConsultasBarChartProps {

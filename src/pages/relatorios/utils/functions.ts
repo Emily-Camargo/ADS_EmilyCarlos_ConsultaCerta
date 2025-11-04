@@ -6,7 +6,7 @@ import {
   ConsultasPorStatus,
   HorarioOcupacao,
   EstatisticasPacientes,
-} from './interfaces'
+} from '../../../services/dashboard/interface'
 
 // Formata valores monetários
 export const formatarMoeda = (valor: number): string => {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Typography, Card, CardContent } from '@mui/material'
 import { ResponsivePie } from '@nivo/pie'
-import { ConsultasPorStatus } from '../utils/interfaces'
+import { ConsultasPorStatus } from '../../../services/dashboard/interface'
 
 interface StatusPieChartProps {
   data: ConsultasPorStatus[]
@@ -145,7 +145,7 @@ const StatusPieChart: React.FC<StatusPieChartProps> = ({
               },
             ]}
             role="application"
-            ariaLabel="Gráfico de distribuição por status"
+            aria-label="Gráfico de distribuição por status"
             animate={true}
             motionConfig="gentle"
           />

@@ -14,9 +14,8 @@ import {
   MdAttachMoney,
 } from 'react-icons/md'
 import { useDimension } from '../../hooks'
-import { useAuth } from '../../contexts/AuthContext'
-import { postBuscarConsultas } from '../../services/consultas'
-import { ConsultaRes } from '../../services/consultas/interface'
+import { getDashboard } from '../../services/dashboard'
+import { DashboardRes } from '../../services/dashboard/interface'
 import { toast } from 'react-toastify'
 import Filtro from '../../components/filtro'
 import { useImmer } from 'use-immer'
@@ -31,20 +30,11 @@ import MedicosTable from './components/MedicosTable'
 import HorariosBarChart from './components/HorariosBarChart'
 
 // Utils
-import {
-  calcularEstatisticasGerais,
-  agruparConsultasPorPeriodo,
-  calcularEstatisticasMedicos,
-  agruparConsultasPorStatus,
-  calcularOcupacaoPorHorario,
-  calcularEstatisticasPacientes,
-  formatarMoeda,
-} from './utils/functions'
+import { formatarMoeda } from './utils/functions'
 
 const Relatorios: React.FC = () => {
   const isMobile = useDimension(800)
-  const { user } = useAuth()
-  const [consultas, setConsultas] = useState<ConsultaRes[]>([])
+  const [dashboardData, setDashboardData] = useState<DashboardRes | null>(null)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useImmer(relatoriosFil)
 
@@ -56,12 +46,12 @@ const Relatorios: React.FC = () => {
       const dataInicio = new Date()
       dataInicio.setDate(dataInicio.getDate() - 30)
 
-      const response = await postBuscarConsultas({
+      const response = await getDashboard({
         dataInicio: dataInicio.toISOString().split('T')[0],
         dataFim: dataFim.toISOString().split('T')[0],
       })
 
-      setConsultas(response.data)
+      setDashboardData(response.data)
     } catch (error) {
       console.error('Erro ao buscar dados:', error)
       toast.error('Erro ao carregar dados dos relatórios')
@@ -85,12 +75,12 @@ const Relatorios: React.FC = () => {
 
     try {
       setLoading(true)
-      const response = await postBuscarConsultas({
+      const response = await getDashboard({
         dataInicio: data.dataInicio,
         dataFim: data.dataFim,
       })
 
-      setConsultas(response.data)
+      setDashboardData(response.data)
       toast.success('Relatório atualizado com sucesso')
     } catch (error) {
       console.error('Erro ao buscar dados:', error)
@@ -105,13 +95,29 @@ const Relatorios: React.FC = () => {
     buscarDadosIniciais()
   }
 
-  // Cálculo de estatísticas
-  const estatisticasGerais = calcularEstatisticasGerais(consultas)
-  const consultasPorPeriodo = agruparConsultasPorPeriodo(consultas)
-  const estatisticasMedicos = calcularEstatisticasMedicos(consultas)
-  const consultasPorStatus = agruparConsultasPorStatus(consultas)
-  const horariosOcupacao = calcularOcupacaoPorHorario(consultas)
-  const estatisticasPacientes = calcularEstatisticasPacientes(consultas)
+  // Extração dos dados do dashboard
+  const estatisticasGerais = dashboardData?.estatisticasGerais || {
+    totalConsultas: 0,
+    consultasAgendadas: 0,
+    consultasConfirmadas: 0,
+    consultasConcluidas: 0,
+    consultasCanceladas: 0,
+    taxaCancelamento: 0,
+    taxaConclusao: 0,
+    receitaTotal: 0,
+    receitaMes: 0,
+  }
+  const consultasPorPeriodo = dashboardData?.consultasPorPeriodo || []
+  const estatisticasMedicos = dashboardData?.estatisticasMedicos || []
+  const consultasPorStatus = dashboardData?.consultasPorStatus || []
+  const horariosOcupacao = dashboardData?.horariosOcupacao || []
+  const estatisticasPacientes = dashboardData?.estatisticasPacientes || {
+    totalPacientes: 0,
+    pacientesAtivos: 0,
+    novosPacientes: 0,
+    pacientesRecorrentes: 0,
+    mediaConsultasPorPaciente: 0,
+  }
 
   return (
     <Box
