@@ -20,6 +20,7 @@ import { InfoUsuarioRes } from "../../services/usuario/interface"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
+  const [filtrosAplicados, setFiltrosAplicados] = useState(agendaFil)
   const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([])
   const [modalCadastro, setModalCadastro] = useState(false)
   const [modalBloqueio, setModalBloqueio] = useState(false)
@@ -34,8 +35,16 @@ function Agenda() {
   const [modoVisualizacaoBloqueio, setModoVisualizacaoBloqueio] = useState(false)
 
   const { data: horarios = [], isLoading, error } = useQuery({
-    queryKey: agendaKeys.horarios(),
-    queryFn: fetchHorarios,
+    queryKey: agendaKeys.horarios({
+      idMedico: filtrosAplicados.idMedico || undefined,
+      dataVigenciaInicio: filtrosAplicados.dataInicio || undefined,
+      dataVigenciaFim: filtrosAplicados.dataFim || undefined,
+    }),
+    queryFn: () => fetchHorarios({
+      idMedico: filtrosAplicados.idMedico || undefined,
+      dataVigenciaInicio: filtrosAplicados.dataInicio || undefined,
+      dataVigenciaFim: filtrosAplicados.dataFim || undefined,
+    }),
   })
 
   const queryClient = useQueryClient()
@@ -96,12 +105,12 @@ function Agenda() {
   }
 
   const searchClick = () => {
-    toast.info('Filtros aplicados com sucesso!')
+    setFiltrosAplicados(data)
   }
 
   const redefinir = () => {
     setData(agendaFil)
-    toast.info('Filtros redefinidos!')
+    setFiltrosAplicados(agendaFil)
   }
 
   const handleBloquearAgenda = (bloqueio: any) => {

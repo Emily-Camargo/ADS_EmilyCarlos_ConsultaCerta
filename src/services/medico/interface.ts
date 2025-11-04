@@ -98,3 +98,9 @@ export interface HorariosMedicoRes {
     data: string;
     horarios: string[];
 }
+
+export interface GetInfoAgendaParams {
+    idMedico?: number;
+    dataVigenciaInicio?: string;
+    dataVigenciaFim?: string;
+}

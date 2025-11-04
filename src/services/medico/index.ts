@@ -1,14 +1,27 @@
 import { AxiosResponse } from "axios";
 import api from "../../config/api";
-import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, EspecialidadeMedicoReq, EspecialidadeMedicoRes, EspecialidadeRes, HorariosMedicoReq, HorariosMedicoRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
+import { AgendaRes, BloquearAgendaPutReq, BloquearAgendaReq, BloquearAgendaRes, EspecialidadeMedicoReq, EspecialidadeMedicoRes, EspecialidadeRes, GetInfoAgendaParams, HorariosMedicoReq, HorariosMedicoRes, MedicoAgendaPutReq, MedicoAgendaReq } from "./interface";
 import { getBuscarMedicos } from "../usuario";
 import { InfoUsuarioRes } from "../usuario/interface";
 import { StatusRes } from "../interfaceGeneric";
 
-export const getInfoAgenda = async (): Promise<AxiosResponse<AgendaRes[]>> => {
-    const response = await api.get<AgendaRes[]>(
-      `/medicos/horarios-atendimento`
-    );
+export const getInfoAgenda = async (params?: GetInfoAgendaParams): Promise<AxiosResponse<AgendaRes[]>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.idMedico) {
+        queryParams.append('idMedico', params.idMedico.toString());
+    }
+    if (params?.dataVigenciaInicio) {
+        queryParams.append('dataVigenciaInicio', params.dataVigenciaInicio);
+    }
+    if (params?.dataVigenciaFim) {
+        queryParams.append('dataVigenciaFim', params.dataVigenciaFim);
+    }
+
+    const queryString = queryParams.toString();
+    const url = `/medicos/horarios-atendimento${queryString ? `?${queryString}` : ''}`;
+    
+    const response = await api.get<AgendaRes[]>(url);
     
     return Promise.resolve(response);
 };
