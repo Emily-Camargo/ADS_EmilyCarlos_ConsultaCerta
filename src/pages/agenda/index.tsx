@@ -1,5 +1,5 @@
-import { memo, useState } from "react"
-import { inputsAgenda, agendaFil } from "./utils/filtro"
+import { memo, useState, useEffect } from "react"
+import { inputsAgenda, agendaFil, selectMedicosAgenda } from "./utils/filtro"
 import Filtro from "../../components/filtro"
 import { useImmer } from "use-immer"
 import { Button } from "@mantine/core"
@@ -15,9 +15,12 @@ import { putBloqueiosMedico, deleteBloqueiosMedico } from "../../services/medico
 import { BloquearAgendaPutReq } from "../../services/medico/interface"
 import Confirmar from "../../components/dialog/confirmar"
 import CustomLoaders from "../../components/Loader"
+import { getBuscarMedicos } from "../../services/usuario"
+import { InfoUsuarioRes } from "../../services/usuario/interface"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
+  const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([])
   const [modalCadastro, setModalCadastro] = useState(false)
   const [modalBloqueio, setModalBloqueio] = useState(false)
   const [modalDetalhes, setModalDetalhes] = useState(false)
@@ -36,6 +39,21 @@ function Agenda() {
   })
 
   const queryClient = useQueryClient()
+
+  // Buscar médicos da API
+  useEffect(() => {
+    const buscarMedicos = async () => {
+      try {
+        const response = await getBuscarMedicos()
+        setMedicos(response.data)
+      } catch (error) {
+        console.error('Erro ao buscar médicos:', error)
+        toast.error('Erro ao carregar lista de médicos')
+      }
+    }
+    
+    buscarMedicos()
+  }, [])
 
   const mutationEditarBloqueio = useMutation({
     mutationFn: async ({ idBloqueio, data }: { idBloqueio: number, data: BloquearAgendaPutReq }) => {
@@ -171,12 +189,19 @@ function Agenda() {
     }
   }
 
+  const handleMedicoChange = (_event: React.SyntheticEvent, value: InfoUsuarioRes | null) => {
+    setData((draft) => {
+      draft.idMedico = value?.medico?.idMedico || null
+    })
+  }
+
   return (
     <div className="p-6 max-sm:p-4 bg-white">
       <Filtro
         onSubmit={searchClick}
         onClear={redefinir}
         inputs={inputsAgenda({ data, setData })}
+        inputSelect={[selectMedicosAgenda(data, handleMedicoChange, medicos)]}
       />
       
       <div className="flex gap-2 mb-4">

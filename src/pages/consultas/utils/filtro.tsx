@@ -1,25 +1,18 @@
 import { InputSelectProps } from '../../../components/input-mui/input-select/utils/interface'
+import { InfoUsuarioRes } from '../../../services/usuario/interface'
 
-interface MedicoOption {
-  value: string;
-  label: string;
-}
-
-export const opcoesMedicos: MedicoOption[] = [
-  { value: '', label: 'Todos os médicos' },
-  { value: 'Dra. Carla', label: 'Dra. Carla' },
-  { value: 'Dr. João Oliveira', label: 'Dr. João Oliveira' },
-  { value: 'Dra. Ana Paula', label: 'Dra. Ana Paula' },
-  { value: 'Dr. Roberto Silva', label: 'Dr. Roberto Silva' },
-  { value: 'Dr. Carlos Eduardo', label: 'Dr. Carlos Eduardo' },
-  { value: 'Dra. Patricia Lima', label: 'Dra. Patricia Lima' }
-]
-
-export const filtroMedico: Omit<InputSelectProps<MedicoOption, false>, 'sx'> = {
-  options: opcoesMedicos,
-  optionLabel: (medico: MedicoOption) => medico.label,
+export const selectMedicosConsultas = (
+  filtroMedicoSelecionado: number | null,
+  handleMedicoChange: (_event: React.SyntheticEvent, value: InfoUsuarioRes | null) => void,
+  medicos: InfoUsuarioRes[]
+): InputSelectProps<InfoUsuarioRes, false> => ({
+  options: medicos,
+  optionLabel: (medico: InfoUsuarioRes) => medico.nome,
   placeholder: 'Selecione um médico',
   textFieldProps: {
     label: 'Médico',
   },
-}
+  value: medicos.find(m => m.medico?.idMedico === filtroMedicoSelecionado) || null,
+  onChange: handleMedicoChange,
+})
+

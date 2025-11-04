@@ -19,8 +19,10 @@ import { DashboardRes } from '../../services/dashboard/interface'
 import { toast } from 'react-toastify'
 import Filtro from '../../components/filtro'
 import { useImmer } from 'use-immer'
-import { inputsRelatorios } from './components/filtro'
+import { inputsRelatorios, selectMedicosRelatorios } from './components/filtro'
 import { relatoriosFil } from './utils/constants'
+import { getBuscarMedicos } from '../../services/usuario'
+import { InfoUsuarioRes } from '../../services/usuario/interface'
 
 // Componentes
 import StatCard from './components/StatCard'
@@ -37,6 +39,17 @@ const Relatorios: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardRes | null>(null)
   const [loading, setLoading] = useState(true)
   const [data, setData] = useImmer(relatoriosFil)
+  const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([])
+
+  const buscarMedicos = async () => {
+    try {
+      const response = await getBuscarMedicos()
+      setMedicos(response.data)
+    } catch (error) {
+      console.error('Erro ao buscar médicos:', error)
+      toast.error('Erro ao carregar lista de médicos')
+    }
+  }
 
   const buscarDadosIniciais = async () => {
     try {
@@ -61,6 +74,7 @@ const Relatorios: React.FC = () => {
   }
 
   useEffect(() => {
+    buscarMedicos()
     buscarDadosIniciais()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -78,6 +92,7 @@ const Relatorios: React.FC = () => {
       const response = await getDashboard({
         dataInicio: data.dataInicio,
         dataFim: data.dataFim,
+        idMedico: data.idMedico || undefined,
       })
 
       setDashboardData(response.data)
@@ -132,6 +147,7 @@ const Relatorios: React.FC = () => {
       <Box sx={{ mb: 3 }}>
         <Filtro
           inputs={inputsRelatorios({ data, setData })}
+          inputSelect={[selectMedicosRelatorios(data, setData, medicos)]}
           onSubmit={enviar}
           onClear={limpar}
         />
