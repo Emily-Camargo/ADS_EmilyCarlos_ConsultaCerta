@@ -27,6 +27,7 @@ const FiltroCard = <T,>({
       '/atendimentos': 'Meus Atendimentos',
       '/prescricoes': 'Prescrições Médicas',
       '/prontuarios': 'Prontuários Eletrônicos',
+      '/relatorios': 'Relatórios e Dashboards',
     }
     
     return routeNames[location.pathname] || 'Página'

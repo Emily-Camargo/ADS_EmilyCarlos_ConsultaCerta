@@ -13,6 +13,7 @@ export interface MenuSidebarProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   seqAplicacao: number
   label: string
+  route?: string
   icon: React.ReactNode
 }
 
@@ -20,30 +21,39 @@ const MenuSidebar = ({
   onClick,
   seqAplicacao,
   label,
+  route,
   icon,               
   setOpen,     
 }: MenuSidebarProps) => {
   const navigate = useNavigate();
 
   const handleNavigation = () => {
-    if (seqAplicacao === 1) {
-      navigate('/home');
-    } else if (seqAplicacao === 2) {
-      navigate('/consultas');
-    } else if (seqAplicacao === 3) {
-      navigate('/agenda');
-    } else if (seqAplicacao === 4) {
-      navigate('/pacientes');
-    } else if (seqAplicacao === 5) {
-      navigate('/prontuarios');
-    } else if (seqAplicacao === 6) {
-      navigate('/prescricoes');
-    } else if (seqAplicacao === 12) {
-      navigate('/admin');
-    } else if (seqAplicacao === 13) {
-      navigate('/atendimentos');
-    } else if (seqAplicacao === 8) {
-      navigate('/minhas-consultas');
+    if (route) {
+      navigate(route);
+    } else {
+      if (seqAplicacao === 1) {
+        navigate('/home');
+      } else if (seqAplicacao === 2) {
+        navigate('/consultas');
+      } else if (seqAplicacao === 3) {
+        navigate('/agenda');
+      } else if (seqAplicacao === 4) {
+        navigate('/pacientes');
+      } else if (seqAplicacao === 5) {
+        navigate('/prontuarios');
+      } else if (seqAplicacao === 6) {
+        navigate('/prescricoes');
+      } else if (seqAplicacao === 7) {
+        navigate('/relatorios');
+      } else if (seqAplicacao === 8) {
+        navigate('/minhas-consultas');
+      } else if (seqAplicacao === 9) {
+        navigate('/relatorios');
+      } else if (seqAplicacao === 12) {
+        navigate('/admin');
+      } else if (seqAplicacao === 13) {
+        navigate('/atendimentos');
+      }
     }
     
     onClick();
