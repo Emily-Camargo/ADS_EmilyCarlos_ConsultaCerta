@@ -67,7 +67,12 @@ export const getMenuItems = (idPerfil: number) => {
             icon: MdMedication,
             route: '/prescricoes'
           },
-          
+          { 
+            seqAplicacao: 7, 
+            label: 'Relatórios e Dashboards', 
+            icon: MdDashboard,
+            route: '/relatorios'
+          },
         ];
       
       case USER_ROLES.PACIENTE:
@@ -107,7 +112,7 @@ export const getMenuItems = (idPerfil: number) => {
             route: '/atendimentos'
           },
           { 
-            seqAplicacao: 8, 
+            seqAplicacao: 9, 
             label: 'Relatórios e Dashboards', 
             icon: MdDashboard,
             route: '/relatorios'

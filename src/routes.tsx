@@ -22,6 +22,7 @@ const ProntuarioAtendimento = lazy(() => import('./pages/atendimentos/Prontuario
 const MeuPerfil = lazy(() => import('./pages/perfil/index'))
 const Prescricoes = lazy(() => import('./pages/prescricoes/index'))
 const Prontuarios = lazy(() => import('./pages/prontuarios/index'))
+const Relatorios = lazy(() => import('./pages/relatorios/index'))
 
 function App() {
   const location = useLocation()
@@ -74,6 +75,10 @@ function App() {
     {
       path: '/prontuarios',
       element: <ProtectedRoute><Prontuarios /></ProtectedRoute>,
+    },
+    {
+      path: '/relatorios',
+      element: <ProtectedRoute><Relatorios /></ProtectedRoute>,
     },
   ]
 

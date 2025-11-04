@@ -83,7 +83,8 @@ const SidebarComponent = ({ open, setOpen }: NavbarComponentProps) => {
                 open={openIndex === v.seqAplicacao}
                 onClick={() => handleClick(v.seqAplicacao)}
                 seqAplicacao={v.seqAplicacao}    
-                label={v.label}                   
+                label={v.label}
+                route={v.route}
                 icon={<IconComponent className="!text-white" />}
               />
             );

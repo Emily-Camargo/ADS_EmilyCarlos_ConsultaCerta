@@ -259,7 +259,7 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
             </Grid>
           )}
 
-          {/* Avisos para consultas agendadas */}
+          {/* Avisos para consultas agendadas */} 
           {consulta.status === 'agendada' && (
             <Grid item xs={12}>
               <Box sx={{
