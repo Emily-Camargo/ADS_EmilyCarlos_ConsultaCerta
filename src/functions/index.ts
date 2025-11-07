@@ -63,7 +63,6 @@ export const filter = (input: string): RegExp => {
   return new RegExp(input.replace(/[^A-Z0-9áàâãéèêíïóôõöúç:_./-\s]/gi, ''), 'i')
 }
 
-// Funções utilitárias para acessar dados do usuário logado
 export const getIdUsuario = (): number | null => {
   const storedUser = localStorage.getItem('user');
   if (storedUser) {

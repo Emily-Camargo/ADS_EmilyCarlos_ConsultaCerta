@@ -1,4 +1,3 @@
-// Dados iniciais para o filtro de relatórios
 export interface RelatoriosFiltro {
   dataInicio: string
   dataFim: string
@@ -11,7 +10,6 @@ export const relatoriosFil: RelatoriosFiltro = {
   idMedico: null,
 }
 
-// Cores para os diferentes status de consultas
 export const CORES_STATUS = {
   agendada: '#3B82F6',
   confirmada: '#8B5CF6',
@@ -21,7 +19,6 @@ export const CORES_STATUS = {
   reagendada: '#F59E0B',
 } as const
 
-// Opções de período para filtros
 export const OPCOES_PERIODO = [
   { value: '7', label: 'Últimos 7 dias' },
   { value: '30', label: 'Últimos 30 dias' },
@@ -31,7 +28,6 @@ export const OPCOES_PERIODO = [
   { value: '365', label: 'Último ano' },
 ] as const
 
-// Configurações de cores para os cards de estatísticas
 export const CORES_CARDS = {
   consultas: {
     icon: '#3B82F6',
@@ -55,7 +51,6 @@ export const CORES_CARDS = {
   },
 } as const
 
-// Meses do ano para formatação
 export const MESES = [
   'Jan',
   'Fev',
@@ -71,10 +66,8 @@ export const MESES = [
   'Dez',
 ] as const
 
-// Configurações de taxa de conclusão (para cores no gráfico)
 export const TAXA_CONFIG = {
-  excelente: 80, // >= 80% = verde
-  boa: 60, // >= 60% = amarelo
-  // < 60% = vermelho
+  excelente: 80,
+  boa: 60,
 } as const
 

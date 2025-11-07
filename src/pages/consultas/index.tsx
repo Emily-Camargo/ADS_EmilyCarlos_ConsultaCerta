@@ -41,11 +41,10 @@ const ConsultasPage = () => {
   const alturaMinima = 80;
   const alturaPorConsulta = 75;
 
-  // Query para buscar consultas específicas
   const { refetch: refetchConsultaEspecifica } = useQuery({
     queryKey: ['consultaEspecifica', consultaSelecionada?.id_consulta],
     queryFn: () => buscarConsultaEspecifica(consultaSelecionada!.id_consulta),
-    enabled: false, // Só executa quando chamado manualmente
+    enabled: false,   
     onSuccess: () => {
       setModalVisualizar(true);
     },
@@ -55,7 +54,6 @@ const ConsultasPage = () => {
     }
   });
 
-  // Função para buscar médicos da API
   useEffect(() => {
     const buscarMedicos = async () => {
       try {
@@ -70,10 +68,8 @@ const ConsultasPage = () => {
     buscarMedicos();
   }, []);
 
-  // Função para buscar consultas da API
   useEffect(() => {
     buscarConsultas();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWeek, filtroMedicoSelecionado]);
 
   const buscarConsultas = async () => {
@@ -83,7 +79,6 @@ const ConsultasPage = () => {
       const dataInicio = weekDays[0].toISOString().split('T')[0];
       const dataFim = weekDays[4].toISOString().split('T')[0];
       
-      // Se o usuário for médico (idPerfil === 3), envia o idMedico dele
       let idMedicoParam: number | undefined = undefined;
       
       if (user?.idPerfil === 3 && user?.medico?.idMedico) {
@@ -109,7 +104,6 @@ const ConsultasPage = () => {
     }
   };
 
-  // Função para extrair horário formatado (HH:mm) de uma data ISO
   const extrairHorario = (dataHora: string): string => {
     const data = new Date(dataHora);
     const horas = data.getHours().toString().padStart(2, '0');
@@ -117,19 +111,17 @@ const ConsultasPage = () => {
     return `${horas}:${minutos}`;
   };
 
-  // Função para converter ConsultaRes para ConsultaCalendario
   const converterParaCalendario = (consulta: ConsultaRes): ConsultaCalendario => {
     return {
       id: consulta.idConsulta,
       paciente: consulta.paciente.nome,
       medico: consulta.medico.nome,
       horario: extrairHorario(consulta.dataHora),
-      status: consulta.status.toLowerCase(), // Normalizar para minúsculo
+      status: consulta.status.toLowerCase(),
       dataCompleta: consulta,
     };
   };
 
-  // Função para obter consultas de um dia específico
   const getConsultasForDay = (dayIndex: number): ConsultaCalendario[] => {
     const dia = weekDays[dayIndex];
     
@@ -204,7 +196,6 @@ const ConsultasPage = () => {
 
   const handleFiltroSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Não precisa fazer nada aqui pois o filtro já está sendo aplicado automaticamente
   };
 
   const handleMedicoChange = (_event: React.SyntheticEvent, value: InfoUsuarioRes | null) => {
@@ -219,7 +210,6 @@ const ConsultasPage = () => {
     setFiltroMedicoSelecionado(null);
   };
 
-  // Função para converter dados da API para ConsultaData
   const converterParaConsultaData = (consultaCalendario: ConsultaCalendario): ConsultaData => {
     const consulta = consultaCalendario.dataCompleta;
     return {
@@ -288,7 +278,6 @@ const ConsultasPage = () => {
       backgroundColor: '#f8fafc',
     }}>
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Mostrar filtro apenas se NÃO for médico (idPerfil !== 3) */}
         {user?.idPerfil !== 3 && (
           <Box sx={{ p: 3, pb: 0 }}>
             <Filtro 
@@ -336,7 +325,7 @@ const ConsultasPage = () => {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <MdCalendarToday color="#64748b" />
                 <Typography variant="body2" sx={{ 
-                  color: '#64748b', // cor mais suave
+                  color: '#64748b',
                   fontWeight: 500
                 }}>
                   Semana de {weekDays[0].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })} a {weekDays[4].toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}

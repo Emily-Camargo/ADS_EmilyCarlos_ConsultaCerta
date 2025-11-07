@@ -1,6 +1,5 @@
 import { ConsultaRes } from "../../../services/consultas/interface"
 
-// Interface para dados de paciente (para seleção)
 export interface PacienteData {
   id_paciente: number
   nome_paciente: string
@@ -17,7 +16,6 @@ export interface PacienteData {
   observacoes: string
 }
 
-// Interface para dados de médico (para seleção)
 export interface MedicoData {
   id_medico: number
   nome_medico: string
@@ -26,7 +24,6 @@ export interface MedicoData {
   ativo: boolean
 }
 
-// Interface para dados completos da consulta
 export interface ConsultaData {
   id_consulta: number
   id_paciente: number
@@ -45,7 +42,6 @@ export interface ConsultaData {
   medico: MedicoData
 }
 
-// Interface para formulário de consulta
 export interface ConsultaForm {
   id_paciente: number
   id_medico: number
@@ -55,7 +51,6 @@ export interface ConsultaForm {
   valor_consulta: string
 }
 
-// Interface para props da modal de cadastro
 export interface CadastrarConsultaProps {
   modal: boolean
   setModal: (modal: boolean) => void
@@ -67,7 +62,6 @@ export interface CadastrarConsultaProps {
   onReagendarConsulta?: () => void
 }
 
-// Interface para colunas da tabela de consultas
 export interface ColunasConsultasProps {
   onEditar: (row: ConsultaData) => void
   onVisualizar: (row: ConsultaData) => void

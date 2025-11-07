@@ -49,7 +49,6 @@ function Agenda() {
     }),
   })
 
-  // Query para buscar todos os bloqueios
   const { data: bloqueios = [], isLoading: isLoadingBloqueios } = useQuery({
     queryKey: ['todos-bloqueios', filtrosAplicados.idMedico],
     queryFn: () => fetchTodosBloqueios(medicos, filtrosAplicados.idMedico),
@@ -58,7 +57,6 @@ function Agenda() {
 
   const queryClient = useQueryClient()
 
-  // Buscar médicos da API
   useEffect(() => {
     const buscarMedicos = async () => {
       try {
@@ -126,7 +124,6 @@ function Agenda() {
 
   const handleBloquearAgenda = (bloqueio: any) => {
     if (bloqueioParaEditar) {
-      // Editar bloqueio existente
       const payload: BloquearAgendaPutReq = {
         dataInicio: bloqueio.data_inicio,
         dataFim: bloqueio.data_fim,
@@ -138,8 +135,6 @@ function Agenda() {
         data: payload 
       })
     } else {
-      // Criação de novo bloqueio - apenas invalida as queries
-      // O componente BloquearAgenda já trata a criação via API
       queryClient.invalidateQueries(['bloqueios-medico'])
       queryClient.invalidateQueries(['todos-bloqueios'])
     }

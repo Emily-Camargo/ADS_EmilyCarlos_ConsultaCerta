@@ -26,7 +26,6 @@ export function CadastrarPaciente({
   const isEdicao = !!pacienteParaEditar
   const isVisualizacao = modoVisualizacao
 
-  // Converter InfoUsuarioRes para PacienteData
   const converterParaPacienteData = (usuario: InfoUsuarioRes): PacienteData => {
     return {
       id_paciente: usuario.paciente!.idPaciente,
@@ -45,14 +44,12 @@ export function CadastrarPaciente({
     }
   }
 
-  // useQuery para buscar todos os usuários (para modo cadastro)
   const { data: usuariosSemPaciente, isLoading: isLoadingUsuarios } = useQuery(
     ['usuariosSemPaciente'],
     () => getBuscarPacientes(),
     {
       enabled: modal && !isEdicao && !isVisualizacao,
       select: (response) => {
-        // Filtrar apenas usuários SEM dados de paciente
         return response.data.filter(usuario => !usuario.paciente)
       },
       onError: (error: any) => {
@@ -65,7 +62,6 @@ export function CadastrarPaciente({
     }
   )
 
-  // useQuery para buscar dados do paciente
   const { isLoading } = useQuery(
     ['paciente', pacienteParaEditar?.id_usuario],
     () => getBuscarPaciente(pacienteParaEditar!.id_usuario),
@@ -95,13 +91,12 @@ export function CadastrarPaciente({
     }
   )
 
-  // useMutation para cadastrar paciente
   const cadastrarPacienteMutation = useMutation({
     mutationKey: ['cadastrarPaciente'],
     mutationFn: (data: CadastrarPacienteReq) => postCadastrarPaciente(data),
     onSuccess: () => {
       toast.success('Paciente cadastrado com sucesso!')
-      onConfirmar() // Callback para recarregar a lista
+      onConfirmar()
       setFormData(initialForm)
       setUsuarioSelecionado(null)
       setModal(false)
@@ -115,13 +110,12 @@ export function CadastrarPaciente({
     }
   })
 
-  // useMutation para atualizar paciente
   const atualizarPacienteMutation = useMutation({
     mutationKey: ['atualizarPaciente'],
     mutationFn: (params: AtualizarPacienteParams) => putAtualizarPaciente(params),
     onSuccess: () => {
       toast.success('Paciente atualizado com sucesso!')
-      onConfirmar() // Callback para recarregar a lista
+      onConfirmar()
       setFormData(initialForm)
       setPacienteSelecionado(null)
       setModal(false)
@@ -160,15 +154,13 @@ export function CadastrarPaciente({
       toast.warn('Erro ao carregar dados do paciente!')
       return
     }
-
-    // Validar campos obrigatórios
+    
     if (!formData.data_nascimento || !formData.genero || !formData.tipo_sanguineo) {
       toast.warn('Preencha todos os campos obrigatórios!')
       return
     }
 
     if (isEdicao) {
-      // Usar mutation para atualizar
       atualizarPacienteMutation.mutate({
         idUsuario: pacienteSelecionado!.id_usuario,
         data: {
@@ -183,7 +175,6 @@ export function CadastrarPaciente({
         }
       })
     } else {
-      // Modo cadastro - usar mutation de cadastrar
       cadastrarPacienteMutation.mutate({
         idUsuario: usuarioSelecionado!.idUsuario,
         dataNascimento: formData.data_nascimento,

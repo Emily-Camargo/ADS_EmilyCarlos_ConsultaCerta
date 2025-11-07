@@ -1,7 +1,6 @@
 import { Updater } from 'use-immer'
 import { AgendaRes } from '../../../services/medico/interface'
 
-// Interface para Horário de Atendimento
 export interface HorarioAtendimento {
   id_horario: number
   id_medico: number
@@ -21,7 +20,6 @@ export interface HorarioAtendimento {
   crm?: string
 }
 
-// Função para mapear dados da API para o formato da tabela
 export const mapearAgendaResParaHorarioAtendimento = (agendaRes: AgendaRes): HorarioAtendimento => {
   return {
     id_horario: agendaRes.idHorario,
@@ -39,11 +37,10 @@ export const mapearAgendaResParaHorarioAtendimento = (agendaRes: AgendaRes): Hor
     atualizado_em: agendaRes.atualizadoEm,
     nome_medico: agendaRes.nomeMedico,
     especialidade: agendaRes.nomeEspecialidade,
-    crm: '', // Campo não disponível na API atual
+    crm: '',
   }
 }
 
-// Interface para Bloqueio de Agenda
 export interface BloqueioAgenda {
   id_bloqueio: number
   id_medico: number
@@ -57,20 +54,17 @@ export interface BloqueioAgenda {
   nome_criado_por?: string
 }
 
-// Interface para dados de filtro da agenda
 export interface DataReqAgenda {
   idMedico: number | null
   dataInicio: string
   dataFim: string
 }
 
-// Interface para props de inputs de filtro
 export interface InputsPropsAgenda {
   data: DataReqAgenda
   setData: Updater<DataReqAgenda>
 }
 
-// Interface para props da tabela de horários
 export interface TabelaHorariosProps {
   horarios: HorarioAtendimento[]
   isLoading?: boolean
@@ -78,7 +72,6 @@ export interface TabelaHorariosProps {
   detalhesHorario: (horario: HorarioAtendimento) => void
 }
 
-// Interface para props da tabela de bloqueios
 export interface TabelaBloqueiosProps {
   bloqueios: BloqueioAgenda[]
   isLoading?: boolean
@@ -87,7 +80,6 @@ export interface TabelaBloqueiosProps {
   removerBloqueio: (bloqueio: BloqueioAgenda) => void
 }
 
-// Interface para props do modal de cadastro/edição de horários
 export interface CadastrarHorarioProps {
   modal: boolean
   setModal: (open: boolean) => void
@@ -97,7 +89,6 @@ export interface CadastrarHorarioProps {
   isLoadingDetalhes?: boolean
 }
 
-// Interface para props do modal de bloqueio
 export interface BloqueioAgendaProps {
   modal: boolean
   setModal: (open: boolean) => void
@@ -106,7 +97,6 @@ export interface BloqueioAgendaProps {
   modoVisualizacao?: boolean
 }
 
-// Interface para formulário de horário
 export interface HorarioForm {
   id_medico: number
   dia_semana: number
@@ -120,7 +110,6 @@ export interface HorarioForm {
   ativo: boolean
 }
 
-// Interface para formulário de bloqueio
 export interface BloqueioForm {
   id_medico: number
   data_inicio: string
@@ -130,7 +119,6 @@ export interface BloqueioForm {
   criado_por: number
 }
 
-// Interface para props das colunas da tabela de horários
 export interface ColunasHorariosProps {
   editarHorario: (row: HorarioAtendimento) => void
   detalhesHorario: (row: HorarioAtendimento) => void
@@ -142,7 +130,6 @@ export interface ColunasBloqueiosProps {
   removerBloqueio: (row: BloqueioAgenda) => void
 }
 
-// Interface para médico (para seleção)
 export interface Medico {
   id_medico: number
   nome_medico: string
@@ -151,7 +138,6 @@ export interface Medico {
   ativo: boolean
 }
 
-// Opções para selects
 export interface SelectOption {
   value: string | number
   label: string

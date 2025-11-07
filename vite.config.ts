@@ -41,7 +41,7 @@ export default defineConfig({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 ano
+                maxAgeSeconds: 60 * 60 * 24 * 365
               }
             }
           }
@@ -50,13 +50,13 @@ export default defineConfig({
     })
   ],
   server: {
-    host: '0.0.0.0', // Permite acesso de qualquer IP na rede
-    port: 5173, // Porta padrão do Vite
-    strictPort: false, // Permite usar uma porta diferente se 5173 estiver ocupada
-    open: false, // Não abre automaticamente o navegador
-    cors: true, // Habilita CORS para todas as origens
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: false,
+    open: false,
+    cors: true,
     hmr: {
-      port: 5174, // Porta diferente para HMR para evitar conflitos
+      port: 5174,
     },
   },
 });

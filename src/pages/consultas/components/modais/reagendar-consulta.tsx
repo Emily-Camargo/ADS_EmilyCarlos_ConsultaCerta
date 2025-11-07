@@ -92,7 +92,6 @@ export function ReagendarConsulta({
     setNovoHorario('')
     setHorariosDisponiveis([])
     
-    // Carregar horários disponíveis quando tiver data e médico selecionados
     if (novaDataValue && medicoId) {
       carregarHorariosDisponiveis(novaDataValue, medicoId)
     }
@@ -146,7 +145,6 @@ export function ReagendarConsulta({
     limparFormulario()
   }
 
-  // Limpar formulário quando modal fechar
   useEffect(() => {
     if (!modal) {
       limparFormulario()

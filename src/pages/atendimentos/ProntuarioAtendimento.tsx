@@ -64,7 +64,6 @@ const ProntuarioAtendimento: React.FC = () => {
   const [prescricoes, setPrescricoes] = useState<PrescricaoAtualizacao[]>([]);
   const [formularioSalvo, setFormularioSalvo] = useState(false);
 
-  // Estados para edição dos campos médicos
   const [editandoCamposMedicos, setEditandoCamposMedicos] = useState(false);
   const [camposMedicosEditaveis, setCamposMedicosEditaveis] = useState({
     alergias: '',
@@ -83,7 +82,6 @@ const ProntuarioAtendimento: React.FC = () => {
   }>>([]);
   const [mensagemAtual, setMensagemAtual] = useState('');
   
-  // Estados para modal de histórico
   const [modalHistoricoAberta, setModalHistoricoAberta] = useState(false);
   const [consultaSelecionada, setConsultaSelecionada] = useState<any>(null);
   const [prontuarioHistorico, setProntuarioHistorico] = useState<any>(null);
@@ -228,7 +226,6 @@ const ProntuarioAtendimento: React.FC = () => {
     atualizarProntuarioMutation.mutate(dtoProntuario, {
       onSuccess: () => {
         setFormularioSalvo(true);
-        // Atualizar os dados do paciente localmente
         if (prontuario) {
           prontuario.paciente.alergias = camposMedicosEditaveis.alergias;
           prontuario.paciente.condicoes_cronicas = camposMedicosEditaveis.condicoes_cronicas;
@@ -248,7 +245,6 @@ const ProntuarioAtendimento: React.FC = () => {
     finalizarConsultaMutation.mutate(dadosAtualizacao);
   };
 
-  // Funções para o chat com IA
   const enviarMensagem = async () => {
     if (!mensagemAtual.trim()) return;
 
@@ -274,7 +270,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   };
 
-  // Effect para processar resposta da assistente
   React.useEffect(() => {
     if (respostaAssistente && respostaAssistente.content) {
       const content = respostaAssistente.content;
@@ -290,7 +285,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   }, [respostaAssistente]);
 
-  // Effect para tratar erros da assistente
   React.useEffect(() => {
     if (erroAssistente) {
       toast.error('Erro ao processar mensagem com a assistente');
@@ -304,17 +298,13 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   };
 
-  // Função para formatar queixas principais em formato médico formal
-  // Exemplo: ["vermelhidão", "coceira na pele"] -> "Paciente relata vermelhidão e coceira na pele."
   const formatarQueixasPrincipais = (queixas: string[]) => {
     if (!queixas || queixas.length === 0) return '';
     
-    // Apenas capitalizar primeira letra de cada queixa, mantendo as palavras originais
     const queixasFormatadas = queixas.map(queixa => 
       queixa.charAt(0).toUpperCase() + queixa.slice(1).toLowerCase()
     );
     
-    // Formatar como texto médico formal
     if (queixasFormatadas.length === 1) {
       return `Paciente relata ${queixasFormatadas[0]}.`;
     } else if (queixasFormatadas.length === 2) {
@@ -325,11 +315,9 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   };
 
-  // Função para formatar conduta médica com estrutura formal
   const formatarCondutaMedica = (conduta: string) => {
     if (!conduta) return '';
     
-    // Adicionar estrutura formal se não começar com verbo de recomendação
     const condutaLower = conduta.toLowerCase().trim();
     const verbosRecomendacao = ['recomenda-se', 'sugere-se', 'orienta-se', 'prescreve-se', 'indica-se'];
     
@@ -340,11 +328,9 @@ const ProntuarioAtendimento: React.FC = () => {
     return `Recomenda-se ${conduta.toLowerCase()}`;
   };
 
-  // Função para formatar observações com estrutura formal
   const formatarObservacoes = (observacoes: string) => {
     if (!observacoes) return '';
     
-    // Adicionar estrutura formal se não começar com verbo de observação
     const observacoesLower = observacoes.toLowerCase().trim();
     const verbosObservacao = ['observa-se', 'nota-se', 'verifica-se', 'constata-se', 'recomenda-se'];
     
@@ -361,16 +347,12 @@ const ProntuarioAtendimento: React.FC = () => {
     if (mensagem?.dadosEstruturados) {
       const dados = mensagem.dadosEstruturados;
       
-      // Formatar queixas principais para anamnese
       const anamneseFormatada = formatarQueixasPrincipais(dados.queixaPrincipal || []);
       
-      // Formatar conduta médica com estrutura formal
       const condutaFormatada = formatarCondutaMedica(dados.conduta || '');
       
-      // Formatar observações com estrutura formal
       const observacoesFormatadas = formatarObservacoes(dados.observacoes || '');
       
-      // Aplicar automaticamente os dados da assistente nos campos do prontuário
       setFormulario(prev => ({
         ...prev,
         anamnese: anamneseFormatada || prev.anamnese,
@@ -379,7 +361,6 @@ const ProntuarioAtendimento: React.FC = () => {
         observacoes: observacoesFormatadas || prev.observacoes
       }));
 
-      // Adicionar prescrições sugeridas
       if (dados.prescricao && Array.isArray(dados.prescricao) && dados.prescricao.length > 0) {
         const novasPrescricoes = dados.prescricao.map((med: any) => ({
           id_prontuario: prontuario?.prontuario.id_prontuario || 0,
@@ -416,7 +397,6 @@ const ProntuarioAtendimento: React.FC = () => {
     toast.info('Sugestão negada');
   };
 
-  // Funções para edição dos campos médicos
   const iniciarEdicaoCamposMedicos = () => {
     setEditandoCamposMedicos(true);
   };
@@ -428,7 +408,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }));
   };
 
-  // Função para abrir modal do histórico
   const abrirModalHistorico = async (consulta: any) => {
     setConsultaSelecionada(consulta);
     setModalHistoricoAberta(true);
@@ -437,7 +416,6 @@ const ProntuarioAtendimento: React.FC = () => {
     try {
       const idConsultaNumber = parseInt(consulta.idConsulta, 10);
       
-      // Validar se os IDs são números válidos
       if (isNaN(idPacienteNumber) || isNaN(idConsultaNumber)) {
         throw new Error('IDs inválidos');
       }
@@ -460,7 +438,6 @@ const ProntuarioAtendimento: React.FC = () => {
     }
   };
 
-  // Função para fechar modal do histórico
   const fecharModalHistorico = () => {
     setModalHistoricoAberta(false);
     setConsultaSelecionada(null);
@@ -488,7 +465,6 @@ const ProntuarioAtendimento: React.FC = () => {
 
   return (
     <Box sx={{ backgroundColor: '#f8fafc', minHeight: '100vh', p: 3 }}>
-      {/* Cabeçalho com botão de voltar */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <IconButton onClick={() => navigate('/atendimentos')} sx={{ color: '#64748b' }}>
@@ -535,7 +511,6 @@ const ProntuarioAtendimento: React.FC = () => {
 
               <Divider sx={{ mb: 3 }} />
 
-              {/* Dados do Prontuário */}
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: '600', color: '#1e293b', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                   📋 Dados do Prontuário

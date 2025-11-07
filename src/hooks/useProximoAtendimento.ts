@@ -36,15 +36,13 @@ export const useProximoAtendimento = () => {
           return;
         }
 
-        // Buscar consultas do médico
         const response = await postBuscarConsultas({
           idMedico,
-          dataInicio: new Date().toISOString().split('T')[0] // A partir de hoje
+          dataInicio: new Date().toISOString().split('T')[0]
         });
 
         const consultas: ConsultaRes[] = response.data;
 
-        // Filtrar consultas com status 'agendada' ou 'confirmada'
         const consultasValidas = consultas.filter(consulta => 
           consulta.status === 'agendada' || consulta.status === 'confirmada'
         );
@@ -59,12 +57,10 @@ export const useProximoAtendimento = () => {
           return;
         }
 
-        // Ordenar por data e pegar a mais próxima
         const proxima = consultasValidas.sort((a, b) => 
           new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime()
         )[0];
 
-        // Formatar data e hora
         const dataHora = new Date(proxima.dataHora);
         const dataFormatada = dataHora.toLocaleDateString('pt-BR', {
           day: '2-digit',
@@ -76,7 +72,6 @@ export const useProximoAtendimento = () => {
           minute: '2-digit'
         });
 
-        // Criar mensagem baseada no status
         let mensagem = `Seu próximo atendimento é com ${proxima.paciente.nome} dia ${dataFormatada} às ${horaFormatada}`;
         
         if (proxima.status === 'agendada') {

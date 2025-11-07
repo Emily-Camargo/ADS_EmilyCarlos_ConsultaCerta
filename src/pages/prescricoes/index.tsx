@@ -56,7 +56,6 @@ const Prescricoes: React.FC = () => {
     }
   })
 
-  // Determina quais prescrições exibir
   const prescricoesParaExibir = filtroAplicado ? prescricoesFiltradas : prescricoes
 
   const handleVisualizarPrescricao = (prescricao: PrescricaoRes) => {
@@ -78,7 +77,6 @@ const Prescricoes: React.FC = () => {
   const enviar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
-    // Validação: se não for paciente, deve selecionar um paciente
     if (getIdPerfil() !== 4 && !data.pacientes) {
       toast.error('Paciente deve ser selecionado')
       return

@@ -32,7 +32,6 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
   const [carregandoMedicos, setCarregandoMedicos] = useState(false)
   const [carregandoHorarios, setCarregandoHorarios] = useState(false)
 
-  // Query para carregar especialidades
   const { isLoading: carregandoEspecialidades } = useQuery({
     queryKey: ['especialidades'],
     queryFn: getEspecialidades,
@@ -46,14 +45,12 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
     }
   })
 
-  // Mutation para agendar consulta
   const agendarConsultaMutation = useMutation({
     mutationFn: postAgendarConsulta,
     onSuccess: async () => {
       toast.success('Consulta agendada com sucesso!')
       setModal(false)
       limparFormulario()
-      // Chama o callback para recarregar os dados
       await onConfirmar({
         especialidade: formData.especialidade,
         medico: formData.medico,
@@ -229,11 +226,9 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
 
     const dataHoraConsulta = new Date(`${formData.data}T${formData.horario}:00`)
     
-    // Calcular prazo de confirmação (12 horas antes da consulta)
     const prazoConfirmacaoDate = new Date(dataHoraConsulta.getTime() - (12 * 60 * 60 * 1000))
     const prazoConfirmacao = prazoConfirmacaoDate.toISOString()
 
-    // Preparar dados para envio
     const dadosConsulta = {
       idPaciente: idPaciente,
       idMedico: formData.medico,
@@ -241,7 +236,7 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
       horarioConsulta: formData.horario,
       motivo: formData.observacoes || 'Consulta agendada pelo paciente',
       observacoes: formData.observacoes || '',
-      valorConsulta: 150.00, // Valor padrão
+      valorConsulta: 150.00,
       confirmada: false,
       prazoConfirmacao
     }

@@ -35,7 +35,6 @@ const SecretariaDashboard = () => {
   };
 
   const separarPorStatus = (consultas: ConsultaRes[]) => {
-    // Filtra apenas consultas válidas com paciente e médico definidos
     const consultasValidas = consultas.filter(c => c.paciente && c.medico);
     
     const agendadas = consultasValidas.filter(c => c.status.toLowerCase() === 'agendada');

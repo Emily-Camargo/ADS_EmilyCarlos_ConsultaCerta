@@ -1,5 +1,3 @@
-// Removido imports de mocks - agora usando dados da API
-
 export const STATUS_COLORS = {
   'Agendada': '#3b82f6',
   'Confirmada': '#8b5cf6',

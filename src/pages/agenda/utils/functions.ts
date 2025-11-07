@@ -1,18 +1,16 @@
 import { Updater } from 'use-immer'
 import { DataReqAgenda } from './interfaces'
 
-// Função para lidar com mudanças nos inputs de filtro
 export const handleChange = (
   field: keyof DataReqAgenda,
   value: string,
   setData: Updater<DataReqAgenda>
 ) => {
   setData((draft) => {
-    draft[field] = value
+    (draft as any)[field] = value
   })
 }
 
-// Função para validar horário
 export const validarHorario = (inicio: string, fim: string): boolean => {
   if (!inicio || !fim) return false
   
@@ -25,14 +23,13 @@ export const validarHorario = (inicio: string, fim: string): boolean => {
   return inicioMinutos < fimMinutos
 }
 
-// Função para validar intervalo de almoço
 export const validarIntervaloAlmoco = (
   inicioExpediente: string,
   fimExpediente: string,
   inicioAlmoco: string,
   fimAlmoco: string
 ): boolean => {
-  if (!inicioAlmoco || !fimAlmoco) return true // Almoço é opcional
+  if (!inicioAlmoco || !fimAlmoco) return true
   
   const [horaInicioExp, minutoInicioExp] = inicioExpediente.split(':').map(Number)
   const [horaFimExp, minutoFimExp] = fimExpediente.split(':').map(Number)
@@ -51,9 +48,8 @@ export const validarIntervaloAlmoco = (
   )
 }
 
-// Função para validar datas de vigência
 export const validarDatasVigencia = (dataInicio: string, dataFim: string): boolean => {
-  if (!dataInicio || !dataFim) return true // Datas são opcionais
+  if (!dataInicio || !dataFim) return true
   
   const inicio = new Date(dataInicio)
   const fim = new Date(dataFim)
@@ -61,7 +57,6 @@ export const validarDatasVigencia = (dataInicio: string, dataFim: string): boole
   return inicio <= fim
 }
 
-// Função para validar período de bloqueio
 export const validarPeriodoBloqueio = (dataInicio: string, dataFim: string): boolean => {
   if (!dataInicio || !dataFim) return false
   
@@ -71,7 +66,6 @@ export const validarPeriodoBloqueio = (dataInicio: string, dataFim: string): boo
   return inicio < fim
 }
 
-// Função para calcular duração em minutos entre dois horários
 export const calcularDuracaoMinutos = (inicio: string, fim: string): number => {
   if (!inicio || !fim) return 0
   
@@ -84,7 +78,6 @@ export const calcularDuracaoMinutos = (inicio: string, fim: string): number => {
   return fimMinutos - inicioMinutos
 }
 
-// Função para gerar slots de horário baseado no intervalo
 export const gerarSlotsHorario = (
   horaInicio: string,
   horaFim: string,
@@ -113,7 +106,6 @@ export const gerarSlotsHorario = (
   const minutoFinal = horaFin * 60 + minutoFin
   
   while (minutoAtual < minutoFinal) {
-    // Pular horário de almoço
     if (almocoInicio && almocoFim && 
         minutoAtual >= almocoIniMinutos && minutoAtual < almocoFimMinutos) {
       minutoAtual = almocoFimMinutos

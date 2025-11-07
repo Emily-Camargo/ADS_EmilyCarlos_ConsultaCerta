@@ -1,4 +1,3 @@
-// Interface para consulta do paciente
 export interface ConsultaPaciente {
   id_consulta: number
   id_paciente: number
@@ -21,7 +20,6 @@ export interface ConsultaPaciente {
   }
 }
 
-// Interface para especialidades
 export interface Especialidade {
   id_especialidade: number
   nome: string
@@ -29,7 +27,6 @@ export interface Especialidade {
   ativa: boolean
 }
 
-// Interface para formulário de agendamento
 export interface AgendamentoForm {
   especialidade: number
   medico: number
@@ -38,18 +35,15 @@ export interface AgendamentoForm {
   observacoes?: string
 }
 
-// Interface para agendamento completo (com data_hora combinada)
 export interface AgendamentoCompleto extends AgendamentoForm {
   data_hora: string
 }
 
-// Interface para horários disponíveis
 export interface HorarioDisponivel {
   horario: string
   disponivel: boolean
 }
 
-// Interface para props do card de consulta
 export interface ConsultaCardProps {
   consulta: ConsultaPaciente
   onVisualizar?: (consulta: ConsultaPaciente) => void
@@ -58,7 +52,6 @@ export interface ConsultaCardProps {
   onConfirmar?: (consulta: ConsultaPaciente) => void
 }
 
-// Interface para props da modal de agendamento
 export interface AgendarConsultaProps {
   modal: boolean
   setModal: (modal: boolean) => void

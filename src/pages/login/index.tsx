@@ -46,7 +46,6 @@ const Acessar = () => {
 
         const { access_token, user } = response.data
 
-        // Valida se recebeu o token de acesso
         if (!access_token) {
           toast.error('Token de autenticação não recebido. Tente novamente.')
           return
@@ -62,10 +61,8 @@ const Acessar = () => {
           return
         }
 
-        // Salva o token temporariamente para usar na próxima requisição
         localStorage.setItem('access_token', access_token);
 
-        // Busca dados completos do usuário (incluindo dados do médico, paciente, etc)
         const userInfoResponse = await getInfoUsuario({ id: user.idUsuario });
         const fullUserData = userInfoResponse.data;
 
@@ -76,8 +73,8 @@ const Acessar = () => {
           email: fullUserData.email,
           idPerfil: fullUserData.idPerfil,
           perfil: fullUserData.perfil,
-          medico: fullUserData.medico, // Inclui dados do médico se existirem
-          paciente: fullUserData.paciente // Inclui dados do paciente se existirem
+          medico: fullUserData.medico,
+          paciente: fullUserData.paciente
         }
 
         login(userData, access_token)

@@ -186,8 +186,6 @@ const CardActions = ({
       </Box>
     );
   }
-
-  // Para outros status, não mostra nada ou pode adicionar mensagens específicas
   return null;
 };
 

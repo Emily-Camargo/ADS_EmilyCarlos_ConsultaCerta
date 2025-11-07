@@ -86,7 +86,6 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
     }
   }
 
-  // Renderização da tela de sucesso
   if (success) {
     return (
       <Dialog

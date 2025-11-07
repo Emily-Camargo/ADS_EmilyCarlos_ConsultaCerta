@@ -8,7 +8,6 @@ import {
   EstatisticasPacientes,
 } from '../../../services/dashboard/interface'
 
-// Formata valores monetários
 export const formatarMoeda = (valor: number): string => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
@@ -16,12 +15,10 @@ export const formatarMoeda = (valor: number): string => {
   }).format(valor)
 }
 
-// Formata percentuais
 export const formatarPercentual = (valor: number): string => {
   return `${valor.toFixed(1)}%`
 }
 
-// Calcula estatísticas gerais a partir das consultas
 export const calcularEstatisticasGerais = (
   consultas: ConsultaRes[],
 ): EstatisticasGerais => {
@@ -77,7 +74,6 @@ export const calcularEstatisticasGerais = (
   }
 }
 
-// Agrupa consultas por período (mês)
 export const agruparConsultasPorPeriodo = (
   consultas: ConsultaRes[],
 ): ConsultasPorPeriodo[] => {
@@ -110,7 +106,6 @@ export const agruparConsultasPorPeriodo = (
     .sort((a, b) => a.periodo.localeCompare(b.periodo))
 }
 
-// Calcula estatísticas por médico
 export const calcularEstatisticasMedicos = (
   consultas: ConsultaRes[],
 ): EstatisticasMedico[] => {
@@ -139,7 +134,6 @@ export const calcularEstatisticasMedicos = (
         .filter((c) => c.status.toLowerCase() === 'concluída' || c.status.toLowerCase() === 'concluida')
         .reduce((acc, c) => acc + (c.valorConsulta || 0), 0)
 
-      // Pega os dados do primeiro registro do médico
       const primeiraConsulta = consultasMedico[0]
 
       return {
@@ -156,7 +150,6 @@ export const calcularEstatisticasMedicos = (
   ).sort((a, b) => b.totalConsultas - a.totalConsultas)
 }
 
-// Agrupa consultas por status
 export const agruparConsultasPorStatus = (
   consultas: ConsultaRes[],
 ): ConsultasPorStatus[] => {
@@ -191,7 +184,6 @@ export const agruparConsultasPorStatus = (
   }))
 }
 
-// Calcula ocupação por horário
 export const calcularOcupacaoPorHorario = (
   consultas: ConsultaRes[],
 ): HorarioOcupacao[] => {
@@ -217,12 +209,11 @@ export const calcularOcupacaoPorHorario = (
     .map(([horario, quantidade]) => ({
       horario,
       quantidade,
-      percentualOcupacao: (quantidade / diasUnicos) * 10, // Assumindo 10 slots por hora
+      percentualOcupacao: (quantidade / diasUnicos) * 10,
     }))
     .sort((a, b) => a.horario.localeCompare(b.horario))
 }
 
-// Calcula estatísticas de pacientes
 export const calcularEstatisticasPacientes = (
   consultas: ConsultaRes[],
 ): EstatisticasPacientes => {
@@ -247,19 +238,16 @@ export const calcularEstatisticasPacientes = (
     const idPaciente = consulta.idPaciente
     pacientesUnicos.add(idPaciente)
 
-    // Conta consultas por paciente
     if (!consultasPorPaciente[idPaciente]) {
       consultasPorPaciente[idPaciente] = 0
     }
     consultasPorPaciente[idPaciente]++
 
-    // Pacientes ativos (últimos 3 meses)
     const dataConsulta = new Date(consulta.dataHora)
     if (dataConsulta >= tresMesesAtras) {
       pacientesAtivosSet.add(idPaciente)
     }
 
-    // Novos pacientes (cadastrados neste mês - primeira consulta neste mês)
     if (dataConsulta >= primeiroDiaMes) {
       const consultasAnteriores = consultas.filter(
         (c) =>
@@ -290,7 +278,6 @@ export const calcularEstatisticasPacientes = (
   }
 }
 
-// Formata nome do mês
 export const formatarNomeMes = (mesAno: string): string => {
   const [ano, mes] = mesAno.split('-')
   const meses = [
@@ -310,7 +297,6 @@ export const formatarNomeMes = (mesAno: string): string => {
   return `${meses[parseInt(mes) - 1]}/${ano}`
 }
 
-// Calcula variação percentual
 export const calcularVariacao = (valorAtual: number, valorAnterior: number): number => {
   if (valorAnterior === 0) return valorAtual > 0 ? 100 : 0
   return ((valorAtual - valorAnterior) / valorAnterior) * 100

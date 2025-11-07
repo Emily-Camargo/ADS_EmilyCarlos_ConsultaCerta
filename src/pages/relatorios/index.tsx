@@ -25,14 +25,12 @@ import { getBuscarMedicos } from '../../services/usuario'
 import { InfoUsuarioRes } from '../../services/usuario/interface'
 import { useAuth } from '../../contexts/AuthContext'
 
-// Componentes
 import StatCard from './components/StatCard'
 import ConsultasBarChart from './components/ConsultasBarChart'
 import StatusPieChart from './components/StatusPieChart'
 import MedicosTable from './components/MedicosTable'
 import HorariosBarChart from './components/HorariosBarChart'
 
-// Utils
 import { formatarMoeda } from './utils/functions'
 
 const Relatorios: React.FC = () => {
@@ -44,7 +42,6 @@ const Relatorios: React.FC = () => {
   const [medicos, setMedicos] = useState<InfoUsuarioRes[]>([])
 
   const buscarMedicos = async () => {
-    // Só busca médicos se não for médico (idPerfil !== 3)
     if (user?.idPerfil === 3) return
     
     try {
@@ -60,7 +57,6 @@ const Relatorios: React.FC = () => {
     try {
       setLoading(true)
 
-      // Se for médico (idPerfil === 3), envia o idMedico dele automaticamente
       let idMedicoParam: number | undefined = undefined
       if (user?.idPerfil === 3 && user?.medico?.idMedico) {
         idMedicoParam = user.medico.idMedico
@@ -91,7 +87,6 @@ const Relatorios: React.FC = () => {
     try {
       setLoading(true)
       
-      // Se for médico (idPerfil === 3), envia o idMedico dele automaticamente
       let idMedicoParam: number | undefined = undefined
       if (user?.idPerfil === 3 && user?.medico?.idMedico) {
         idMedicoParam = user.medico.idMedico
@@ -120,7 +115,6 @@ const Relatorios: React.FC = () => {
     buscarDadosIniciais()
   }
 
-  // Extração dos dados do dashboard
   const estatisticasGerais = dashboardData?.estatisticasGerais || {
     totalConsultas: 0,
     consultasAgendadas: 0,
@@ -153,7 +147,6 @@ const Relatorios: React.FC = () => {
         backgroundColor: '#F9FAFB',
       }}
     >
-      {/* Filtro */}
       <Box sx={{ mb: 3 }}>
         <Filtro
           inputs={inputsRelatorios({ data, setData })}
@@ -163,7 +156,6 @@ const Relatorios: React.FC = () => {
         />
       </Box>
 
-      {/* Cards de Estatísticas */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={4} lg={2.4}>
           <StatCard
@@ -225,7 +217,6 @@ const Relatorios: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Gráficos principais */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} lg={8}>
           <ConsultasBarChart
@@ -239,7 +230,6 @@ const Relatorios: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Estatísticas detalhadas */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} lg={6}>
           <HorariosBarChart data={horariosOcupacao} loading={loading} />
@@ -354,7 +344,6 @@ const Relatorios: React.FC = () => {
         </Grid>
       </Grid>
 
-      {/* Tabela de Médicos */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <MedicosTable data={estatisticasMedicos} loading={loading} />

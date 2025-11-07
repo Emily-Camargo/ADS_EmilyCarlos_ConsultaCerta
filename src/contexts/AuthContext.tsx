@@ -4,7 +4,7 @@ export interface User {
   idUsuario: number;
   nome: string;
   email: string;
-  idPerfil: number; // ID do perfil: 1: Secretária, 2: Paciente, 3: Médico
+  idPerfil: number;
   perfil?: {
     idPerfil: number;
     nome: string;
@@ -68,7 +68,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Verifica se há dados do usuário no localStorage
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       try {
