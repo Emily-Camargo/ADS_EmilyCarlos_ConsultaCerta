@@ -97,6 +97,7 @@ export interface HorariosMedicoReq {
 export interface HorariosMedicoRes {
     data: string;
     horarios: string[];
+    mensagem?: string;
 }
 
 export interface GetInfoAgendaParams {
