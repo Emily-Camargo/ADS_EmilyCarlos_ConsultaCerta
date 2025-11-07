@@ -7,7 +7,7 @@ export const initialHorarioForm: HorarioForm = {
   dia_semana: 0,
   hora_inicio: '',
   hora_fim: '',
-  intervalo_minutos: 0,
+  intervalo_minutos: 30,
   almoco_inicio: '',
   almoco_fim: '',
   data_vigencia_inicio: '',

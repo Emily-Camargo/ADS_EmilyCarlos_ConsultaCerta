@@ -95,7 +95,7 @@ export function CadastrarHorario({
         dia_semana: horarioParaEditar.dia_semana,
         hora_inicio: horarioParaEditar.hora_inicio,
         hora_fim: horarioParaEditar.hora_fim,
-        intervalo_minutos: horarioParaEditar.intervalo_minutos,
+        intervalo_minutos: 30,
         almoco_inicio: horarioParaEditar.almoco_inicio,
         almoco_fim: horarioParaEditar.almoco_fim,
         data_vigencia_inicio: horarioParaEditar.data_vigencia_inicio,
@@ -130,11 +130,6 @@ export function CadastrarHorario({
 
     if (!validarHorario(formData.hora_inicio, formData.hora_fim)) {
       toast.warn('Horário de início deve ser anterior ao horário de fim!')
-      return
-    }
-
-    if (formData.intervalo_minutos === 0) {
-      toast.warn('Selecione um intervalo entre consultas!')
       return
     }
 
@@ -247,7 +242,7 @@ export function CadastrarHorario({
 
   const medicoSelecionado = medicos.find(m => m.id_medico === formData.id_medico)
   const diaSelecionado = diasSemanaOptions.find(d => d.value === formData.dia_semana)
-  const intervaloSelecionado = intervalosOptions.find(i => i.value === formData.intervalo_minutos)
+  const intervaloSelecionado = intervalosOptions.find(i => i.value === formData.intervalo_minutos) || intervalosOptions.find(i => i.value === 30)
 
   const isLoading = mutationCadastrar.isLoading || mutationEditar.isLoading
   
@@ -351,12 +346,12 @@ export function CadastrarHorario({
               options={intervalosOptions}
               textFieldProps={{ 
                 label: 'Intervalo entre Consultas *', 
-                disabled: isVisualizacao 
+                disabled: true
               }}
               multiple={false}
               onChange={handleIntervaloSelect}
               optionLabel={(v) => v.label}
-              disabled={isVisualizacao}
+              disabled={true}
             />
           </Grid>
 
