@@ -76,10 +76,6 @@ export interface TabelaHorariosProps {
   isLoading?: boolean
   editarHorario: (horario: HorarioAtendimento) => void
   detalhesHorario: (horario: HorarioAtendimento) => void
-  bloquearHorario?: (horario: HorarioAtendimento) => void
-  editarBloqueio?: (bloqueio: BloqueioAgenda) => void
-  detalhesBloqueio?: (bloqueio: BloqueioAgenda) => void
-  removerBloqueio?: (bloqueio: BloqueioAgenda) => void
 }
 
 // Interface para props da tabela de bloqueios
@@ -87,6 +83,7 @@ export interface TabelaBloqueiosProps {
   bloqueios: BloqueioAgenda[]
   isLoading?: boolean
   editarBloqueio: (bloqueio: BloqueioAgenda) => void
+  detalhesBloqueio?: (bloqueio: BloqueioAgenda) => void
   removerBloqueio: (bloqueio: BloqueioAgenda) => void
 }
 
@@ -141,6 +138,7 @@ export interface ColunasHorariosProps {
 
 export interface ColunasBloqueiosProps {
   editarBloqueio: (row: BloqueioAgenda) => void
+  detalhesBloqueio?: (row: BloqueioAgenda) => void
   removerBloqueio: (row: BloqueioAgenda) => void
 }
 

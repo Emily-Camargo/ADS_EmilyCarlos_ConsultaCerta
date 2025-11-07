@@ -2,7 +2,7 @@ import { memo, useState, useEffect } from "react"
 import { inputsAgenda, agendaFil, selectMedicosAgenda } from "./utils/filtro"
 import Filtro from "../../components/filtro"
 import { useImmer } from "use-immer"
-import { Button } from "@mantine/core"
+import { Button, Tabs } from "@mantine/core"
 import { TabelaHorarios } from "./components/tabela/tabela"
 import { CadastrarHorario } from "./components/modal/cadastrar-horario"
 import { BloquearAgenda } from "./components/modal/bloquear-agenda"
@@ -10,13 +10,14 @@ import { DetalhesMedico } from "./components/modal/detalhes-medico"
 import { HorarioAtendimento, BloqueioAgenda } from "./utils/interfaces"
 import { toast } from 'react-toastify'
 import { useQuery, useQueryClient, useMutation } from 'react-query'
-import { agendaKeys, fetchHorarios } from "./utils/queries"
+import { agendaKeys, fetchHorarios, fetchTodosBloqueios } from "./utils/queries"
 import { putBloqueiosMedico, deleteBloqueiosMedico } from "../../services/medico"
 import { BloquearAgendaPutReq } from "../../services/medico/interface"
 import Confirmar from "../../components/dialog/confirmar"
 import CustomLoaders from "../../components/Loader"
 import { getBuscarMedicos } from "../../services/usuario"
 import { InfoUsuarioRes } from "../../services/usuario/interface"
+import { TabelaBloqueiosGeral } from "./components/tabela/tabela-bloqueios-geral"
 
 function Agenda() {
   const [data, setData] = useImmer(agendaFil)
@@ -33,6 +34,7 @@ function Agenda() {
   const [bloqueioParaRemover, setBloqueioParaRemover] = useState<BloqueioAgenda | null>(null)
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
   const [modoVisualizacaoBloqueio, setModoVisualizacaoBloqueio] = useState(false)
+  const [abaAtiva, setAbaAtiva] = useState<string | null>('horarios')
 
   const { data: horarios = [], isLoading, error } = useQuery({
     queryKey: agendaKeys.horarios({
@@ -45,6 +47,13 @@ function Agenda() {
       dataVigenciaInicio: filtrosAplicados.dataInicio || undefined,
       dataVigenciaFim: filtrosAplicados.dataFim || undefined,
     }),
+  })
+
+  // Query para buscar todos os bloqueios
+  const { data: bloqueios = [], isLoading: isLoadingBloqueios } = useQuery({
+    queryKey: ['todos-bloqueios', filtrosAplicados.idMedico],
+    queryFn: () => fetchTodosBloqueios(medicos, filtrosAplicados.idMedico),
+    enabled: abaAtiva === 'bloqueios' && medicos.length > 0,
   })
 
   const queryClient = useQueryClient()
@@ -72,6 +81,7 @@ function Agenda() {
     onSuccess: () => {
       toast.success('Bloqueio atualizado com sucesso!')
       queryClient.invalidateQueries(['bloqueios-medico'])
+      queryClient.invalidateQueries(['todos-bloqueios'])
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Erro ao atualizar bloqueio')
@@ -86,6 +96,7 @@ function Agenda() {
     onSuccess: () => {
       toast.success('Bloqueio removido com sucesso!')
       queryClient.invalidateQueries(['bloqueios-medico'])
+      queryClient.invalidateQueries(['todos-bloqueios'])
       setModalConfirmarExclusao(false)
       setBloqueioParaRemover(null)
     },
@@ -126,8 +137,12 @@ function Agenda() {
         idBloqueio: bloqueioParaEditar.id_bloqueio, 
         data: payload 
       })
+    } else {
+      // Criação de novo bloqueio - apenas invalida as queries
+      // O componente BloquearAgenda já trata a criação via API
+      queryClient.invalidateQueries(['bloqueios-medico'])
+      queryClient.invalidateQueries(['todos-bloqueios'])
     }
-    // A criação de novo bloqueio já é tratada no componente BloquearAgenda
   }
 
   const editarHorario = (horario: HorarioAtendimento) => {
@@ -139,11 +154,6 @@ function Agenda() {
   const detalhesHorario = (horario: HorarioAtendimento) => {
     setHorarioParaVisualizar(horario)
     setModalDetalhes(true)
-  }
-
-  const bloquearHorario = (horario: HorarioAtendimento) => {
-    setHorarioParaEditar(horario)
-    setModalBloqueio(true)
   }
 
   const abrirModalCadastro = () => {
@@ -213,36 +223,57 @@ function Agenda() {
         inputSelect={[selectMedicosAgenda(data, handleMedicoChange, medicos)]}
       />
       
-      <div className="flex gap-2 mb-4">
-        <Button 
-          variant="gradient" 
-          gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} 
-          size="xs"
-          onClick={abrirModalCadastro}
-        >
-          Cadastrar Horário
-        </Button>
-        
-        <Button 
-          variant="gradient" 
-          gradient={{ from: '#DC2626', to: '#B91C1C' }} 
-          size="xs"
-          onClick={abrirModalBloqueio}
-        >
-          Bloquear Agenda
-        </Button>
-      </div>
+      <Tabs value={abaAtiva} onChange={setAbaAtiva} className="mt-4">
+        <Tabs.List>
+          <Tabs.Tab value="horarios">
+            Horários de Atendimento
+          </Tabs.Tab>
+          <Tabs.Tab value="bloqueios">
+            Bloqueios de Agenda
+          </Tabs.Tab>
+        </Tabs.List>
 
-      <TabelaHorarios 
-        horarios={horarios} 
-        isLoading={isLoading}
-        editarHorario={editarHorario}
-        detalhesHorario={detalhesHorario}
-        bloquearHorario={bloquearHorario}
-        editarBloqueio={editarBloqueio}
-        detalhesBloqueio={detalhesBloqueio}
-        removerBloqueio={removerBloqueio}
-      />
+        <Tabs.Panel value="horarios" pt="md">
+          <div className="flex gap-2 mb-4">
+            <Button 
+              variant="gradient" 
+              gradient={{ from: '#1D4ED8', to: '#1E3A8A' }} 
+              size="xs"
+              onClick={abrirModalCadastro}
+            >
+              Cadastrar Horário
+            </Button>
+          </div>
+
+          <TabelaHorarios 
+            horarios={horarios} 
+            isLoading={isLoading}
+            editarHorario={editarHorario}
+            detalhesHorario={detalhesHorario}
+          />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="bloqueios" pt="md">
+          <div className="flex gap-2 mb-4">
+            <Button 
+              variant="gradient" 
+              gradient={{ from: '#DC2626', to: '#B91C1C' }} 
+              size="xs"
+              onClick={abrirModalBloqueio}
+            >
+              Bloquear Agenda
+            </Button>
+          </div>
+
+          <TabelaBloqueiosGeral
+            bloqueios={bloqueios}
+            isLoading={isLoadingBloqueios}
+            editarBloqueio={editarBloqueio}
+            detalhesBloqueio={detalhesBloqueio}
+            removerBloqueio={removerBloqueio}
+          />
+        </Tabs.Panel>
+      </Tabs>
       
       <CadastrarHorario
         modal={modalCadastro}

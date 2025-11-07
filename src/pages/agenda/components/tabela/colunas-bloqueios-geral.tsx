@@ -19,11 +19,19 @@ const formatarDataHoraCompleta = (dataHora: string): string => {
   return `${data} ${hora}`
 }
 
-export function colunasBloqueios({ 
+export function colunasBloqueiosGeral({ 
   editarBloqueio, 
   removerBloqueio,
+  detalhesBloqueio,
 }: ColunasBloqueiosProps) {
   const rows: TableColumn<BloqueioAgenda>[] = [
+    {
+      name: 'Médico',
+      selector: (row) => row.nome_medico || '--',
+      sortable: true,
+      grow: 2,
+      wrap: true,
+    },
     {
       name: 'Data Início',
       selector: (row) => row.data_inicio,
@@ -73,6 +81,28 @@ export function colunasBloqueios({
         )
       },
       center: true,
+    },
+    {
+      name: 'Detalhes',
+      center: true,
+      cell: (row) => {
+        if (!detalhesBloqueio) return null
+        
+        return (
+          <Tooltip
+            TransitionComponent={Zoom}
+            placement="top"
+            title="Ver detalhes"
+          >
+            <button
+              onClick={() => detalhesBloqueio(row)}
+              className="p-1 hover:bg-gray-100 rounded"
+            >
+              <Visibility className="text-gray-600" fontSize="small" />
+            </button>
+          </Tooltip>
+        )
+      },
     },
     {
       name: 'Editar',

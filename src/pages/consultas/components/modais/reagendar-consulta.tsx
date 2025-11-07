@@ -64,7 +64,8 @@ export function ReagendarConsulta({
           setHorariosDisponiveis(horariosDoDia.horarios)
         } else {
           setHorariosDisponiveis([])
-          toast.info('Não há horários disponíveis para esta data')
+          const mensagem = horariosDoDia?.mensagem || 'Não há horários disponíveis para esta data'
+          toast.info(mensagem)
         }
       } else {
         const dadosHorario = response.data as HorariosMedicoRes
@@ -72,7 +73,8 @@ export function ReagendarConsulta({
           setHorariosDisponiveis(dadosHorario.horarios)
         } else {
           setHorariosDisponiveis([])
-          toast.info('Não há horários disponíveis para esta data')
+          const mensagem = dadosHorario?.mensagem || 'Não há horários disponíveis para esta data'
+          toast.info(mensagem)
         }
       }
     } catch (error: any) {

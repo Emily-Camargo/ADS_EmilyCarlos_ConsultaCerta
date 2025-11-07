@@ -108,7 +108,8 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
           setHorariosDisponiveis(horariosDoDia.horarios)
         } else {
           setHorariosDisponiveis([])
-          toast.info('Não há horários disponíveis para esta data')
+          const mensagem = horariosDoDia?.mensagem || 'Não há horários disponíveis para esta data'
+          toast.info(mensagem)
         }
       } else {
         const dadosHorario = response.data as HorariosMedicoRes
@@ -117,7 +118,8 @@ const AgendarConsulta: React.FC<AgendarConsultaProps> = ({
           toast.success(`${dadosHorario.horarios.length} horários disponíveis`)
         } else {
           setHorariosDisponiveis([])
-          toast.info('Não há horários disponíveis para esta data')
+          const mensagem = dadosHorario?.mensagem || 'Não há horários disponíveis para esta data'
+          toast.info(mensagem)
         }
       }
     } catch (error: any) {
