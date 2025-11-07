@@ -1,7 +1,7 @@
 import { TableColumn } from 'react-data-table-component'
 import { BloqueioAgenda, ColunasBloqueiosProps } from '../../utils/interfaces'
 import { Tooltip, Zoom, Chip } from '@mui/material'
-import { Edit, Visibility, Delete } from '@mui/icons-material'
+import { Edit, Delete } from '@mui/icons-material'
 
 // Função para formatar data e hora completa
 const formatarDataHoraCompleta = (dataHora: string): string => {

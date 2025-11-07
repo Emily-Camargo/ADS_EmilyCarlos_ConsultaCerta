@@ -1,14 +1,24 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerClose } from '../../../components/ui/drawer'
 import { Button } from '@mantine/core'
 import Input from '../../../components/Inputs/Input'
-import { MdClose, MdPerson, MdVisibility, MdVisibilityOff } from 'react-icons/md'
+import { MdClose, MdPerson, MdVisibility, MdVisibilityOff, MdCheck, MdClose as MdX } from 'react-icons/md'
 import { InputAdornment, Switch, FormControlLabel } from '@mui/material'
 import { useMutation } from 'react-query'
 import { CadastroDrawerProps, FormData } from '../interfaces'
 import { postCriaUsuario } from '../../../services/usuario'
 import { CriaUsuarioReq } from '../../../services/usuario/interface'
 import { toast } from 'react-toastify'
+
+// Função para validar senha
+const validatePassword = (password: string) => {
+  return {
+    minLength: password.length >= 8,
+    hasLetter: /[a-zA-Z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  }
+}
 
 const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
   const [showPassword, setShowPassword] = useState(false)
@@ -23,6 +33,15 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
     whatsappAutorizado: false,
     senha: ''
   })
+
+  // Validação de senha em tempo real
+  const passwordValidation = useMemo(() => validatePassword(formData.senha), [formData.senha])
+  const isPasswordValid = useMemo(() => 
+    passwordValidation.minLength && 
+    passwordValidation.hasLetter && 
+    passwordValidation.hasNumber && 
+    passwordValidation.hasSymbol
+  , [passwordValidation])
 
   const createUserMutation = useMutation({
     mutationKey: ['createUser'],
@@ -243,6 +262,55 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
                 ),
               }}
             />
+            
+            {/* Feedback de validação da senha */}
+            {formData.senha && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-md space-y-2">
+                <p className="text-xs font-medium text-gray-700 mb-2">A senha deve conter:</p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.minLength ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-600'}`}>
+                      Mínimo de 8 caracteres
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.hasLetter ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.hasLetter ? 'text-green-600' : 'text-gray-600'}`}>
+                      Pelo menos uma letra
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.hasNumber ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-600'}`}>
+                      Pelo menos um número
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.hasSymbol ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.hasSymbol ? 'text-green-600' : 'text-gray-600'}`}>
+                      Pelo menos um símbolo (!@#$%^&*...)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex space-x-3 pt-4">
@@ -258,7 +326,7 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
             </Button>
             <Button
               type="submit"
-              disabled={createUserMutation.isLoading || !formData.nome || !formData.cpf || !formData.email || !formData.telefone || !formData.senha}
+              disabled={createUserMutation.isLoading || !formData.nome || !formData.cpf || !formData.email || !formData.telefone || !formData.senha || !isPasswordValid}
               className="flex-1"
               size="sm"
               radius="md"
