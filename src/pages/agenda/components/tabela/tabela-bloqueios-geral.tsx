@@ -1,19 +1,21 @@
 import { memo } from 'react'
 import DataTable from 'react-data-table-component'
-import { TabelaHorariosProps } from '../../utils/interfaces'
-import { colunasHorarios } from './colunas'
+import { TabelaBloqueiosProps } from '../../utils/interfaces'
+import { colunasBloqueiosGeral } from './colunas-bloqueios-geral'
 import { customStyles } from '../../../../styles/customTable'
 import CustomLoaders from '../../../../components/Loader'
 
-export const TabelaHorarios = memo(function TabelaHorarios({
-  horarios,
+export const TabelaBloqueiosGeral = memo(function TabelaBloqueiosGeral({
+  bloqueios,
   isLoading = false,
-  editarHorario,
-  detalhesHorario,
-}: Readonly<TabelaHorariosProps>) {
-  const colunas = colunasHorarios({
-    editarHorario,
-    detalhesHorario,
+  editarBloqueio,
+  detalhesBloqueio,
+  removerBloqueio,
+}: Readonly<TabelaBloqueiosProps>) {
+  const colunas = colunasBloqueiosGeral({
+    editarBloqueio,
+    detalhesBloqueio,
+    removerBloqueio,
   })
 
   if (isLoading) {
@@ -28,7 +30,7 @@ export const TabelaHorarios = memo(function TabelaHorarios({
     <div className="mt-4">
       <DataTable
         columns={colunas}
-        data={horarios}
+        data={bloqueios}
         pagination
         paginationPerPage={10}
         paginationRowsPerPageOptions={[5, 10, 15, 20, 25]}
@@ -38,7 +40,7 @@ export const TabelaHorarios = memo(function TabelaHorarios({
         customStyles={customStyles}
         noDataComponent={
           <div className="text-center py-8 text-gray-500">
-            <p>Nenhum horário encontrado</p>
+            <p>Nenhum bloqueio encontrado</p>
           </div>
         }
         paginationComponentOptions={{
@@ -51,3 +53,4 @@ export const TabelaHorarios = memo(function TabelaHorarios({
     </div>
   )
 })
+
