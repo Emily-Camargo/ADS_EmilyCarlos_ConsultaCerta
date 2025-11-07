@@ -3,8 +3,7 @@ import { BloqueioAgenda, ColunasBloqueiosProps } from '../../utils/interfaces'
 import { Tooltip, Zoom, Chip } from '@mui/material'
 import { Edit, Delete } from '@mui/icons-material'
 
-// Função para formatar data e hora completa
-const formatarDataHoraCompleta = (dataHora: string): string => {
+  const formatarDataHoraCompleta = (dataHora: string): string => {
   if (!dataHora) return '--'
   const date = new Date(dataHora)
   const data = date.toLocaleDateString('pt-BR', { 
@@ -78,7 +77,6 @@ export function colunasBloqueios({
       name: 'Editar',
       center: true,
       cell: (row) => {
-        // Verificar se o bloqueio está expirado
         const dataFim = new Date(row.data_fim)
         const hoje = new Date()
         dataFim.setHours(23, 59, 59, 999)
@@ -115,7 +113,6 @@ export function colunasBloqueios({
       name: 'Excluir',
       center: true,
       cell: (row) => {
-        // Verificar se o bloqueio está expirado
         const dataFim = new Date(row.data_fim)
         const hoje = new Date()
         dataFim.setHours(23, 59, 59, 999)

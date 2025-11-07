@@ -27,13 +27,11 @@ const AtendimentosPage = () => {
   ]);
   const [loading, setLoading] = useState(true);
 
-  // Mutation para atualizar status da consulta
   const atualizarConsultaMutation = useMutation({
     mutationKey: ['atualizar-consulta'],
     mutationFn: atualizarConsulta,
     onSuccess: () => {
       toast.success('Status da consulta atualizado com sucesso!');
-      // Recarregar os dados após atualização
       buscarConsultas();
     },
     onError: (error: any) => {
@@ -61,7 +59,6 @@ const AtendimentosPage = () => {
   };
 
   const handleAbrirProntuario = (id: number) => {
-    // Encontrar a consulta pelo ID para obter o ID do paciente
     const consulta = statusTabs[tabValue].data.find(c => c.idConsulta === id);
     if (consulta) {
       navigate(`/prontuario-atendimento/${consulta.idPaciente}/${consulta.idConsulta}`);

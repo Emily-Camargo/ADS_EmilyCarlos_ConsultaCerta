@@ -17,10 +17,9 @@ function Pacientes() {
   const [modoVisualizacao, setModoVisualizacao] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Converter dados da API para o formato PacienteData
   const converterParaPacienteData = (usuarios: InfoUsuarioRes[]): PacienteData[] => {
     return usuarios
-      .filter(usuario => usuario.paciente) // Filtrar apenas usuários que são pacientes
+      .filter(usuario => usuario.paciente)
       .map(usuario => ({
         id_paciente: usuario.paciente!.idPaciente,
         nome_paciente: usuario.nome,
@@ -38,7 +37,6 @@ function Pacientes() {
       }))
   }
 
-  // Buscar pacientes da API
   const buscarPacientes = async () => {
     setIsLoading(true)
     try {
@@ -52,13 +50,11 @@ function Pacientes() {
     }
   }
 
-  // Carregar pacientes ao montar o componente
   useEffect(() => {
     buscarPacientes()
   }, [])
 
   const searchClick = () => {
-    // Lógica de busca
   }
 
   const redefinir = () => {
@@ -66,7 +62,6 @@ function Pacientes() {
   }
 
   const handleCadastrarPaciente = async () => {
-    // Recarregar a lista de pacientes da API
     await buscarPacientes()
     setPacienteParaEditar(null)
   }

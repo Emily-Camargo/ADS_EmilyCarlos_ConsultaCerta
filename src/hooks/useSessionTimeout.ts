@@ -14,7 +14,6 @@ export const useSessionTimeout = ({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
-  // Função para resetar o timer de inatividade
   const resetTimeout = useCallback(() => {
     lastActivityRef.current = Date.now();
     
@@ -22,11 +21,9 @@ export const useSessionTimeout = ({
       clearTimeout(timeoutRef.current);
     }
 
-    // Configura o timeout baseado no parâmetro timeoutMinutes
     timeoutRef.current = setTimeout(() => {
       if (user) {
         logout();
-        // Força o redirecionamento para a tela de login
         window.location.href = '/acessar';
         if (onTimeout) {
           onTimeout();
@@ -35,15 +32,12 @@ export const useSessionTimeout = ({
     }, timeoutMinutes * 60 * 1000);
   }, [user, logout, onTimeout, timeoutMinutes]);
 
-  // Função para detectar atividade do usuário
   const handleUserActivity = useCallback(() => {
     resetTimeout();
   }, [resetTimeout]);
 
   useEffect(() => {
-    // Só ativa o timeout se o usuário estiver logado
     if (user) {
-      // Eventos que indicam atividade do usuário
       const events = [
         'mousedown',
         'mousemove',
@@ -54,15 +48,12 @@ export const useSessionTimeout = ({
         'keydown'
       ];
 
-      // Adiciona listeners para todos os eventos de atividade
       events.forEach(event => {
         document.addEventListener(event, handleUserActivity, true);
       });
 
-      // Inicia o timer
       resetTimeout();
 
-      // Cleanup function
       return () => {
         events.forEach(event => {
           document.removeEventListener(event, handleUserActivity, true);
@@ -73,14 +64,12 @@ export const useSessionTimeout = ({
         }
       };
     } else {
-      // Se não há usuário logado, limpa o timeout
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
     }
   }, [user, handleUserActivity, resetTimeout]);
 
-  // Cleanup quando o componente é desmontado
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {

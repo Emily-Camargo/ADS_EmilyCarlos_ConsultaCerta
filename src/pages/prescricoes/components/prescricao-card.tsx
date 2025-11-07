@@ -22,7 +22,6 @@ const PrescricaoCard: React.FC<PrescricaoCardProps> = ({
   const { data, hora } = formatarDataHora(prescricao.dtaConsulta)
   const medicamentosControlados = prescricao.medicamentos.filter(m => m.controlado).length
   
-  // Verificar a menor validade entre os medicamentos
   const menorValidade = prescricao.medicamentos.reduce((menor, med) => {
     const dataAtual = new Date(med.validade)
     const dataMenor = new Date(menor)

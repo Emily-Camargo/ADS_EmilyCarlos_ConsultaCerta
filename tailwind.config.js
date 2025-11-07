@@ -93,8 +93,8 @@ module.exports = withMT({
         },
 
         'medical-primary': '#2563EB',
-        'medical-secondary': '#10B981', // Verde saúde/sucesso
-        'system': '#475569', // Cinza neutro profissional
+        'medical-secondary': '#10B981',
+        'system': '#475569',
         'medical-primary-50': '#EFF6FF',
         'medical-primary-100': '#DBEAFE',
         'medical-primary-200': '#BFDBFE',
@@ -105,7 +105,6 @@ module.exports = withMT({
         'medical-primary-700': '#1D4ED8',
         'medical-primary-800': '#1E40AF',
         'medical-primary-900': '#1E3A8A',
-        // Verde Médico - Para indicadores de saúde, sucesso
         'medical-secondary-50': '#F0FDF4',
         'medical-secondary-100': '#DCFCE7',
         'medical-secondary-200': '#BBF7D0',
@@ -116,13 +115,11 @@ module.exports = withMT({
         'medical-secondary-700': '#15803D',
         'medical-secondary-800': '#166534',
         'medical-secondary-900': '#14532D',
-        // Cores de apoio médico
-        'medical-accent': '#0891B2', // Azul claro médico
-        'medical-warning': '#F59E0B', // Amarelo para avisos
-        'medical-error': '#EF4444', // Vermelho para emergências/erros
-        'medical-info': '#3B82F6', // Azul para informações
-        'medical-success': '#10B981', // Verde para sucessos
-        // Tons neutros médicos
+        'medical-accent': '#0891B2',
+        'medical-warning': '#F59E0B',
+        'medical-error': '#EF4444',
+        'medical-info': '#3B82F6',
+        'medical-success': '#10B981',
         'medical-gray-50': '#F8FAFC',
         'medical-gray-100': '#F1F5F9',
         'medical-gray-200': '#E2E8F0',
@@ -135,11 +132,9 @@ module.exports = withMT({
         'medical-gray-900': '#0F172A',
       },
       backgroundColor: {
-        // Cor primária médica
         'medical-primary': '#2563EB',
         'medical-secondary': '#10B981',
         'system': '#475569',
-        // Backgrounds da paleta médica
         'medical-primary-50': '#EFF6FF',
         'medical-primary-100': '#DBEAFE',
         'medical-primary-200': '#BFDBFE',
@@ -150,7 +145,6 @@ module.exports = withMT({
         'medical-primary-700': '#1D4ED8',
         'medical-primary-800': '#1E40AF',
         'medical-primary-900': '#1E3A8A',
-        // Verde médico backgrounds
         'medical-secondary-50': '#F0FDF4',
         'medical-secondary-100': '#DCFCE7',
         'medical-secondary-200': '#BBF7D0',
@@ -161,21 +155,19 @@ module.exports = withMT({
         'medical-secondary-700': '#15803D',
         'medical-secondary-800': '#166534',
         'medical-secondary-900': '#14532D',
-        // Backgrounds de apoio
         'medical-accent': '#0891B2',
         'medical-warning': '#FEF3C7',
         'medical-error': '#FEE2E2',
         'medical-info': '#EFF6FF',
         'medical-success': '#F0FDF4',
-        // Backgrounds neutros
         'medical-bg-light': '#F8FAFC',
         'medical-bg-soft': '#F1F5F9',
         'medical-bg-card': '#FFFFFF',
         'medical-bg-muted': '#E2E8F0',
       },
       boxShadow: {
-        full: '0rem 0.15rem 1.25rem rgba(37, 99, 235, 0.16)', // Sombra com tom azul médico
-        modal: '100vh 100vh 100vh 300vh rgba(15, 23, 42, 0.6)', // Modal com tom médico
+        full: '0rem 0.15rem 1.25rem rgba(37, 99, 235, 0.16)',
+        modal: '100vh 100vh 100vh 300vh rgba(15, 23, 42, 0.6)',
         medical: '0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06)',
         'medical-lg': '0 10px 15px -3px rgba(37, 99, 235, 0.1), 0 4px 6px -2px rgba(37, 99, 235, 0.05)',
       },

@@ -45,7 +45,6 @@ export function CadastrarConsulta({
   const isEdicao = !!consultaParaEditar
   const isVisualizacao = modoVisualizacao
 
-  // Queries para carregar dados
   const { isLoading: carregandoPacientes } = useQuery({
     queryKey: ['pacientes'],
     queryFn: getBuscarPacientes,
@@ -73,7 +72,6 @@ export function CadastrarConsulta({
     }
   })
 
-  // Mutation para agendar consulta
   const agendarConsultaMutation = useMutation({
     mutationFn: postAgendarConsulta,
     onSuccess: (response) => {
@@ -90,7 +88,6 @@ export function CadastrarConsulta({
     }
   })
 
-  // Mutation para confirmar consulta
   const confirmarConsultaMutation = useMutation({
     mutationFn: confirmarConsulta,
     onSuccess: () => {
@@ -124,7 +121,6 @@ export function CadastrarConsulta({
     setHorariosDisponiveis([])
   }
 
-  // Converter dados da API para o formato PacienteData
   const converterParaPacienteData = (usuarios: InfoUsuarioRes[]): PacienteData[] => {
     return usuarios
       .filter(usuario => usuario.paciente)
@@ -421,7 +417,6 @@ export function CadastrarConsulta({
     return !statusBloqueados.includes(status || '')
   }
 
-  // Função para verificar se o botão confirmar deve ser exibido
   const deveExibirBotaoConfirmar = () => {
     if (!isVisualizacao || !consultaParaEditar) return false
     
@@ -599,7 +594,6 @@ export function CadastrarConsulta({
             </Grid>
           )}
 
-          {/* Mostrar motivo de cancelamento apenas se status for cancelada */}
           {isVisualizacao && consultaParaEditar?.status?.toLowerCase() === 'cancelada' && consultaParaEditar?.motivo_cancelamento && (
             <Grid item xs={12}>
               <Input
@@ -613,7 +607,6 @@ export function CadastrarConsulta({
             </Grid>
           )}
 
-          {/* Mostrar data de confirmação apenas se status for confirmada */}
           {isVisualizacao && consultaParaEditar?.status?.toLowerCase() === 'confirmada' && consultaParaEditar?.data_confirmacao && (
             <Grid item xs={12} md={6}>
               <Input

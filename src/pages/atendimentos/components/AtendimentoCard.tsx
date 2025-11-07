@@ -38,7 +38,6 @@ const AtendimentoCard = ({
     [data]
   );
 
-  // Callbacks otimizados
   const handleIniciarAtendimento = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     onIniciarAtendimento?.(id);

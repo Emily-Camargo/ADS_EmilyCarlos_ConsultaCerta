@@ -1,7 +1,7 @@
 // interface.ts
-import { ButtonExcelProps } from 'src/components/button/button-excel'
-import { InputProps } from 'src/components/input-mui/input/utils/interface'
-import { InputSelectProps } from 'src/components/input-mui/input-select/utils/interface'
+import { ButtonExcelProps } from '../../button/button-excel'
+import { InputProps } from '../../input-mui/input/utils/interface'
+import { InputSelectProps } from '../../input-mui/input-select/utils/interface'
 
 /**
  * Propriedades para o componente CSV.

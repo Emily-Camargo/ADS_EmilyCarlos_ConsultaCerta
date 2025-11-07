@@ -1,7 +1,6 @@
 import { BloquearAgendaRes } from '../../../services/medico/interface'
 import { HorarioForm, BloqueioForm, SelectOption, BloqueioAgenda } from './interfaces'
 
-// Formulário inicial para horários
 export const initialHorarioForm: HorarioForm = {
   id_medico: 0,
   dia_semana: 0,
@@ -24,7 +23,6 @@ export const initialBloqueioForm: BloqueioForm = {
   criado_por: 1,
 }
 
-// Opções para dias da semana
 export const diasSemanaOptions: SelectOption[] = [
   { value: 1, label: 'Segunda-feira' },
   { value: 2, label: 'Terça-feira' },
@@ -33,7 +31,6 @@ export const diasSemanaOptions: SelectOption[] = [
   { value: 5, label: 'Sexta-feira' },
 ]
 
-// Opções para intervalos de consulta
 export const intervalosOptions: SelectOption[] = [
   { value: 15, label: '15 minutos' },
   { value: 20, label: '20 minutos' },
@@ -42,7 +39,6 @@ export const intervalosOptions: SelectOption[] = [
   { value: 60, label: '1 hora' },
 ]
 
-// Opções para tipos de bloqueio
 export const tiposBloqueioOptions: SelectOption[] = [
   { value: 'FERIAS', label: 'Férias' },
   { value: 'LICENCA', label: 'Licença' },
@@ -52,14 +48,12 @@ export const tiposBloqueioOptions: SelectOption[] = [
   { value: 'OUTROS', label: 'Outros' },
 ]
 
-// Opções para status ativo/inativo
 export const statusOptions: SelectOption[] = [
   { value: '', label: 'Todos' },
   { value: 'true', label: 'Ativo' },
   { value: 'false', label: 'Inativo' },
 ]
 
-// Função para obter o nome do dia da semana
 export const getNomeDiaSemana = (dia: number): string => {
   const diasMap: { [key: number]: string } = {
     0: 'Domingo',
@@ -73,19 +67,16 @@ export const getNomeDiaSemana = (dia: number): string => {
   return diasMap[dia] || 'Desconhecido'
 }
 
-// Função para formatar horário
 export const formatarHorario = (horario: string): string => {
   if (!horario) return '--'
   return horario.substring(0, 5)
 }
 
-// Função para formatar data
 export const formatarData = (data: string): string => {
   if (!data) return '--'
   return new Date(data).toLocaleDateString('pt-BR')
 }
 
-// Função para formatar data e hora
 export const formatarDataHora = (dataHora: string): string => {
   if (!dataHora) return '--'
   return new Date(dataHora).toLocaleString('pt-BR')

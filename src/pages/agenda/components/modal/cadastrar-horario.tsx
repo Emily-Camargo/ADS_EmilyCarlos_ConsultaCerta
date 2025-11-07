@@ -35,17 +35,15 @@ export function CadastrarHorario({
   const isEdicao = !!horarioParaEditar
   const isVisualizacao = modoVisualizacao
 
-  // Query para buscar médicos
   const { data: medicosData, isLoading: isLoadingMedicos } = useQuery({
     queryKey: ['medicos'],
     queryFn: async () => {
       const response = await getMedicos()
       return response
     },
-    enabled: modal, // Só busca quando o modal está aberto
+    enabled: modal,
   })
 
-  // Mutation para cadastrar horário
   const mutationCadastrar = useMutation({
     mutationFn: async (data: MedicoAgendaReq) => {
       const response = await postHorariosMedico(data)
@@ -62,7 +60,6 @@ export function CadastrarHorario({
     },
   })
 
-  // Mutation para editar horário
   const mutationEditar = useMutation({
     mutationFn: async ({ idHorario, data }: { idHorario: number, data: MedicoAgendaPutReq }) => {
       const response = await putHorariosMedico(idHorario, data)
@@ -79,7 +76,6 @@ export function CadastrarHorario({
     },
   })
 
-  // Mapear médicos para o formato esperado
   const medicos = medicosData?.map((usuario: InfoUsuarioRes) => ({
     id_medico: usuario.medico?.idMedico || 0,
     nome_medico: usuario.nome,
@@ -153,7 +149,6 @@ export function CadastrarHorario({
     }
 
     if (isEdicao && horarioParaEditar) {
-      // Modo edição - usa PUT e envia apenas os campos editáveis
       const dataParaAPI: MedicoAgendaPutReq = {
         horaInicio: formData.hora_inicio,
         horaFim: formData.hora_fim,
@@ -168,7 +163,6 @@ export function CadastrarHorario({
         data: dataParaAPI
       })
     } else {
-      // Modo cadastro - usa POST e envia todos os campos
       const dataParaAPI: MedicoAgendaReq = {
         idMedico: formData.id_medico,
         diaSemana: formData.dia_semana,

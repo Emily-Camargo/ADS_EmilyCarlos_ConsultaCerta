@@ -46,20 +46,17 @@ const MinhasConsultasPage: React.FC = () => {
   }
 
   const separarPorData = (consultas: ConsultaRes[]) => {
-    // Filtra apenas consultas válidas com paciente e médico definidos
     const consultasValidas = consultas.filter(c => c.paciente && c.medico);
     
     const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0); // Zera as horas para comparação apenas de data
+    hoje.setHours(0, 0, 0, 0);
 
-    // Próximas consultas: data igual ou posterior a hoje
     const proximas = consultasValidas.filter(c => {
       const dataConsulta = new Date(c.dataHora);
       dataConsulta.setHours(0, 0, 0, 0);
       return dataConsulta >= hoje;
     });
 
-    // Histórico: data anterior a hoje
     const historico = consultasValidas.filter(c => {
       const dataConsulta = new Date(c.dataHora);
       dataConsulta.setHours(0, 0, 0, 0);
@@ -101,7 +98,6 @@ const MinhasConsultasPage: React.FC = () => {
   }, []);
 
   const handleAgendarConsulta = async (_agendamento: AgendamentoCompleto) => {
-    // Recarrega as consultas da API para mostrar a nova consulta agendada
     try {
       setLoading(true);
       const idPaciente = getIdPaciente();
@@ -144,7 +140,6 @@ const MinhasConsultasPage: React.FC = () => {
     try {
       await confirmarConsulta({ id: consulta.id_consulta })
       toast.success('Consulta confirmada com sucesso!')
-      // Recarrega as consultas
       await recarregarConsultas()
     } catch (error: any) {
       console.error('Erro ao confirmar consulta:', error)
@@ -280,7 +275,6 @@ const MinhasConsultasPage: React.FC = () => {
             {statusTabs[tabValue].data
               .sort((a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime())
               .map((consultaApi) => {
-                // Converte dados da API para o formato esperado pelo ConsultaCard
                 const valorConsulta = consultaApi.valorConsulta 
                   ? (typeof consultaApi.valorConsulta === 'string' 
                       ? parseFloat(consultaApi.valorConsulta) 

@@ -10,7 +10,6 @@ import { postCriaUsuario } from '../../../services/usuario'
 import { CriaUsuarioReq } from '../../../services/usuario/interface'
 import { toast } from 'react-toastify'
 
-// Função para validar senha
 const validatePassword = (password: string) => {
   return {
     minLength: password.length >= 8,
@@ -34,7 +33,6 @@ const CadastroDrawer = ({ isOpen, onClose }: CadastroDrawerProps) => {
     senha: ''
   })
 
-  // Validação de senha em tempo real
   const passwordValidation = useMemo(() => validatePassword(formData.senha), [formData.senha])
   const isPasswordValid = useMemo(() => 
     passwordValidation.minLength && 

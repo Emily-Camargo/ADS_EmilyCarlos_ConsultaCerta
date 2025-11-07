@@ -20,14 +20,12 @@ const PWAInstallModal = () => {
   const [hasShownModal, setHasShownModal] = useState(false);
 
   useEffect(() => {
-    // Verificar se o app já está instalado
     const checkIfInstalled = () => {
       if (window.matchMedia('(display-mode: standalone)').matches) {
         setIsInstalled(true);
         return;
       }
       
-      // Verificar se está rodando como PWA no iOS
       if ((window.navigator as any).standalone === true) {
         setIsInstalled(true);
         return;
@@ -36,8 +34,6 @@ const PWAInstallModal = () => {
 
     checkIfInstalled();
 
-    // Verificar se já mostrou o modal antes
-    // Usar sessionStorage em vez de localStorage para resetar a cada sessão
     const modalShown = sessionStorage.getItem('pwa-modal-shown');
     if (modalShown === 'true') {
       setHasShownModal(true);
@@ -53,18 +49,15 @@ const PWAInstallModal = () => {
       }
     };
 
-    // Listener para quando o app é instalado
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowInstallModal(false);
       setDeferredPrompt(null);
     };
 
-    // Listener para detectar mudanças no display mode (desinstalação)
     const handleDisplayModeChange = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
       if (!isStandalone && isInstalled) {
-        // App foi desinstalado, resetar flags
         setIsInstalled(false);
         setHasShownModal(false);
         sessionStorage.removeItem('pwa-modal-shown');

@@ -28,17 +28,15 @@ export function BloquearAgenda({
   const isEdicao = !!bloqueioParaEditar
   const isVisualizacao = modoVisualizacao
 
-  // Query para buscar médicos
   const { data: medicosData, isLoading: isLoadingMedicos } = useQuery({
     queryKey: ['medicos'],
     queryFn: async () => {
       const response = await getMedicos()
       return response
     },
-    enabled: modal, // Só busca quando o modal está aberto
+    enabled: modal,
   })
 
-  // Mapear médicos para o formato esperado
   const medicos = medicosData?.map((usuario: InfoUsuarioRes) => ({
     id_medico: usuario.medico?.idMedico || 0,
     nome_medico: usuario.nome,
@@ -51,7 +49,7 @@ export function BloquearAgenda({
     if (bloqueioParaEditar && modal) {
       setFormData({
         id_medico: bloqueioParaEditar.id_medico,
-        data_inicio: bloqueioParaEditar.data_inicio.substring(0, 16), // Para datetime-local
+        data_inicio: bloqueioParaEditar.data_inicio.substring(0, 16),
         data_fim: bloqueioParaEditar.data_fim.substring(0, 16),
         motivo: bloqueioParaEditar.motivo,
         tipo_bloqueio: bloqueioParaEditar.tipo_bloqueio,
@@ -92,7 +90,6 @@ export function BloquearAgenda({
 
     try {
       if (!isEdicao) {
-        // Criar novo bloqueio via API
         const payload = {
           idMedico: formData.id_medico,
           dataInicio: new Date(formData.data_inicio).toISOString(),
@@ -106,7 +103,6 @@ export function BloquearAgenda({
         if (response.data) {
           toast.success('Agenda bloqueada com sucesso!')
           
-          // Converter resposta da API para o formato esperado pelo componente pai
           const bloqueioCompleto = {
             id_bloqueio: response.data.idBloqueio,
             id_medico: response.data.idMedico,
@@ -123,7 +119,6 @@ export function BloquearAgenda({
           setModal(false)
         }
       } else {
-        // Edição - passa os dados para o componente pai processar via API
         const bloqueioCompleto = {
           ...formData,
           data_inicio: new Date(formData.data_inicio).toISOString(),

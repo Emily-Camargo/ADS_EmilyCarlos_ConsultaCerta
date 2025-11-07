@@ -21,15 +21,12 @@ export const usePWAInstall = (): PWAInstallState => {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Verificar se o app já está instalado
     const checkIfInstalled = () => {
-      // Verificar se está rodando em modo standalone (PWA)
       if (window.matchMedia('(display-mode: standalone)').matches) {
         setIsInstalled(true);
         return;
       }
       
-      // Verificar se está rodando como PWA no iOS
       if ((window.navigator as any).standalone === true) {
         setIsInstalled(true);
         return;
@@ -38,13 +35,11 @@ export const usePWAInstall = (): PWAInstallState => {
 
     checkIfInstalled();
 
-    // Listener para o evento beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
     };
 
-    // Listener para quando o app é instalado
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setInstallPrompt(null);

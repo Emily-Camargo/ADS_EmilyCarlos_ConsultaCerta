@@ -46,13 +46,13 @@ const VisualizarConsulta: React.FC<VisualizarConsultaProps> = ({
 
   const calcularLimiteReagendamento = () => {
     const dataConsulta = new Date(consulta.data_hora)
-    const limiteReagendamento = new Date(dataConsulta.getTime() - 4 * 60 * 60 * 1000) // Subtrai 4 horas
+    const limiteReagendamento = new Date(dataConsulta.getTime() - 4 * 60 * 60 * 1000)
     return limiteReagendamento
   }
 
   const calcularPrazoConfirmacao = () => {
     const dataConsulta = new Date(consulta.data_hora)
-    const prazoConfirmacao = new Date(dataConsulta.getTime() - 2 * 60 * 60 * 1000) // Subtrai 2 horas
+    const prazoConfirmacao = new Date(dataConsulta.getTime() - 2 * 60 * 60 * 1000)
     return prazoConfirmacao
   }
 
