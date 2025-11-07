@@ -7,7 +7,7 @@ interface UseSessionTimeoutProps {
 }
 
 export const useSessionTimeout = ({ 
-  timeoutMinutes = 15, 
+  timeoutMinutes = 30, 
   onTimeout 
 }: UseSessionTimeoutProps = {}) => {
   const { user, logout } = useAuth();
@@ -22,7 +22,7 @@ export const useSessionTimeout = ({
       clearTimeout(timeoutRef.current);
     }
 
-    // Configura o timeout para 15 minutos (900000ms)
+    // Configura o timeout baseado no parâmetro timeoutMinutes
     timeoutRef.current = setTimeout(() => {
       if (user) {
         logout();
