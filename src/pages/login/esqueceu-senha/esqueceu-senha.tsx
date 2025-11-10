@@ -510,7 +510,7 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
       actions={getActions()}
     >
       <div className="min-h-[300px]">
-        <div className="flex items-center justify-center mb-6 gap-2">
+        <div className="flex items-center justify-center mt-6 mb-6 gap-2">
           {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center">
               <div 
