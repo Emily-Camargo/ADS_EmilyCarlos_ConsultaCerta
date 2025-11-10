@@ -126,3 +126,31 @@ export interface CadastrarPacienteReq {
   contatoEmergenciaTelefone: string;
   observacoes: string;
 }
+
+export interface RecoverPasswordReq {
+  email: string;
+}
+
+export interface RecoverPasswordRes {
+  message: string;
+}
+
+export interface ValidateCodeReq {
+  email: string;
+  codigo: string;
+}
+
+export interface ValidateCodeRes {
+  token: string;
+  message: string;
+}
+
+export interface ResetPasswordReq {
+  token: string;
+  novaSenha: string;
+  confirmarSenha: string;
+}
+
+export interface ResetPasswordRes {
+  message: string;
+}
