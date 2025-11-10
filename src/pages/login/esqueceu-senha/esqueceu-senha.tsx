@@ -1,13 +1,25 @@
-import { useState, memo, useEffect } from 'react'
+import { useState, memo, useEffect, useMemo } from 'react'
 import { Grid } from '@mui/material'
-import { MdLock, MdEmail, MdCheckCircle, MdArrowBack, MdArrowForward } from 'react-icons/md'
+import { MdLock, MdEmail, MdCheckCircle, MdArrowBack, MdArrowForward, MdCheck, MdClose as MdX } from 'react-icons/md'
 import Dialog from '../../../components/dialog'
 import Button from '../../../components/button'
 import Input from '../../../components/Inputs/Input'
 import { EsqueceuSenhaModalProps } from '../interfaces'
 import { toast } from 'react-toastify'
+import { useMutation } from 'react-query'
+import { postRecoverPassword, postValidateCode, postResetPassword } from '../../../services/usuario'
+import { RecoverPasswordReq, ValidateCodeReq, ResetPasswordReq } from '../../../services/usuario/interface'
 
 type Step = 1 | 2 | 3
+
+const validatePassword = (password: string) => {
+  return {
+    minLength: password.length >= 8,
+    hasLetter: /[a-zA-Z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSymbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  }
+}
 
 const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
   const [currentStep, setCurrentStep] = useState<Step>(1)
@@ -16,9 +28,71 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
   const [novaSenha, setNovaSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [success, setSuccess] = useState(false)
+  const [token, setToken] = useState('')
   
   const [tempoRestante, setTempoRestante] = useState(0)
   const [podeReenviar, setPodeReenviar] = useState(false)
+
+  const passwordValidation = useMemo(() => validatePassword(novaSenha), [novaSenha])
+  const isPasswordValid = useMemo(() => 
+    passwordValidation.minLength && 
+    passwordValidation.hasLetter && 
+    passwordValidation.hasNumber && 
+    passwordValidation.hasSymbol
+  , [passwordValidation])
+
+  const recoverPasswordMutation = useMutation({
+    mutationKey: ['recoverPassword'],
+    mutationFn: (data: RecoverPasswordReq) => postRecoverPassword(data),
+    onSuccess: (response) => {
+      toast.success(response.data.message || 'Código enviado para o seu email!')
+      iniciarTimer()
+      setCurrentStep(2)
+    },
+    onError: (error: any) => {
+      console.error('Erro ao enviar código:', error)
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao enviar código. Verifique o email e tente novamente.'
+      )
+    }
+  })
+
+  const validateCodeMutation = useMutation({
+    mutationKey: ['validateCode'],
+    mutationFn: (data: ValidateCodeReq) => postValidateCode(data),
+    onSuccess: (response) => {
+      toast.success(response.data.message || 'Código validado com sucesso!')
+      setToken(response.data.token)
+      setCurrentStep(3)
+    },
+    onError: (error: any) => {
+      console.error('Erro ao validar código:', error)
+      toast.error(
+        error?.response?.data?.message || 
+        'Código inválido ou expirado. Tente novamente.'
+      )
+    }
+  })
+
+  const resetPasswordMutation = useMutation({
+    mutationKey: ['resetPassword'],
+    mutationFn: (data: ResetPasswordReq) => postResetPassword(data),
+    onSuccess: (response) => {
+      toast.success(response.data.message || 'Senha redefinida com sucesso!')
+      setSuccess(true)
+      setTimeout(() => {
+        cancelar()
+      }, 2000)
+    },
+    onError: (error: any) => {
+      console.error('Erro ao redefinir senha:', error)
+      toast.error(
+        error?.response?.data?.message || 
+        'Erro ao redefinir senha. Tente novamente.'
+      )
+    }
+  })
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
@@ -52,32 +126,53 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
     setNovaSenha('')
     setConfirmarSenha('')
     setSuccess(false)
+    setToken('')
     setTempoRestante(0)
     setPodeReenviar(false)
     onClose()
   }
 
   const enviarCodigo = () => {
-    iniciarTimer()
-    setCurrentStep(2)
+    if (!email) {
+      toast.error('Por favor, informe o email')
+      return
+    }
+    
+    recoverPasswordMutation.mutate({ email })
   }
 
   const reenviarCodigo = () => {
-    if (podeReenviar) {
-      toast.info('Código reenviado!')
-      iniciarTimer()
+    if (podeReenviar && email) {
+      recoverPasswordMutation.mutate({ email })
     }
   }
 
   const validarCodigo = () => {
-    setCurrentStep(3)
+    if (!codigo || codigo.length !== 6) {
+      toast.error('Por favor, informe o código de 6 dígitos')
+      return
+    }
+    
+    validateCodeMutation.mutate({ email, codigo })
   }
 
   const redefinirSenha = () => {
-    setSuccess(true)
-    setTimeout(() => {
-      cancelar()
-    }, 2000)
+    if (!novaSenha || !confirmarSenha) {
+      toast.error('Por favor, preencha todos os campos')
+      return
+    }
+    
+    if (novaSenha !== confirmarSenha) {
+      toast.error('As senhas não coincidem')
+      return
+    }
+    
+    if (!isPasswordValid) {
+      toast.error('A senha não atende aos requisitos mínimos')
+      return
+    }
+    
+    resetPasswordMutation.mutate({ token, novaSenha, confirmarSenha })
   }
 
   const voltarEtapa = () => {
@@ -130,15 +225,20 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
       case 1:
         return (
           <>
-            <Button color="error" onClick={cancelar}>
+            <Button 
+              color="error" 
+              onClick={cancelar}
+              disabled={recoverPasswordMutation.isLoading}
+            >
               Cancelar
             </Button>
             <Button 
               color="primary" 
               onClick={enviarCodigo}
               endIcon={<MdArrowForward />}
+              disabled={recoverPasswordMutation.isLoading}
             >
-              Enviar Código
+              {recoverPasswordMutation.isLoading ? 'Enviando...' : 'Enviar Código'}
             </Button>
           </>
         )
@@ -149,18 +249,24 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
               color="secondary" 
               onClick={voltarEtapa}
               startIcon={<MdArrowBack />}
+              disabled={validateCodeMutation.isLoading}
             >
               Voltar
             </Button>
-            <Button color="error" onClick={cancelar}>
+            <Button 
+              color="error" 
+              onClick={cancelar}
+              disabled={validateCodeMutation.isLoading}
+            >
               Cancelar
             </Button>
             <Button 
               color="primary" 
               onClick={validarCodigo}
               endIcon={<MdArrowForward />}
+              disabled={validateCodeMutation.isLoading}
             >
-              Validar Código
+              {validateCodeMutation.isLoading ? 'Validando...' : 'Validar Código'}
             </Button>
           </>
         )
@@ -171,17 +277,23 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
               color="secondary" 
               onClick={voltarEtapa}
               startIcon={<MdArrowBack />}
+              disabled={resetPasswordMutation.isLoading}
             >
               Voltar
             </Button>
-            <Button color="error" onClick={cancelar}>
+            <Button 
+              color="error" 
+              onClick={cancelar}
+              disabled={resetPasswordMutation.isLoading}
+            >
               Cancelar
             </Button>
             <Button 
               color="primary" 
               onClick={redefinirSenha}
+              disabled={resetPasswordMutation.isLoading}
             >
-              Redefinir Senha
+              {resetPasswordMutation.isLoading ? 'Redefinindo...' : 'Redefinir Senha'}
             </Button>
           </>
         )
@@ -335,17 +447,53 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
               </Grid>
             </Grid>
             
-            <div className="bg-medical-primary-50 p-3 rounded-lg mt-4">
-              <p className="text-sm text-medical-primary font-medium mb-1">
-                Requisitos da senha:
-              </p>
-              <ul className="text-xs text-medical-primary space-y-1">
-                <li>• Pelo menos 6 caracteres</li>
-                <li>• Uma letra minúscula</li>
-                <li>• Uma letra maiúscula</li>
-                <li>• Um número</li>
-              </ul>
-            </div>
+            {novaSenha && (
+              <div className="mt-3 p-3 bg-gray-50 rounded-md space-y-2">
+                <p className="text-xs font-medium text-gray-700 mb-2">A senha deve conter:</p>
+                <div className="space-y-1.5">
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.minLength ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.minLength ? 'text-green-600' : 'text-gray-600'}`}>
+                      Mínimo de 8 caracteres
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.hasLetter ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.hasLetter ? 'text-green-600' : 'text-gray-600'}`}>
+                      Pelo menos uma letra
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.hasNumber ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-600'}`}>
+                      Pelo menos um número
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.hasSymbol ? (
+                      <MdCheck size={16} className="text-green-600" />
+                    ) : (
+                      <MdX size={16} className="text-red-500" />
+                    )}
+                    <span className={`text-xs ${passwordValidation.hasSymbol ? 'text-green-600' : 'text-gray-600'}`}>
+                      Pelo menos um símbolo (!@#$%^&*...)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )
       default:
@@ -362,7 +510,7 @@ const EsqueceuSenhaModal = ({ isOpen, onClose }: EsqueceuSenhaModalProps) => {
       actions={getActions()}
     >
       <div className="min-h-[300px]">
-        <div className="flex items-center justify-center mb-6 gap-2">
+        <div className="flex items-center justify-center mt-6 mb-6 gap-2">
           {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center">
               <div 
