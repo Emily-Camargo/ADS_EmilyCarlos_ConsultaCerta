@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, ReactNode, useState, useCallback, memo } from 'react';
+import { useRef, useEffect, ReactNode, useState, useCallback, memo } from 'react';
 import { Rnd } from 'react-rnd';
 import { Close } from '@mui/icons-material';
 import Footer, { ButtonProps } from '../footer';

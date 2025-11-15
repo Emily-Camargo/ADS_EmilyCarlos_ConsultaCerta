@@ -56,8 +56,6 @@ export default function Input({
   mask,
   ...rest
 }: Readonly<InputProps>) {
-  const [open, setOpen] = React.useState(false);
-
   function onEnter(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && onKeyEnter) {
       e.preventDefault();
@@ -99,7 +97,7 @@ export default function Input({
         <InputAdornment
           className="cursor-pointer text-grzprimary"
           position="end"
-          onClick={() => (setOpenCamera ? setOpenCamera(true) : setOpen(true))}
+          onClick={() => setOpenCamera && setOpenCamera(true)}
         >
           <CameraAltIcon className="cursor-pointer text-grzprimary" />
         </InputAdornment>

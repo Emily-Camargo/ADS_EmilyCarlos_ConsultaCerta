@@ -20,11 +20,14 @@ const Filtros = <T, M extends boolean = false>({
   const m1120 = useDimension(1120)
 
   const allInputs = [...inputs, ...inputSelect].sort((a, b) => {
-    const orderA =
-      'textFieldProps' in a && a.textFieldProps
-        ? a.textFieldProps.order ?? 99
-        : 99
-    const orderB = 'order' in b ? b.order ?? 99 : 99
+    const orderA = ('order' in a ? a.order : 
+      ('textFieldProps' in a && a.textFieldProps && 'order' in a.textFieldProps
+        ? (a.textFieldProps as any).order
+        : undefined)) ?? 99
+    const orderB = ('order' in b ? b.order : 
+      ('textFieldProps' in b && b.textFieldProps && 'order' in b.textFieldProps
+        ? (b.textFieldProps as any).order
+        : undefined)) ?? 99
 
     return orderA - orderB
   })
