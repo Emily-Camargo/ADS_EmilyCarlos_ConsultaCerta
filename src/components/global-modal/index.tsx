@@ -95,10 +95,10 @@ const ModalC = ({
         position={position}
         minWidth={300}
         minHeight={100}
-        onDragStop={(e, d) => {
+        onDragStop={(_e, d) => {
           setPosition({ x: d.x, y: d.y });
         }}
-        onResizeStop={(e, direction, ref) => {
+        onResizeStop={(_e, _direction, ref) => {
           setWidthM(ref.style.width);
           setHeightM(ref.style.height);
         }}

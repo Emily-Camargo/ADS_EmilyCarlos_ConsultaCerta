@@ -5,7 +5,6 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { calcularIdade, getStatusColor } from '../utils/constants'
 import { ProntuarioCardProps } from '../utils/interfaces'
-import { Button } from '@mantine/core'
 
 const ProntuarioCard: React.FC<ProntuarioCardProps> = ({ prontuario, onVisualizar }) => {
   const { paciente, prontuario: prontuarioData, consultas } = prontuario

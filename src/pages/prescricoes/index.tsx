@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Box, Typography } from '@mui/material'
-import { MdSearch } from 'react-icons/md'
 import Filtro from '../../components/filtro'
 import { useDimension } from '../../hooks'
 import PrescricaoCard from './components/prescricao-card'
