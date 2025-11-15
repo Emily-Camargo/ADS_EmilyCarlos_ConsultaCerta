@@ -1,6 +1,6 @@
 import { cn } from '../../lib/utils'
 import { useDimension } from '../../hooks'
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Lottie, { LottieComponentProps } from 'lottie-react'
 
 export type animations =
