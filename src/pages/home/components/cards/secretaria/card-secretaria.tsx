@@ -1,11 +1,10 @@
 import { Card, CardContent, Typography, Box, Chip, Avatar, IconButton } from '@mui/material';
-import { MdPerson, MdAccessTime, MdLocalHospital, MdCalendarToday, MdMoreVert, MdPhone, MdMessage } from 'react-icons/md';
+import { MdPerson, MdAccessTime, MdLocalHospital, MdCalendarToday, MdMoreVert, MdPhone } from 'react-icons/md';
 import { useState } from 'react';
 import { ConsultaCardSecretariaProps } from '../../../utils/interfaces';
 import { getGradientColor, getStatusIcon, getStatusStyle } from './constants';
 
 const ConsultaCardSecretaria = ({ 
-  id, 
   paciente, 
   medico, 
   horario, 

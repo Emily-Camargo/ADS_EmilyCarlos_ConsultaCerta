@@ -1,4 +1,4 @@
-import { MdCalendarToday, MdAccessTime, MdLocalHospital, MdPerson, MdUpdate, MdCancel, MdPersonOff } from 'react-icons/md';
+import { MdCalendarToday, MdAccessTime, MdLocalHospital, MdPerson, MdPersonOff } from 'react-icons/md';
 
 export const getStatusIcon = (status: string) => {
   switch (status) {

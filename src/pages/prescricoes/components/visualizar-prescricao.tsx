@@ -14,7 +14,7 @@ import {
   TableHead,
   TableRow
 } from '@mui/material'
-import { MdClose, MdPrint, MdLocalPharmacy, MdVerified, MdQrCode2, MdSecurity } from 'react-icons/md'
+import { MdClose, MdPrint, MdLocalPharmacy, MdVerified, MdSecurity } from 'react-icons/md'
 import { VisualizarPrescricaoProps } from '../utils/interface'
 import { formatarDataHora, formatarDataCriacao, verificarValidadeMedicamento } from '../utils/constants'
 

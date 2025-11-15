@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getInfoUsuario, putAtualizarPaciente } from '../../services/usuario';
 import { InfoUsuarioRes } from '../../services/usuario/interface';
 import CustomLoaders from '../../components/Loader';
-import { Card, Avatar, Group, Text, Badge, Stack, Paper, Title, Divider, Grid, Button } from '@mantine/core';
+import { Card, Avatar, Group, Text, Badge, Stack, Title, Divider, Grid, Button } from '@mantine/core';
 import { MdPerson, MdEmail, MdPhone, MdCalendarToday, MdWhatsapp, MdVerifiedUser, MdEdit, MdLocalHospital, MdBloodtype, MdContactEmergency, MdAttachMoney, MdAccessTime, MdBusiness } from 'react-icons/md';
 import { EditarPacientePerfil } from './components/modal/editar-paciente';
 import { PacientePerfilForm } from './utils/interfaces';

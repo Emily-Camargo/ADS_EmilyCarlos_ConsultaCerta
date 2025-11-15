@@ -30,6 +30,7 @@ export type InputPropsCustomTypes =
   | 'celular'
 
 export type InputProps = TextFieldProps & {
+  shrink?: boolean
   openCamera?: boolean
   onKeyEnter?: () => void
   type?: InputPropsCustomTypes
